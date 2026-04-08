@@ -1,1736 +1,1378 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌸 PeriTrack — Your Perimenopause Companion</title>
-  <!-- PWA support -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="PeriTrack" />
-  <meta name="theme-color" content="#7C3AED" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237C3AED'/><text y='.9em' font-size='80' x='10'>🌸</text></svg>" />
-  <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22PeriTrack%22%2C%22short_name%22%3A%22PeriTrack%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FDF4FF%22%2C%22theme_color%22%3A%22%237C3AED%22%7D" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Habit Flow — Daily Tracker</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
   <style>
-
-    /* ── Lock Screen ──────────────────────────────────────────────── */
-    #lockScreen {
-      position: fixed; inset: 0; z-index: 9999;
-      background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column;
+    :root,[data-theme="light"]{
+      --text-xs:clamp(0.75rem,0.7rem + 0.25vw,0.875rem);
+      --text-sm:clamp(0.875rem,0.8rem + 0.35vw,1rem);
+      --text-base:clamp(1rem,0.95rem + 0.25vw,1.125rem);
+      --text-lg:clamp(1.125rem,1rem + 0.75vw,1.5rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --sp1:.25rem;--sp2:.5rem;--sp3:.75rem;--sp4:1rem;--sp5:1.25rem;
+      --sp6:1.5rem;--sp8:2rem;--sp10:2.5rem;--sp12:3rem;--sp16:4rem;
+      --r-sm:.5rem;--r-md:.9rem;--r-lg:1.25rem;--r-xl:1.75rem;--r-full:999px;
+      --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;
+      --surf-off:#efece6;--surf-dyn:#e5e1d9;
+      --border:#d8d3ca;--divider:#e2ddd4;
+      --col-text:#221f1a;--muted:#6f6a61;--faint:#aaa39a;--inv:#f8f7f3;
+      --p1:#01696f;--p2:#0b8f94;--ph:#d8eceb;
+      --ok:#437a22;--warn:#b77407;--err:#a12c7b;--orange:#da7101;--blue:#006494;
+      --sh-sm:0 1px 2px rgba(20,16,10,.08);
+      --sh-md:0 10px 28px rgba(20,16,10,.08);
+      --sh-lg:0 24px 60px rgba(20,16,10,.14);
+      --fb:'Satoshi','Inter',sans-serif;--fd:'General Sans','Satoshi',sans-serif;
+      --ease:220ms cubic-bezier(.16,1,.3,1);
     }
-    #lockScreen.hidden { display: none; }
-    .lock-card {
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 24px;
-      padding: 2.5rem 2rem;
-      width: 320px;
-      max-width: 90vw;
-      text-align: center;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    [data-theme="dark"]{
+      --bg:#111312;--surf:#171a19;--surf2:#1d201f;
+      --surf-off:#202523;--surf-dyn:#29302d;
+      --border:#303835;--divider:#242a28;
+      --col-text:#e9ece8;--muted:#a6b0ab;--faint:#6d7672;--inv:#101311;
+      --p1:#5cc7c2;--p2:#8be7dc;--ph:rgba(92,199,194,.16);
+      --ok:#84c35f;--warn:#f0b348;--err:#e676bd;--orange:#ff9f52;--blue:#70a7ff;
+      --sh-sm:0 1px 2px rgba(0,0,0,.22);
+      --sh-md:0 12px 28px rgba(0,0,0,.28);
+      --sh-lg:0 22px 54px rgba(0,0,0,.38);
     }
-    .lock-card h1 { color: #fff; font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .lock-card p  { color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 1.5rem; }
-    .pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 1.5rem; }
-    .pin-dot {
-      width: 16px; height: 16px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.6);
-      background: transparent; transition: background 0.2s;
-    }
-    .pin-dot.filled { background: #fff; border-color: #fff; }
-    .pin-dot.error  { background: #f87171; border-color: #f87171; }
-    .pin-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 12px; margin-bottom: 1rem;
-    }
-    .pin-btn {
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 14px; color: #fff;
-      font-size: 1.4rem; font-weight: 600;
-      padding: 1rem; cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .pin-btn:active { background: rgba(255,255,255,0.4); transform: scale(0.95); }
-    .pin-error-msg { color: #fca5a5; font-size: 0.85rem; min-height: 1.2rem; margin-top: 0.5rem; }
-    .lock-setup-hint { color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 1rem; }
-    .lock-link { color: rgba(255,255,255,0.9); text-decoration: underline; cursor: pointer; font-size: 0.8rem; }
-
-    /* ── Base & Scrollbar ─────────────────────────────────────────── */
-    :root {
-      --primary: #7C3AED;
-      --accent:  #EC4899;
-      --bg-light: #FDF4FF;
-    }
-    body { background-color: var(--bg-light); }
-    body.dark { background-color: #1a1a2e; color: #e2e8f0; }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 3px; }
-
-    /* ── Dark mode card overrides ─────────────────────────────────── */
-    body.dark .card { background-color: #16213e !important; border-color: #2d3a5e !important; }
-    body.dark .tab-btn { color: #a78bfa; }
-    body.dark .tab-btn.active { background-color: #7C3AED; color: #fff; }
-    body.dark input, body.dark textarea, body.dark select {
-      background-color: #0f3460 !important;
-      border-color: #2d3a5e !important;
-      color: #e2e8f0 !important;
-    }
-    body.dark .section-title { color: #c4b5fd; }
-    body.dark .label-text { color: #94a3b8; }
-    body.dark .stat-card { background-color: #16213e !important; border-color: #2d3a5e !important; }
-    body.dark .day-cell { border-color: #2d3a5e; }
-    body.dark .day-cell.no-data { background-color: #1e2a4a; color: #64748b; }
-    body.dark .modal-bg { background-color: rgba(0,0,0,0.7); }
-    body.dark .modal-card { background-color: #16213e; border-color: #2d3a5e; }
-    body.dark .report-card { background-color: #16213e; border-color: #2d3a5e; color: #e2e8f0; }
-    body.dark .report-table th { background-color: #0f3460; }
-    body.dark .report-table td { border-color: #2d3a5e; }
-    body.dark .toggle-btn { background-color: #0f3460; border-color: #2d3a5e; color: #94a3b8; }
-    body.dark .toggle-btn.active-yes { background-color: #059669; border-color: #059669; color: #fff; }
-    body.dark .toggle-btn.active-no  { background-color: #dc2626; border-color: #dc2626; color: #fff; }
-    body.dark .header-bar { background-color: #16213e; border-color: #2d3a5e; }
-    body.dark .tab-bar { background-color: #16213e; border-color: #2d3a5e; }
-    body.dark .settings-section { background-color: #16213e; border-color: #2d3a5e; }
-
-    /* ── Tabs ─────────────────────────────────────────────────────── */
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .tab-btn { transition: all 0.2s; }
-    .tab-btn.active { background-color: #7C3AED; color: #fff; }
-
-    /* ── Toggle buttons ───────────────────────────────────────────── */
-    .toggle-btn {
-      padding: 0.35rem 1rem;
-      border: 1.5px solid #d1d5db;
-      border-radius: 9999px;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: #fff;
-      color: #374151;
-    }
-    .toggle-btn.active-yes { background-color: #059669; border-color: #059669; color: #fff; }
-    .toggle-btn.active-no  { background-color: #dc2626; border-color: #dc2626; color: #fff; }
-
-    /* ── Star rating ──────────────────────────────────────────────── */
-    .star { cursor: pointer; font-size: 1.5rem; color: #d1d5db; transition: color 0.1s; }
-    .star.filled { color: #f59e0b; }
-
-    /* ── Emoji mood ───────────────────────────────────────────────── */
-    .mood-btn {
-      font-size: 1.75rem;
-      cursor: pointer;
-      padding: 0.25rem;
-      border-radius: 0.5rem;
-      border: 2px solid transparent;
-      transition: all 0.15s;
-    }
-    .mood-btn.selected { border-color: #7C3AED; background-color: #ede9fe; transform: scale(1.15); }
-    body.dark .mood-btn.selected { background-color: #3b1f6e; }
-
-    /* ── Slider ───────────────────────────────────────────────────── */
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 6px;
-      border-radius: 3px;
-      background: linear-gradient(to right, #7C3AED 0%, #7C3AED var(--val, 50%), #e5e7eb var(--val, 50%), #e5e7eb 100%);
-      outline: none;
-      cursor: pointer;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      background: #7C3AED;
-      border: 2px solid #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-    }
-    body.dark input[type=range] {
-      background: linear-gradient(to right, #7C3AED 0%, #7C3AED var(--val, 50%), #2d3a5e var(--val, 50%), #2d3a5e 100%) !important;
-    }
-
-    /* ── Calendar heatmap ─────────────────────────────────────────── */
-    .day-cell {
-      aspect-ratio: 1;
-      border-radius: 0.375rem;
-      border: 1px solid #e5e7eb;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-    .day-cell:hover { transform: scale(1.1); }
-    .day-cell.no-data   { background-color: #f3f4f6; color: #9ca3af; }
-    .day-cell.score-red { background-color: #fecaca; color: #991b1b; }
-    .day-cell.score-yellow { background-color: #fef08a; color: #854d0e; }
-    .day-cell.score-green  { background-color: #bbf7d0; color: #166534; }
-    .day-cell.today-cell { outline: 2px solid #7C3AED; outline-offset: 1px; }
-    .day-cell.empty { background: transparent; border-color: transparent; cursor: default; }
-
-    /* ── Modal ────────────────────────────────────────────────────── */
-    .modal-bg {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 50;
-      display: flex; align-items: center; justify-content: center;
-      padding: 1rem;
-    }
-    .modal-card {
-      background: #fff;
-      border-radius: 1rem;
-      max-width: 480px; width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 1.5rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    }
-
-    /* ── Toast ────────────────────────────────────────────────────── */
-    #toast {
-      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-      background: #059669; color: #fff;
-      padding: 0.6rem 1.5rem; border-radius: 9999px;
-      font-weight: 600; font-size: 0.9rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 100;
-      opacity: 0; transition: opacity 0.3s;
-      pointer-events: none;
-    }
-    #toast.show { opacity: 1; }
-
-    /* ── Report / Print ───────────────────────────────────────────── */
-    .report-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; }
-    .report-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .report-table th { background: #f5f3ff; padding: 0.4rem 0.6rem; text-align: left; font-weight: 600; color: #4c1d95; }
-    .report-table td { padding: 0.4rem 0.6rem; border-bottom: 1px solid #f3f4f6; }
-    .report-table tr:last-child td { border-bottom: none; }
-
-    @media print {
-      body * { visibility: hidden; }
-      #printable-report, #printable-report * { visibility: visible; }
-      #printable-report {
-        position: absolute; left: 0; top: 0;
-        width: 100%; padding: 1.5rem;
-        background: #fff !important; color: #000 !important;
+    @media(prefers-color-scheme:dark){
+      :root:not([data-theme="light"]){
+        --bg:#111312;--surf:#171a19;--surf2:#1d201f;
+        --surf-off:#202523;--surf-dyn:#29302d;
+        --border:#303835;--divider:#242a28;
+        --col-text:#e9ece8;--muted:#a6b0ab;--faint:#6d7672;--inv:#101311;
+        --p1:#5cc7c2;--p2:#8be7dc;--ph:rgba(92,199,194,.16);
       }
-      .report-table th { background: #f0f0f0 !important; color: #000 !important; }
-      .report-table td { border-bottom: 1px solid #ccc !important; }
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;overflow:hidden;}
+    body{
+      font-family:var(--fb);font-size:var(--text-base);color:var(--col-text);line-height:1.5;
+      background:
+        radial-gradient(circle at top right,rgba(92,199,194,.15),transparent 28%),
+        radial-gradient(circle at bottom left,rgba(112,167,255,.1),transparent 26%),
+        var(--bg);
+    }
+    img,canvas,svg{display:block;max-width:100%;}
+    button,input,select,textarea{font:inherit;color:inherit;}
+    button{cursor:pointer;background:none;border:none;}
+    .skip{position:absolute;left:1rem;top:-3rem;z-index:100;background:var(--p1);
+      color:var(--inv);padding:.7rem 1rem;border-radius:.75rem;text-decoration:none;}
+    .skip:focus{top:1rem;}
+
+    /* LAYOUT */
+    .app{display:grid;grid-template-columns:290px 1fr;grid-template-rows:76px 1fr;height:100dvh;}
+
+    /* SIDEBAR */
+    .sidebar{
+      grid-row:1/-1;padding:var(--sp5) var(--sp4);
+      background:color-mix(in srgb,var(--surf) 92%,transparent);
+      border-right:1px solid color-mix(in srgb,var(--border) 60%,transparent);
+      display:flex;flex-direction:column;gap:var(--sp4);
+      overflow-y:auto;overscroll-behavior:contain;
+      backdrop-filter:blur(20px);
+    }
+    .brand{display:flex;align-items:center;gap:var(--sp3);padding:.4rem .2rem;}
+    .brand svg{width:38px;height:38px;flex-shrink:0;color:var(--p1);
+      filter:drop-shadow(0 6px 14px rgba(92,199,194,.3));}
+    .brand-name{font-family:var(--fd);font-size:1rem;font-weight:700;display:block;letter-spacing:-.01em;}
+    .brand-sub{color:var(--muted);font-size:var(--text-xs);}
+
+    /* cards */
+    .scard{
+      background:linear-gradient(160deg,
+        color-mix(in srgb,var(--surf2) 88%,transparent),
+        color-mix(in srgb,var(--surf-off) 90%,transparent));
+      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+      border-radius:var(--r-xl);box-shadow:var(--sh-sm);
+    }
+    .nav-card{padding:var(--sp2);}
+    .nav-btn{
+      width:100%;display:flex;align-items:center;gap:var(--sp3);
+      border-radius:.85rem;padding:.8rem .9rem;margin-bottom:.2rem;
+      text-align:left;color:var(--muted);font-size:var(--text-sm);
+      transition:transform var(--ease),background var(--ease),color var(--ease);
+    }
+    .nav-btn:last-child{margin-bottom:0;}
+    .nav-btn:hover,.nav-btn.active{background:var(--ph);color:var(--col-text);transform:translateX(2px);}
+    .nav-dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.65;flex-shrink:0;}
+    .sp{padding:var(--sp4) var(--sp5);}
+    .slabel{font-size:var(--text-xs);letter-spacing:.13em;text-transform:uppercase;
+      color:var(--faint);margin:0 0 .65rem;display:block;}
+
+    /* ring */
+    .ring-wrap{display:grid;place-items:center;margin:.4rem 0 .9rem;}
+    .ring{
+      --p:0;width:108px;height:108px;border-radius:50%;
+      display:grid;place-items:center;position:relative;
+      background:conic-gradient(var(--p1) calc(var(--p)*1%),rgba(255,255,255,.07) 0);
+      transition:--p .6s ease;
+    }
+    .ring::after{content:'';position:absolute;inset:9px;border-radius:50%;
+      background:var(--surf);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
+    .ring-inner{position:relative;z-index:1;text-align:center;pointer-events:none;}
+    .ring-val{display:block;font:800 1.25rem/1 var(--fd);font-variant-numeric:tabular-nums;}
+    .ring-lbl{display:block;font-size:var(--text-xs);color:var(--muted);margin-top:.18rem;}
+    .mini-stats{display:grid;gap:.6rem;}
+    .mstat{display:flex;justify-content:space-between;align-items:center;
+      font-size:var(--text-sm);color:var(--muted);}
+    .mstat strong{color:var(--col-text);font-variant-numeric:tabular-nums;}
+
+    /* TOPBAR */
+    .topbar{
+      grid-column:2;display:flex;align-items:center;justify-content:space-between;gap:var(--sp4);
+      padding:0 var(--sp6);
+      border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);
+      background:color-mix(in srgb,var(--bg) 75%,transparent);
+      backdrop-filter:blur(20px);position:sticky;top:0;z-index:8;
+    }
+    .tb-left h1{margin:0;font:700 var(--text-xl)/1.05 var(--fd);letter-spacing:-.03em;}
+    .tb-left p{margin:.25rem 0 0;color:var(--muted);font-size:var(--text-sm);}
+    .tb-right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+
+    /* BUTTONS */
+    .btn{
+      border:1px solid color-mix(in srgb,var(--border) 68%,transparent);
+      background:color-mix(in srgb,var(--surf2) 92%,transparent);
+      color:var(--col-text);border-radius:var(--r-full);white-space:nowrap;
+      transition:transform var(--ease),background var(--ease),box-shadow var(--ease);
+    }
+    .btn:hover{transform:translateY(-2px);box-shadow:var(--sh-sm);}
+    .btn:active{transform:translateY(0);}
+    .btn-sm{padding:.6rem .85rem;font-size:var(--text-sm);}
+    .btn-md{padding:.78rem 1.05rem;font-size:var(--text-sm);}
+    .btn-icon{width:42px;height:42px;display:grid;place-items:center;}
+    .btn-primary{
+      background:linear-gradient(135deg,var(--p1),var(--p2));
+      color:var(--inv);border:0;font-weight:700;
+      box-shadow:0 8px 22px rgba(92,199,194,.2);
+    }
+    .btn-primary:hover{box-shadow:0 12px 28px rgba(92,199,194,.3);}
+    .chip-date{padding:.55rem .9rem;font-size:var(--text-sm);pointer-events:none;}
+
+    /* MAIN */
+    .main{grid-column:2;overflow-y:auto;overscroll-behavior:contain;padding:var(--sp5) var(--sp6);}
+
+    /* PANEL base */
+    .panel{
+      background:linear-gradient(160deg,
+        color-mix(in srgb,var(--surf2) 90%,transparent),
+        color-mix(in srgb,var(--surf-off) 93%,transparent));
+      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+      border-radius:var(--r-xl);box-shadow:var(--sh-md);overflow:hidden;
+    }
+    .ph{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;
+      margin-bottom:1rem;}
+    .ph h3{margin:0;font-size:var(--text-lg);font-family:var(--fd);}
+    .ph p{margin:.22rem 0 0;color:var(--muted);font-size:var(--text-sm);}
+
+    /* HERO GRID */
+    .hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--sp5);margin-bottom:var(--sp5);}
+    .hero-card{
+      padding:var(--sp6);min-height:240px;position:relative;overflow:hidden;
+      background:linear-gradient(160deg,
+        color-mix(in srgb,var(--surf2) 90%,transparent),
+        color-mix(in srgb,var(--surf-off) 93%,transparent));
+      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+      border-radius:var(--r-xl);box-shadow:var(--sh-md);
+    }
+    .hero-card::before{
+      content:'';position:absolute;right:-10%;bottom:-20%;
+      width:240px;height:240px;pointer-events:none;
+      background:radial-gradient(circle,rgba(92,199,194,.18),transparent 62%);
+    }
+    .eyebrow{color:var(--p1);font-size:var(--text-xs);letter-spacing:.14em;text-transform:uppercase;}
+    .hero-card h2{margin:.65rem 0 .75rem;
+      font:800 clamp(1.6rem,1rem + 2vw,2.6rem)/1.05 var(--fd);
+      max-width:15ch;letter-spacing:-.04em;}
+    .hero-card p{max-width:50ch;color:var(--muted);margin:0 0 1rem;font-size:var(--text-sm);}
+    .row-gap{display:flex;gap:.7rem;flex-wrap:wrap;}
+
+    .quote-card{
+      padding:var(--sp6);display:flex;flex-direction:column;justify-content:space-between;
+      min-height:240px;position:relative;overflow:hidden;
+      background:linear-gradient(160deg,
+        color-mix(in srgb,var(--surf2) 90%,transparent),
+        color-mix(in srgb,var(--surf-off) 93%,transparent));
+      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+      border-radius:var(--r-xl);box-shadow:var(--sh-md);
+    }
+    .quote-card::before{
+      content:'';position:absolute;left:-15%;top:-20%;
+      width:220px;height:220px;pointer-events:none;
+      background:radial-gradient(circle,rgba(112,167,255,.12),transparent 62%);
+    }
+    .quote-card blockquote{
+      margin:.7rem 0;font:700 clamp(1.15rem,.95rem + .9vw,1.75rem)/1.25 var(--fd);
+      letter-spacing:-.02em;position:relative;z-index:1;
+    }
+    .quote-meta{position:relative;z-index:1;font-size:var(--text-sm);color:var(--muted);}
+    .quote-meta strong{display:block;color:var(--col-text);margin-bottom:.2rem;}
+
+    /* KPI GRID */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp4);margin-bottom:var(--sp5);}
+    .kpi-card{
+      padding:var(--sp4) var(--sp5);
+      background:linear-gradient(160deg,
+        color-mix(in srgb,var(--surf2) 90%,transparent),
+        color-mix(in srgb,var(--surf-off) 93%,transparent));
+      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+      border-radius:var(--r-xl);box-shadow:var(--sh-md);
+    }
+    .kpi-lbl{color:var(--muted);font-size:var(--text-sm);}
+    .kpi-val{margin:.35rem 0 .5rem;font:800 clamp(1.4rem,1rem + 1vw,2.1rem)/1 var(--fd);
+      font-variant-numeric:tabular-nums;}
+    .badge{display:inline-flex;gap:.3rem;align-items:center;
+      padding:.35rem .6rem;border-radius:var(--r-full);font-size:var(--text-xs);font-weight:500;}
+    .b-ok{background:rgba(132,195,95,.13);color:var(--ok);}
+    .b-warn{background:rgba(240,179,72,.13);color:var(--warn);}
+    .b-blue{background:rgba(112,167,255,.13);color:var(--blue);}
+
+    /* MID GRID */
+    .mid-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--sp5);margin-bottom:var(--sp5);}
+    .chart-box{height:280px;position:relative;}
+    .strips{display:grid;gap:.75rem;}
+    .strip{
+      background:color-mix(in srgb,var(--bg) 60%,transparent);
+      border:1px solid color-mix(in srgb,var(--border) 50%,transparent);
+      padding:.85rem 1rem;border-radius:.9rem;
+    }
+    .strip strong{display:block;margin-bottom:.18rem;font-size:var(--text-sm);}
+    .strip span{color:var(--muted);font-size:var(--text-xs);}
+    .strip .strip-val{color:var(--p1);font-weight:600;font-size:var(--text-sm);}
+
+    /* SEC HEAD */
+    .sec-head{display:flex;justify-content:space-between;align-items:flex-start;
+      gap:1rem;margin-bottom:var(--sp4);}
+    .sec-head h3{margin:0;font-size:var(--text-lg);font-family:var(--fd);}
+    .sec-head p{margin:.2rem 0 0;color:var(--muted);font-size:var(--text-sm);}
+
+    /* HABITS GRID */
+    .habits-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp4);}
+    .habit-card{
+      padding:var(--sp5);
+      background:linear-gradient(160deg,
+        color-mix(in srgb,var(--surf2) 90%,transparent),
+        color-mix(in srgb,var(--surf-off) 93%,transparent));
+      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+      border-radius:var(--r-xl);box-shadow:var(--sh-md);
+      transition:box-shadow var(--ease),transform var(--ease);
+    }
+    .habit-card:hover{box-shadow:var(--sh-lg);transform:translateY(-2px);}
+    .habit-top{display:flex;justify-content:space-between;gap:.7rem;align-items:flex-start;}
+    .habit-title-row{display:flex;gap:.75rem;align-items:center;}
+    .habit-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+      font-size:1.05rem;background:var(--ph);flex-shrink:0;}
+    .habit-name{display:block;font-size:var(--text-base);font-weight:600;letter-spacing:-.01em;}
+    .habit-cat{color:var(--muted);font-size:var(--text-xs);margin-top:.1rem;display:block;}
+    .streak-badge{
+      display:flex;flex-direction:column;align-items:center;
+      background:var(--ph);border-radius:.75rem;padding:.4rem .6rem;min-width:44px;
+    }
+    .streak-num{font:700 1.1rem/1 var(--fd);color:var(--p1);font-variant-numeric:tabular-nums;}
+    .streak-lbl{font-size:var(--text-xs);color:var(--muted);margin-top:.1rem;}
+    .bar-wrap{margin:.85rem 0 .6rem;}
+    .bar-row{display:flex;justify-content:space-between;align-items:center;
+      margin-bottom:.4rem;font-size:var(--text-xs);color:var(--muted);}
+    .bar-row strong{color:var(--p1);}
+    .bar{height:8px;border-radius:var(--r-full);background:rgba(128,128,128,.15);overflow:hidden;}
+    .bar-fill{height:100%;border-radius:inherit;
+      background:linear-gradient(90deg,var(--p1),var(--p2));
+      transition:width .5s cubic-bezier(.16,1,.3,1);}
+    .habit-cue{color:var(--muted);font-size:var(--text-xs);
+      margin-bottom:.85rem;font-style:italic;}
+    .habit-btns{display:flex;gap:.55rem;}
+    .hbtn{padding:.7rem .9rem;font-size:var(--text-xs);font-weight:600;}
+    .hbtn-done{background:var(--ph);border-color:transparent;color:var(--p1);}
+    .hbtn-skip{opacity:.8;}
+    .hbtn-done-active{
+      background:linear-gradient(135deg,var(--p1),var(--p2));
+      color:var(--inv);border-color:transparent;
     }
 
-    /* ── Misc ─────────────────────────────────────────────────────── */
-    .section-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #7C3AED; margin-bottom: 0.75rem; }
-    .label-text { font-size: 0.875rem; color: #374151; font-weight: 500; }
-    .card { background: #fff; border: 1px solid #f3e8ff; border-radius: 1rem; padding: 1.25rem; }
-    .stat-card { background: #fff; border: 1px solid #f3e8ff; border-radius: 0.75rem; padding: 1rem; text-align: center; }
-    .header-bar { background: #fff; border-bottom: 1px solid #f3e8ff; }
-    .tab-bar { background: #fff; border-bottom: 1px solid #f3e8ff; }
-    .settings-section { background: #fff; border: 1px solid #f3e8ff; border-radius: 0.75rem; padding: 1.25rem; }
-    .supplement-cb { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-    .supplement-cb input { accent-color: #7C3AED; width: 1rem; height: 1rem; }
+    /* TIMELINE */
+    .tl{display:grid;gap:.7rem;}
+    .tl-row{
+      display:grid;grid-template-columns:38px 1fr auto;gap:.8rem;align-items:center;
+      padding:.7rem .8rem;border-radius:.85rem;
+      background:color-mix(in srgb,var(--bg) 60%,transparent);
+      border:1px solid color-mix(in srgb,var(--border) 50%,transparent);
+    }
+    .tl-badge{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+      background:var(--ph);font-size:.95rem;}
+    .tl-row strong{display:block;font-size:var(--text-sm);}
+    .tl-row span{color:var(--muted);font-size:var(--text-xs);}
+    .tl-time{color:var(--faint);font-size:var(--text-xs);white-space:nowrap;}
+
+    /* HEATMAP */
+    .heatmap-wrap{margin-top:var(--sp5);}
+    .heatmap-grid{
+      display:grid;grid-template-columns:repeat(52,1fr);
+      gap:3px;margin-top:.75rem;overflow-x:auto;
+    }
+    .hm-cell{
+      aspect-ratio:1;border-radius:3px;
+      background:rgba(128,128,128,.12);
+      transition:background .2s;cursor:default;
+    }
+    .hm-cell:hover{outline:2px solid var(--p1);}
+    .hm-0{background:rgba(92,199,194,.07);}
+    .hm-1{background:rgba(92,199,194,.25);}
+    .hm-2{background:rgba(92,199,194,.5);}
+    .hm-3{background:rgba(92,199,194,.75);}
+    .hm-4{background:rgba(92,199,194,1);}
+    .hm-legend{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;
+      font-size:var(--text-xs);color:var(--muted);}
+    .hm-legend-cells{display:flex;gap:3px;}
+    .hm-lc{width:11px;height:11px;border-radius:2px;}
+
+    /* EMPTY */
+    .empty{padding:var(--sp10);text-align:center;}
+    .empty-icon{font-size:2.5rem;margin-bottom:.75rem;}
+    .empty h3{margin-bottom:.45rem;font-family:var(--fd);}
+    .empty p{color:var(--muted);max-width:36ch;margin:.4rem auto 1.2rem;font-size:var(--text-sm);}
+
+    /* DIALOG */
+    .dlg-back{
+      position:fixed;inset:0;background:rgba(2,6,7,.55);backdrop-filter:blur(14px);
+      display:none;align-items:center;justify-content:center;padding:1rem;z-index:30;
+    }
+    .dlg-back.open{display:flex;}
+    .dlg{
+      width:min(660px,100%);
+      background:linear-gradient(180deg,var(--surf2),var(--surf));
+      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+      border-radius:26px;box-shadow:var(--sh-lg);overflow:hidden;
+    }
+    .dlg-head{padding:1rem 1.15rem;display:flex;justify-content:space-between;align-items:center;
+      border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);}
+    .dlg-head h3{margin:0;font-family:var(--fd);font-size:var(--text-lg);}
+    .dlg-body{padding:1.15rem;display:grid;gap:.9rem;}
+    .form-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem;}
+    .field{display:grid;gap:.38rem;}
+    .field label{font-size:var(--text-sm);color:var(--muted);}
+    .field input,.field select{
+      width:100%;border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
+      border-radius:12px;background:color-mix(in srgb,var(--bg) 60%,transparent);
+      padding:.8rem .95rem;outline:none;
+      transition:border-color var(--ease),box-shadow var(--ease);
+    }
+    .field input:focus,.field select:focus{
+      border-color:var(--p1);
+      box-shadow:0 0 0 3px rgba(92,199,194,.14);
+    }
+    .dlg-foot{display:flex;justify-content:flex-end;gap:.7rem;padding:0 1.15rem 1.15rem;}
+
+    /* TOAST */
+    .toast{
+      position:fixed;right:1rem;bottom:1rem;z-index:40;
+      min-width:220px;max-width:300px;border-radius:16px;padding:.85rem 1rem;
+      background:linear-gradient(135deg,var(--p1),var(--p2));
+      color:var(--inv);box-shadow:var(--sh-lg);
+      transform:translateY(130%);transition:transform var(--ease);
+      font-size:var(--text-sm);font-weight:500;
+    }
+    .toast.show{transform:translateY(0);}
+
+    /* RESPONSIVE */
+    @media(max-width:1200px){
+      .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .mid-grid,.hero-grid,.habits-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:960px){
+      html,body{overflow:auto;}
+      .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;height:auto;}
+      .sidebar{grid-row:auto;border-right:0;
+        border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);}
+      .topbar,.main{grid-column:1;}
+      .main{overflow:visible;}
+    }
+    @media(max-width:640px){
+      .topbar{padding:.75rem 1rem;flex-direction:column;align-items:flex-start;height:auto;}
+      .tb-right{width:100%;}
+      .sidebar,.main{padding:.85rem;}
+      .kpi-grid,.form-2{grid-template-columns:1fr;}
+      .hero-card h2{max-width:12ch;}
+      .sec-head{flex-direction:column;align-items:flex-start;}
+    }
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation:none!important;transition:none!important;
+        scroll-behavior:auto!important;}
+    }
   </style>
 </head>
-<body class="min-h-screen transition-colors duration-300">
+<body>
+<a class="skip" href="#main">Skip to content</a>
 
-<!-- ══ LOCK SCREEN ══════════════════════════════════════════════ -->
-<div id="lockScreen">
-  <div class="lock-card">
-    <div style="font-size:3rem;margin-bottom:0.5rem">🌸</div>
-    <h1>PeriTrack</h1>
-    <p id="lockSubtitle">Enter your PIN to continue</p>
-    <div class="pin-dots" id="pinDots">
-      <div class="pin-dot" id="dot0"></div>
-      <div class="pin-dot" id="dot1"></div>
-      <div class="pin-dot" id="dot2"></div>
-      <div class="pin-dot" id="dot3"></div>
-    </div>
-    <div class="pin-grid">
-      <button class="pin-btn" onclick="pinPress('1')">1</button>
-      <button class="pin-btn" onclick="pinPress('2')">2</button>
-      <button class="pin-btn" onclick="pinPress('3')">3</button>
-      <button class="pin-btn" onclick="pinPress('4')">4</button>
-      <button class="pin-btn" onclick="pinPress('5')">5</button>
-      <button class="pin-btn" onclick="pinPress('6')">6</button>
-      <button class="pin-btn" onclick="pinPress('7')">7</button>
-      <button class="pin-btn" onclick="pinPress('8')">8</button>
-      <button class="pin-btn" onclick="pinPress('9')">9</button>
-      <button class="pin-btn" onclick="pinClear()" style="font-size:1rem">⌫</button>
-      <button class="pin-btn" onclick="pinPress('0')">0</button>
-      <button class="pin-btn" onclick="pinSubmit()" style="font-size:1rem;background:rgba(255,255,255,0.35)">✓</button>
-    </div>
-    <div class="pin-error-msg" id="pinError"></div>
-    <div class="lock-setup-hint" id="lockHint"></div>
-    <div style="margin-top:1rem">
-      <span class="lock-link" onclick="showPinReset()">Forgot PIN?</span>
-    </div>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     HEADER
-═══════════════════════════════════════════════════════════════════ -->
-<header class="header-bar sticky top-0 z-40 shadow-sm">
-  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <span class="text-2xl">🌸</span>
+<div class="app">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" aria-label="Navigation">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" fill="none" aria-label="Habit Flow logo">
+        <rect x="8" y="8" width="48" height="48" rx="16" stroke="currentColor" stroke-width="3.5"/>
+        <path d="M20 36C24 28 28 24 34 24C40 24 44 28 44 36"
+              stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="24" cy="38" r="3.5" fill="currentColor"/>
+        <circle cx="40" cy="38" r="3.5" fill="currentColor"/>
+      </svg>
       <div>
-        <h1 class="font-bold text-lg leading-tight" style="color:#7C3AED">PeriTrack</h1>
-        <p class="text-xs text-gray-400 leading-none">Your Perimenopause Companion</p>
-      </div>
-    </div>
-    <button id="darkToggle" onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-purple-50 transition-colors" title="Toggle dark mode">
-      <span id="darkIcon" class="text-xl">🌙</span>
-    </button>
-  </div>
-</header>
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     TAB BAR
-═══════════════════════════════════════════════════════════════════ -->
-<nav class="tab-bar sticky top-[60px] z-30">
-  <div class="max-w-3xl mx-auto px-4">
-    <div class="flex gap-1 py-2 overflow-x-auto">
-      <button class="tab-btn active flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-600" onclick="switchTab('today')">📋 Today</button>
-      <button class="tab-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-600" onclick="switchTab('history')">📊 History</button>
-      <button class="tab-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-600" onclick="switchTab('report')">⭐ Doctor Report</button>
-      <button class="tab-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-600" onclick="switchTab('settings')">⚙️ Settings</button>
-    </div>
-  </div>
-</nav>
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     MAIN CONTENT
-═══════════════════════════════════════════════════════════════════ -->
-<main class="max-w-3xl mx-auto px-4 py-6 pb-20">
-
-<!-- ─────────────────────────────────────────────────────────────────
-     TAB 1 — TODAY
-───────────────────────────────────────────────────────────────── -->
-<div id="tab-today" class="tab-content active space-y-4">
-
-  <!-- Date banner -->
-  <div class="card flex items-center justify-between">
-    <div>
-      <p class="text-xs text-gray-400 font-medium">Today's Log</p>
-      <p id="todayDateDisplay" class="text-xl font-bold" style="color:#7C3AED"></p>
-    </div>
-    <span class="text-3xl">📝</span>
-  </div>
-
-  <!-- HOT FLASHES & NIGHT SWEATS -->
-  <div class="card space-y-4">
-    <p class="section-title">🔥 Hot Flashes &amp; Night Sweats</p>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Hot flashes today</label>
-      <input id="hotFlashes" type="number" min="0" max="20" value="0"
-        class="w-20 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-purple-400" />
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Night sweats</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="nightSweatsYes" onclick="setToggle('nightSweats', true)">Yes</button>
-        <button class="toggle-btn active-no" id="nightSweatsNo" onclick="setToggle('nightSweats', false)">No</button>
+        <span class="brand-name">Habit Flow</span>
+        <span class="brand-sub">365-day adaptive tracker</span>
       </div>
     </div>
 
-    <div id="nightSweatSeverityRow" class="hidden">
-      <label class="label-text block mb-2">Night sweat severity</label>
-      <div id="nightSweatStars" class="flex gap-1">
-        <span class="star" data-group="nightSweatSeverity" data-val="1" onclick="setStar('nightSweatSeverity',1)">★</span>
-        <span class="star" data-group="nightSweatSeverity" data-val="2" onclick="setStar('nightSweatSeverity',2)">★</span>
-        <span class="star" data-group="nightSweatSeverity" data-val="3" onclick="setStar('nightSweatSeverity',3)">★</span>
-        <span class="star" data-group="nightSweatSeverity" data-val="4" onclick="setStar('nightSweatSeverity',4)">★</span>
-        <span class="star" data-group="nightSweatSeverity" data-val="5" onclick="setStar('nightSweatSeverity',5)">★</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLEEP -->
-  <div class="card space-y-4">
-    <p class="section-title">😴 Sleep</p>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Hours slept</label>
-      <input id="sleepHours" type="number" min="0" max="12" step="0.5" value="7"
-        class="w-20 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-purple-400" />
-    </div>
-
-    <div>
-      <label class="label-text block mb-2">Sleep quality</label>
-      <div id="sleepQualityStars" class="flex gap-1">
-        <span class="star" data-group="sleepQuality" data-val="1" onclick="setStar('sleepQuality',1)">★</span>
-        <span class="star" data-group="sleepQuality" data-val="2" onclick="setStar('sleepQuality',2)">★</span>
-        <span class="star" data-group="sleepQuality" data-val="3" onclick="setStar('sleepQuality',3)">★</span>
-        <span class="star" data-group="sleepQuality" data-val="4" onclick="setStar('sleepQuality',4)">★</span>
-        <span class="star" data-group="sleepQuality" data-val="5" onclick="setStar('sleepQuality',5)">★</span>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Woke at 3am</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="wake3amYes" onclick="setToggle('wake3am', true)">Yes</button>
-        <button class="toggle-btn active-no" id="wake3amNo" onclick="setToggle('wake3am', false)">No</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MIND & MOOD -->
-  <div class="card space-y-5">
-    <p class="section-title">🧠 Mind &amp; Mood</p>
-
-    <div>
-      <div class="flex justify-between items-center mb-1">
-        <label class="label-text">Brain fog</label>
-        <span id="brainFogVal" class="text-sm font-bold" style="color:#7C3AED">5</span>
-      </div>
-      <div class="flex justify-between text-xs text-gray-400 mb-1"><span>Clear</span><span>Foggy</span></div>
-      <input id="brainFog" type="range" min="1" max="10" value="5" oninput="updateSlider(this,'brainFogVal')" />
-    </div>
-
-    <div>
-      <div class="flex justify-between items-center mb-1">
-        <label class="label-text">Anxiety</label>
-        <span id="anxietyVal" class="text-sm font-bold" style="color:#7C3AED">5</span>
-      </div>
-      <div class="flex justify-between text-xs text-gray-400 mb-1"><span>Calm</span><span>Anxious</span></div>
-      <input id="anxiety" type="range" min="1" max="10" value="5" oninput="updateSlider(this,'anxietyVal')" />
-    </div>
-
-    <div>
-      <label class="label-text block mb-2">Mood</label>
-      <div class="flex gap-2 flex-wrap">
-        <button class="mood-btn" data-mood="😢" onclick="selectMood('😢')">😢</button>
-        <button class="mood-btn" data-mood="😠" onclick="selectMood('😠')">😠</button>
-        <button class="mood-btn" data-mood="😐" onclick="selectMood('😐')">😐</button>
-        <button class="mood-btn" data-mood="🙂" onclick="selectMood('🙂')">🙂</button>
-        <button class="mood-btn" data-mood="😊" onclick="selectMood('😊')">😊</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BODY -->
-  <div class="card space-y-5">
-    <p class="section-title">💪 Body</p>
-
-    <div>
-      <div class="flex justify-between items-center mb-1">
-        <label class="label-text">Energy</label>
-        <span id="energyVal" class="text-sm font-bold" style="color:#7C3AED">5</span>
-      </div>
-      <div class="flex justify-between text-xs text-gray-400 mb-1"><span>Exhausted</span><span>Energised</span></div>
-      <input id="energy" type="range" min="1" max="10" value="5" oninput="updateSlider(this,'energyVal')" />
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Joint pain</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="jointPainYes" onclick="setToggle('jointPain', true)">Yes</button>
-        <button class="toggle-btn active-no" id="jointPainNo" onclick="setToggle('jointPain', false)">No</button>
-      </div>
-    </div>
-
-    <div id="jointSeverityRow" class="hidden">
-      <div class="flex justify-between items-center mb-1">
-        <label class="label-text">Joint pain severity</label>
-        <span id="jointSeverityVal" class="text-sm font-bold" style="color:#7C3AED">3</span>
-      </div>
-      <input id="jointSeverity" type="range" min="1" max="5" value="3" oninput="updateSlider(this,'jointSeverityVal')" />
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Headache</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="headacheYes" onclick="setToggle('headache', true)">Yes</button>
-        <button class="toggle-btn active-no" id="headacheNo" onclick="setToggle('headache', false)">No</button>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Bloating</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="bloatingYes" onclick="setToggle('bloating', true)">Yes</button>
-        <button class="toggle-btn active-no" id="bloatingNo" onclick="setToggle('bloating', false)">No</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CYCLE -->
-  <div class="card space-y-4">
-    <p class="section-title">🩸 Cycle</p>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Period today</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="periodYes" onclick="setToggle('period', true)">Yes</button>
-        <button class="toggle-btn active-no" id="periodNo" onclick="setToggle('period', false)">No</button>
-      </div>
-    </div>
-
-    <div id="flowRow" class="hidden flex items-center justify-between gap-4">
-      <label class="label-text">Flow</label>
-      <select id="flow" class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
-        <option value="">Select...</option>
-        <option value="Light">Light</option>
-        <option value="Medium">Medium</option>
-        <option value="Heavy">Heavy</option>
-      </select>
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Spotting</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="spottingYes" onclick="setToggle('spotting', true)">Yes</button>
-        <button class="toggle-btn active-no" id="spottingNo" onclick="setToggle('spotting', false)">No</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MEDICATIONS -->
-  <div class="card space-y-4">
-    <p class="section-title">💊 Medications &amp; Supplements</p>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">HRT taken today</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="hrtTakenYes" onclick="setToggle('hrtTaken', true)">Yes</button>
-        <button class="toggle-btn active-no" id="hrtTakenNo" onclick="setToggle('hrtTaken', false)">No</button>
-      </div>
-    </div>
-
-    <div id="hrtTypeRow" class="hidden">
-      <label class="label-text block mb-1">HRT type</label>
-      <input id="hrtType" type="text" placeholder="e.g. Estradiol patch 50mcg"
-        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
-    </div>
-
-    <div>
-      <label class="label-text block mb-2">Supplements taken</label>
-      <div class="grid grid-cols-2 gap-2">
-        <label class="supplement-cb"><input type="checkbox" id="supp_Magnesium" value="Magnesium" /><span class="text-sm">Magnesium</span></label>
-        <label class="supplement-cb"><input type="checkbox" id="supp_VitaminD" value="Vitamin D" /><span class="text-sm">Vitamin D</span></label>
-        <label class="supplement-cb"><input type="checkbox" id="supp_Omega3" value="Omega-3" /><span class="text-sm">Omega-3</span></label>
-        <label class="supplement-cb"><input type="checkbox" id="supp_BlackCohosh" value="Black Cohosh" /><span class="text-sm">Black Cohosh</span></label>
-        <label class="supplement-cb"><input type="checkbox" id="supp_Other" value="Other" /><span class="text-sm">Other</span></label>
-      </div>
-    </div>
-  </div>
-
-  <!-- NOTES -->
-  <div class="card">
-    <p class="section-title">📝 Notes</p>
-    <textarea id="notes" rows="4" placeholder="How are you feeling today? Any observations..."
-      class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-400"></textarea>
-  </div>
-
-  <!-- SAVE BUTTON -->
-  <button onclick="saveTodayEntry()"
-    class="w-full py-3.5 rounded-xl font-bold text-white text-base shadow-lg transition-transform active:scale-95"
-    style="background: linear-gradient(135deg, #7C3AED, #EC4899)">
-    💾 Save Today's Entry
-  </button>
-
-</div><!-- /tab-today -->
-
-<!-- ─────────────────────────────────────────────────────────────────
-     TAB 2 — HISTORY
-───────────────────────────────────────────────────────────────── -->
-<div id="tab-history" class="tab-content space-y-6">
-
-  <!-- Calendar heatmap -->
-  <div class="card">
-    <div class="flex items-center justify-between mb-4">
-      <button onclick="changeCalMonth(-1)" class="p-2 rounded-full hover:bg-purple-50 transition-colors text-purple-600 font-bold text-lg">‹</button>
-      <h2 id="calMonthLabel" class="font-bold text-base" style="color:#7C3AED"></h2>
-      <button onclick="changeCalMonth(1)" class="p-2 rounded-full hover:bg-purple-50 transition-colors text-purple-600 font-bold text-lg">›</button>
-    </div>
-    <!-- Day-of-week headers -->
-    <div class="grid grid-cols-7 gap-1 mb-1">
-      <div class="text-center text-xs font-semibold text-gray-400">Su</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Mo</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Tu</div>
-      <div class="text-center text-xs font-semibold text-gray-400">We</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Th</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Fr</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Sa</div>
-    </div>
-    <div id="calGrid" class="grid grid-cols-7 gap-1"></div>
-    <!-- Legend -->
-    <div class="flex gap-3 mt-3 flex-wrap">
-      <div class="flex items-center gap-1 text-xs text-gray-500"><span class="w-3 h-3 rounded bg-gray-200 inline-block"></span>No data</div>
-      <div class="flex items-center gap-1 text-xs text-gray-500"><span class="w-3 h-3 rounded bg-red-200 inline-block"></span>Low (1–3)</div>
-      <div class="flex items-center gap-1 text-xs text-gray-500"><span class="w-3 h-3 rounded bg-yellow-200 inline-block"></span>Mid (4–6)</div>
-      <div class="flex items-center gap-1 text-xs text-gray-500"><span class="w-3 h-3 rounded bg-green-200 inline-block"></span>Good (7–10)</div>
-    </div>
-  </div>
-
-  <!-- Charts -->
-  <div class="card">
-    <p class="section-title">📈 Energy &amp; Mood — 30 Days</p>
-    <canvas id="chartEnergyMood" height="120"></canvas>
-  </div>
-  <div class="card">
-    <p class="section-title">🔥 Hot Flashes — 30 Days</p>
-    <canvas id="chartHotFlash" height="100"></canvas>
-  </div>
-  <div class="card">
-    <p class="section-title">🧠 Brain Fog &amp; Anxiety — 30 Days</p>
-    <canvas id="chartFogAnxiety" height="120"></canvas>
-  </div>
-
-  <!-- Monthly stats -->
-  <div>
-    <p class="section-title">📊 This Month's Stats</p>
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div class="stat-card">
-        <p class="text-2xl font-bold" id="statHotFlash" style="color:#f97316">—</p>
-        <p class="text-xs text-gray-500 mt-1">Avg hot flashes/day</p>
-      </div>
-      <div class="stat-card">
-        <p class="text-2xl font-bold" id="statSleep" style="color:#7C3AED">—</p>
-        <p class="text-xs text-gray-500 mt-1">Avg sleep hours</p>
-      </div>
-      <div class="stat-card">
-        <p class="text-2xl font-bold" id="statEnergy" style="color:#EC4899">—</p>
-        <p class="text-xs text-gray-500 mt-1">Avg energy level</p>
-      </div>
-      <div class="stat-card">
-        <p class="text-2xl font-bold" id="statNightSweats" style="color:#3b82f6">—</p>
-        <p class="text-xs text-gray-500 mt-1">Days with night sweats</p>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /tab-history -->
-
-<!-- ─────────────────────────────────────────────────────────────────
-     TAB 3 — DOCTOR REPORT
-───────────────────────────────────────────────────────────────── -->
-<div id="tab-report" class="tab-content space-y-4">
-
-  <div class="card space-y-4">
-    <p class="section-title">⭐ Generate Doctor Report</p>
-
-    <div>
-      <label class="label-text block mb-1">Patient name</label>
-      <input id="reportName" type="text" placeholder="Your name"
-        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
-    </div>
-
-    <div>
-      <label class="label-text block mb-2">Report period</label>
-      <div class="flex gap-3 flex-wrap">
-        <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-          <input type="radio" name="reportRange" value="30" checked class="accent-purple-600" /> Last 30 days
-        </label>
-        <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-          <input type="radio" name="reportRange" value="60" class="accent-purple-600" /> Last 60 days
-        </label>
-        <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-          <input type="radio" name="reportRange" value="90" class="accent-purple-600" /> Last 90 days
-        </label>
-      </div>
-    </div>
-
-    <div class="flex gap-3 flex-wrap">
-      <button onclick="buildReport()"
-        class="flex-1 py-2.5 rounded-xl font-bold text-white text-sm shadow transition-transform active:scale-95"
-        style="background:#7C3AED">
-        🖨️ Generate &amp; Print Report
+    <nav class="scard nav-card" aria-label="Sections">
+      <button class="nav-btn active" data-sec="sec-overview">
+        <span class="nav-dot"></span>Overview
       </button>
-      <button onclick="copyReportText()"
-        class="flex-1 py-2.5 rounded-xl font-bold text-sm border-2 border-purple-400 text-purple-600 transition-transform active:scale-95">
-        📋 Copy as Text
+      <button class="nav-btn" data-sec="sec-analytics">
+        <span class="nav-dot"></span>Analytics
       </button>
-    </div>
-  </div>
-
-  <!-- The actual report -->
-  <div id="printable-report" class="report-card p-6 space-y-6 hidden">
-    <!-- Filled dynamically -->
-  </div>
-
-</div><!-- /tab-report -->
-
-<!-- ─────────────────────────────────────────────────────────────────
-     TAB 4 — SETTINGS
-───────────────────────────────────────────────────────────────── -->
-<div id="tab-settings" class="tab-content space-y-4">
-
-  <div class="settings-section space-y-3">
-    <p class="section-title">👤 Profile</p>
-    <div>
-      <label class="label-text block mb-1">Your name</label>
-      <input id="settingsName" type="text" placeholder="Enter your name"
-        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
-        oninput="saveSetting('name', this.value)" />
-    </div>
-  </div>
-
-  <div class="settings-section space-y-3">
-    <p class="section-title">🎨 Appearance</p>
-    <div class="flex items-center justify-between">
-      <label class="label-text">Dark mode</label>
-      <button id="settingsDarkBtn" onclick="toggleDarkMode()"
-        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-        style="background:#d1d5db">
-        <span id="settingsDarkThumb" class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform translate-x-1"></span>
+      <button class="nav-btn" data-sec="sec-habits">
+        <span class="nav-dot"></span>My Habits
       </button>
+      <button class="nav-btn" data-sec="sec-activity">
+        <span class="nav-dot"></span>Activity Log
+      </button>
+    </nav>
+
+    <!-- today score ring -->
+    <section class="scard sp" aria-labelledby="score-lbl">
+      <span class="slabel" id="score-lbl">Today Score</span>
+      <div class="ring-wrap">
+        <div class="ring" id="scoreRing" role="img" aria-label="Today consistency score">
+          <div class="ring-inner">
+            <span class="ring-val" id="ringVal">0%</span>
+            <span class="ring-lbl">consistency</span>
+          </div>
+        </div>
+      </div>
+      <div class="mini-stats">
+        <div class="mstat"><span>Done today</span><strong id="sDone">0</strong></div>
+        <div class="mstat"><span>Active streaks</span><strong id="sStreaks">0</strong></div>
+        <div class="mstat"><span>Best window</span><strong id="sWindow">--</strong></div>
+        <div class="mstat"><span>Days tracked</span><strong id="sDays">0</strong></div>
+        <div class="mstat"><span>Total habits</span><strong id="sTotal">0</strong></div>
+      </div>
+    </section>
+
+    <!-- pattern cue -->
+    <section class="scard sp" aria-labelledby="pattern-lbl">
+      <span class="slabel" id="pattern-lbl">Pattern Cue</span>
+      <strong id="patHead" style="display:block;font-size:1.05rem;font-family:var(--fd);margin-bottom:.4rem;">
+        Waiting for data
+      </strong>
+      <p id="patHint" style="color:var(--muted);margin:0;font-size:var(--text-xs);line-height:1.5;">
+        Log habits to unlock streak insights and adaptive coaching.
+      </p>
+    </section>
+
+    <!-- quick add -->
+    <section class="scard sp">
+      <span class="slabel">Quick Add</span>
+      <p style="color:var(--muted);font-size:var(--text-xs);margin:0 0 .75rem;line-height:1.5;">
+        Create any habit — coding, fitness, reading, sleep, or anything you want to build.
+      </p>
+      <button class="btn btn-md btn-primary" style="width:100%;" id="sideAddBtn">
+        + Add new habit
+      </button>
+    </section>
+  </aside>
+
+  <!-- ── TOPBAR ── -->
+  <header class="topbar">
+    <div class="tb-left">
+      <h1>Daily Habit Dashboard</h1>
+      <p>Streaks, momentum, patterns &amp; quotes — all live.</p>
     </div>
-  </div>
-
-  <div class="settings-section space-y-3">
-    <p class="section-title">🔒 Security</p>
-    <p class="text-sm text-gray-500">Your app is protected by a 4-digit PIN.</p>
-    <button onclick="changePinFromSettings()"
-      class="w-full py-2.5 rounded-xl font-semibold text-sm border-2 border-purple-400 text-purple-600 hover:bg-purple-50 transition-colors">
-      🔑 Change PIN
-    </button>
-  </div>
-
-    <div class="settings-section space-y-3">
-    <p class="section-title">💾 Data</p>
-    <button onclick="exportData()"
-      class="w-full py-2.5 rounded-xl font-semibold text-sm border-2 border-purple-400 text-purple-600 hover:bg-purple-50 transition-colors">
-      ⬇️ Download my data (JSON)
-    </button>
-    <div>
-      <label class="label-text block mb-1">Import data (JSON)</label>
-      <input type="file" id="importFile" accept=".json"
-        class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-        onchange="importData(this)" />
+    <div class="tb-right">
+      <span class="btn chip-date" id="dateChip"></span>
+      <button class="btn btn-sm" id="exportBtn">Export CSV</button>
+      <button class="btn btn-sm" id="demoBtn">Load demo</button>
+      <button class="btn btn-icon" id="themeBtn" aria-label="Toggle light/dark mode">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button class="btn btn-md btn-primary" id="topAddBtn">+ Add habit</button>
     </div>
-    <button onclick="clearAllData()"
-      class="w-full py-2.5 rounded-xl font-semibold text-sm bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100 transition-colors">
-      🗑️ Clear all data
-    </button>
-  </div>
+  </header>
 
-  <div class="settings-section">
-    <p class="text-sm text-gray-500 text-center">
-      🔒 All your data is stored only on this device. Nothing is ever sent anywhere.
-    </p>
-  </div>
+  <!-- ── MAIN ── -->
+  <main class="main" id="main" tabindex="-1">
 
-</div><!-- /tab-settings -->
+    <!-- OVERVIEW -->
+    <section id="sec-overview">
+      <div class="hero-grid">
+        <article class="hero-card">
+          <span class="eyebrow">Daily operating system</span>
+          <h2 id="heroTitle">Build streaks that compound into real results.</h2>
+          <p id="heroSub">Mark habits done or skip — the dashboard adapts scores, quotes, and insights to your actual pattern.</p>
+          <div class="row-gap">
+            <button class="btn btn-md btn-primary" id="heroAddBtn">Create custom habit</button>
+            <button class="btn btn-md" id="heroAnalBtn">View analytics</button>
+          </div>
+        </article>
+        <article class="quote-card" aria-live="polite" aria-label="Adaptive motivational quote">
+          <span class="eyebrow">Adaptive quote</span>
+          <blockquote id="qText">"Momentum loves small proofs."</blockquote>
+          <div class="quote-meta">
+            <strong id="qMood">Calm focus</strong>
+            <span id="qReason">Updates based on your streak, skips &amp; completion pattern.</span>
+          </div>
+        </article>
+      </div>
 
-</main><!-- /main -->
+      <!-- KPIs -->
+      <div class="kpi-grid" aria-label="Key metrics">
+        <article class="kpi-card">
+          <div class="kpi-lbl">Avg completion rate</div>
+          <div class="kpi-val" id="kRate">0%</div>
+          <div class="badge b-ok" id="kRateBadge">▲ ready to start</div>
+        </article>
+        <article class="kpi-card">
+          <div class="kpi-lbl">Active streaks</div>
+          <div class="kpi-val" id="kStreaks">0</div>
+          <div class="badge b-ok" id="kStreakBadge">▲ no chain yet</div>
+        </article>
+        <article class="kpi-card">
+          <div class="kpi-lbl">Top habit</div>
+          <div class="kpi-val" id="kBest" style="font-size:clamp(1rem,.8rem + .8vw,1.5rem);">--</div>
+          <div class="badge b-blue" id="kBestBadge">▲ add data</div>
+        </article>
+        <article class="kpi-card">
+          <div class="kpi-lbl">Consistency score</div>
+          <div class="kpi-val" id="kScore">0</div>
+          <div class="badge b-ok" id="kScoreBadge">▲ grows with wins</div>
+        </article>
+      </div>
+    </section>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     MODAL (day detail)
-═══════════════════════════════════════════════════════════════════ -->
-<div id="dayModal" class="modal-bg hidden" onclick="closeModal(event)">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="flex justify-between items-center mb-4">
-      <h3 id="modalDate" class="font-bold text-lg" style="color:#7C3AED"></h3>
-      <button onclick="document.getElementById('dayModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
+    <!-- ANALYTICS -->
+    <section id="sec-analytics" style="margin-top:var(--sp5);">
+      <div class="mid-grid">
+        <article class="panel" style="padding:var(--sp5);">
+          <div class="ph">
+            <div>
+              <h3>7-Day Momentum</h3>
+              <p>Completions per day + rolling consistency %</p>
+            </div>
+            <button class="btn btn-sm" id="refreshQuoteBtn">Refresh quote</button>
+          </div>
+          <div class="chart-box">
+            <canvas id="chartCanvas" aria-label="7-day momentum chart"></canvas>
+          </div>
+        </article>
+        <article class="panel" style="padding:var(--sp5);">
+          <div class="ph"><div><h3>Pattern Engine</h3><p>Inferred from your full history</p></div></div>
+          <div class="strips" id="patStrips"></div>
+        </article>
+      </div>
+
+      <!-- 52-week heatmap -->
+      <article class="panel heatmap-wrap" style="padding:var(--sp5);" id="sec-heatmap">
+        <div class="ph">
+          <div>
+            <h3>52-Week Heatmap</h3>
+            <p>Daily completion density across the last year</p>
+          </div>
+          <select class="btn btn-sm" id="heatmapHabit" aria-label="Select habit for heatmap"
+                  style="border-radius:var(--r-full);padding:.55rem .85rem;font-size:var(--text-sm);">
+            <option value="all">All habits</option>
+          </select>
+        </div>
+        <div class="heatmap-grid" id="heatmapGrid" aria-label="Habit heatmap"></div>
+        <div class="hm-legend">
+          <span>Less</span>
+          <div class="hm-legend-cells">
+            <div class="hm-lc hm-0"></div>
+            <div class="hm-lc hm-1"></div>
+            <div class="hm-lc hm-2"></div>
+            <div class="hm-lc hm-3"></div>
+            <div class="hm-lc hm-4"></div>
+          </div>
+          <span>More</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- HABITS -->
+    <section id="sec-habits" style="margin-top:var(--sp5);">
+      <div class="sec-head">
+        <div>
+          <h3>Your Habits</h3>
+          <p>365-day history per habit · mark done or skip each day</p>
+        </div>
+        <button class="btn btn-md btn-primary" id="secAddBtn">+ Add habit</button>
+      </div>
+      <div class="habits-grid" id="habitsGrid"></div>
+      <div class="empty" id="emptyState" hidden>
+        <div class="empty-icon">🌱</div>
+        <h3>No habits yet</h3>
+        <p>Add your first habit to unlock the dashboard, adaptive quotes, and trend charts.</p>
+        <button class="btn btn-md btn-primary" id="emptyAddBtn">Add first habit</button>
+      </div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section id="sec-activity" style="margin-top:var(--sp5);margin-bottom:var(--sp8);">
+      <div class="sec-head">
+        <div>
+          <h3>Activity Log</h3>
+          <p>Timestamped record of every action</p>
+        </div>
+        <button class="btn btn-sm" id="clearTlBtn">Clear log</button>
+      </div>
+      <article class="panel" style="padding:var(--sp5);">
+        <div class="tl" id="timeline"></div>
+      </article>
+    </section>
+
+  </main>
+</div>
+
+<!-- ADD HABIT DIALOG -->
+<div class="dlg-back" id="dlgBack" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+  <div class="dlg">
+    <div class="dlg-head">
+      <h3 id="dlgTitle">Add a custom habit</h3>
+      <button class="btn btn-icon" id="dlgClose" aria-label="Close dialog">✕</button>
     </div>
-    <div id="modalBody" class="space-y-2 text-sm"></div>
+    <form id="habitForm" novalidate>
+      <div class="dlg-body">
+        <div class="form-2">
+          <div class="field">
+            <label for="hName">Habit name *</label>
+            <input id="hName" name="hName" type="text"
+                   placeholder="e.g. Deep work session" required />
+          </div>
+          <div class="field">
+            <label for="hIcon">Icon</label>
+            <select id="hIcon" name="hIcon">
+              <option value="💻">💻  Coding / Deep work</option>
+              <option value="📚">📚  Reading</option>
+              <option value="🏃">🏃  Fitness / Run</option>
+              <option value="🧘">🧘  Mindfulness / Meditation</option>
+              <option value="💧">💧  Hydration</option>
+              <option value="🌙">🌙  Sleep routine</option>
+              <option value="✍️">✍️  Writing / Journaling</option>
+              <option value="🎯">🎯  Focus block</option>
+              <option value="🥗">🥗  Healthy eating</option>
+              <option value="🎸">🎸  Practice / Skill</option>
+              <option value="🧠">🧠  Learning</option>
+              <option value="🚶">🚶  Walking</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="hCat">Category *</label>
+            <input id="hCat" name="hCat" type="text"
+                   placeholder="Health, Work, Learning…" required />
+          </div>
+          <div class="field">
+            <label for="hTarget">Daily target (times/day)</label>
+            <input id="hTarget" name="hTarget" type="number" min="1" max="24" value="1" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="hCue">Why it matters (your personal reason) *</label>
+          <input id="hCue" name="hCue" type="text"
+                 placeholder="e.g. Stay sharp for system design interviews" required />
+        </div>
+      </div>
+      <div class="dlg-foot">
+        <button type="button" class="btn btn-md" id="dlgCancel">Cancel</button>
+        <button type="submit" class="btn btn-md btn-primary">Save habit</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- Toast -->
-<div id="toast">✓ Entry saved!</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════════════════════════ -->
+<!-- Chart.js: NO defer so it's ready for inline script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-/* ══════════════════════════════════════════════════════════════════
-   CONSTANTS & STATE
-══════════════════════════════════════════════════════════════════ */
-const STORAGE_KEY  = 'peritrack_entries';
-const SETTINGS_KEY = 'peritrack_settings';
+(function () {
+  'use strict';
 
-// In-memory state for today's form
-const state = {
-  nightSweats: false,
-  nightSweatSeverity: 0,
-  sleepQuality: 0,
-  wake3am: false,
-  mood: '',
-  jointPain: false,
-  headache: false,
-  bloating: false,
-  period: false,
-  spotting: false,
-  hrtTaken: false,
-};
+  /* ── STATE ── */
+  var habits = [];
+  var actLog = [];
+  var chartInst = null;
+  var theme = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  var qIdx = 0;
 
-// Calendar navigation state
-let calYear, calMonth;
-const now = new Date();
-calYear  = now.getFullYear();
-calMonth = now.getMonth(); // 0-indexed
-
-// Chart instances
-let chartEM = null, chartHF = null, chartFA = null;
-
-/* ══════════════════════════════════════════════════════════════════
-   STORAGE HELPERS
-══════════════════════════════════════════════════════════════════ */
-function getAllEntries() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-  catch(e) { return {}; }
-}
-function saveEntry(date, data) {
-  const all = getAllEntries();
-  all[date] = data;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-}
-function getEntry(date) {
-  return getAllEntries()[date] || null;
-}
-function getEntriesInRange(startDate, endDate) {
-  const all = getAllEntries();
-  const result = [];
-  const start = new Date(startDate + 'T00:00:00');
-  const end   = new Date(endDate   + 'T00:00:00');
-  Object.keys(all).sort().forEach(d => {
-    const dt = new Date(d + 'T00:00:00');
-    if (dt >= start && dt <= end) result.push(all[d]);
-  });
-  return result;
-}
-function getSettings() {
-  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); }
-  catch(e) { return {}; }
-}
-function saveSetting(key, value) {
-  const s = getSettings();
-  s[key] = value;
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   SCORING
-══════════════════════════════════════════════════════════════════ */
-function moodToNum(emoji) {
-  const map = { '😢': 1, '😠': 2, '😐': 5, '🙂': 8, '😊': 10 };
-  return map[emoji] || 5;
-}
-function calculateDayScore(entry) {
-  if (!entry) return null;
-  const energy   = entry.energy   || 5;
-  const moodN    = moodToNum(entry.mood);
-  const fogInv   = 11 - (entry.brainFog  || 5);
-  const anxInv   = 11 - (entry.anxiety   || 5);
-  return Math.round((energy + moodN + fogInv + anxInv) / 4);
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   DATE HELPERS
-══════════════════════════════════════════════════════════════════ */
-function todayStr() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
-}
-function subtractDays(dateStr, n) {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setDate(d.getDate() - n);
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function dateRange(startStr, endStr) {
-  const dates = [];
-  let cur = new Date(startStr + 'T00:00:00');
-  const end = new Date(endStr + 'T00:00:00');
-  while (cur <= end) {
-    dates.push(cur.getFullYear() + '-' + String(cur.getMonth()+1).padStart(2,'0') + '-' + String(cur.getDate()).padStart(2,'0'));
-    cur.setDate(cur.getDate() + 1);
-  }
-  return dates;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   TAB SWITCHING
-══════════════════════════════════════════════════════════════════ */
-function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  const btns = document.querySelectorAll('.tab-btn');
-  const labels = ['today','history','report','settings'];
-  btns[labels.indexOf(name)].classList.add('active');
-
-  if (name === 'history') {
-    renderCalendar(calYear, calMonth);
-    renderCharts();
-    renderMonthStats();
-  }
-  if (name === 'report') {
-    const s = getSettings();
-    document.getElementById('reportName').value = s.name || '';
-  }
-  if (name === 'settings') {
-    const s = getSettings();
-    document.getElementById('settingsName').value = s.name || '';
-    updateDarkToggleUI();
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   DARK MODE
-══════════════════════════════════════════════════════════════════ */
-function toggleDarkMode() {
-  const isDark = document.body.classList.toggle('dark');
-  saveSetting('darkMode', isDark);
-  updateDarkToggleUI();
-  // Re-render charts with new theme
-  if (document.getElementById('tab-history').classList.contains('active')) {
-    renderCharts();
-  }
-}
-function updateDarkToggleUI() {
-  const isDark = document.body.classList.contains('dark');
-  document.getElementById('darkIcon').textContent = isDark ? '☀️' : '🌙';
-  const btn   = document.getElementById('settingsDarkBtn');
-  const thumb = document.getElementById('settingsDarkThumb');
-  if (btn && thumb) {
-    btn.style.background   = isDark ? '#7C3AED' : '#d1d5db';
-    thumb.style.transform  = isDark ? 'translateX(1.375rem)' : 'translateX(0.25rem)';
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   FORM HELPERS
-══════════════════════════════════════════════════════════════════ */
-function updateSlider(el, valId) {
-  const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
-  el.style.setProperty('--val', pct + '%');
-  document.getElementById(valId).textContent = el.value;
-}
-
-function setToggle(field, value) {
-  state[field] = value;
-  const yesBtn = document.getElementById(field + 'Yes');
-  const noBtn  = document.getElementById(field + 'No');
-  if (yesBtn) { yesBtn.className = 'toggle-btn' + (value ? ' active-yes' : ''); }
-  if (noBtn)  { noBtn.className  = 'toggle-btn' + (!value ? ' active-no' : ''); }
-
-  // Conditional rows
-  if (field === 'nightSweats') {
-    document.getElementById('nightSweatSeverityRow').classList.toggle('hidden', !value);
-  }
-  if (field === 'jointPain') {
-    document.getElementById('jointSeverityRow').classList.toggle('hidden', !value);
-  }
-  if (field === 'period') {
-    document.getElementById('flowRow').classList.toggle('hidden', !value);
-  }
-  if (field === 'hrtTaken') {
-    document.getElementById('hrtTypeRow').classList.toggle('hidden', !value);
-  }
-}
-
-function setStar(group, val) {
-  state[group] = val;
-  const container = group === 'sleepQuality' ? 'sleepQualityStars' : 'nightSweatStars';
-  document.querySelectorAll(`#${container} .star`).forEach(s => {
-    s.classList.toggle('filled', parseInt(s.dataset.val) <= val);
-  });
-}
-
-function selectMood(emoji) {
-  state.mood = emoji;
-  document.querySelectorAll('.mood-btn').forEach(b => {
-    b.classList.toggle('selected', b.dataset.mood === emoji);
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   SAVE TODAY
-══════════════════════════════════════════════════════════════════ */
-function saveTodayEntry() {
-  const supplements = [];
-  ['Magnesium','VitaminD','Omega3','BlackCohosh','Other'].forEach(id => {
-    const el = document.getElementById('supp_' + id);
-    if (el && el.checked) supplements.push(el.value);
-  });
-
-  const entry = {
-    date:               todayStr(),
-    hotFlashes:         parseInt(document.getElementById('hotFlashes').value) || 0,
-    nightSweats:        state.nightSweats,
-    nightSweatSeverity: state.nightSweatSeverity || 0,
-    sleepHours:         parseFloat(document.getElementById('sleepHours').value) || 0,
-    sleepQuality:       state.sleepQuality || 0,
-    wake3am:            state.wake3am,
-    brainFog:           parseInt(document.getElementById('brainFog').value) || 5,
-    anxiety:            parseInt(document.getElementById('anxiety').value) || 5,
-    mood:               state.mood || '😐',
-    energy:             parseInt(document.getElementById('energy').value) || 5,
-    jointPain:          state.jointPain,
-    jointSeverity:      state.jointPain ? (parseInt(document.getElementById('jointSeverity').value) || 0) : 0,
-    headache:           state.headache,
-    bloating:           state.bloating,
-    period:             state.period,
-    spotting:           state.spotting,
-    flow:               state.period ? (document.getElementById('flow').value || '') : '',
-    hrtTaken:           state.hrtTaken,
-    hrtType:            state.hrtTaken ? (document.getElementById('hrtType').value || '') : '',
-    supplements:        supplements,
-    notes:              document.getElementById('notes').value || '',
+  /* ── QUOTES ── */
+  var QUOTES = {
+    strong: [
+      { t:'Discipline becomes identity when repeated quietly.', m:'Locked in', r:'You are sustaining high streaks — this is momentum compounding.' },
+      { t:'Consistency removes drama from progress.', m:'Stable momentum', r:'Your dashboard shows repeat wins, not random effort.' },
+      { t:'Your future trusts the habits you keep today.', m:'Compounding', r:'High follow-through signals durable routines building up.' },
+      { t:'The gap between amateur and expert is daily reps.', m:'Elite focus', r:'You have crossed the threshold into reliable execution.' }
+    ],
+    recovering: [
+      { t:'A reset is still movement if you return today.', m:'Reset mode', r:'Misses are clustering — the app shifts to recovery coaching.' },
+      { t:'One completed habit restarts the whole rhythm.', m:'Restart energy', r:'A small win right now beats waiting for perfect conditions.' },
+      { t:'Momentum is rebuilt, not found.', m:'Gentle push', r:'Lower friction and finish the easiest habit first.' },
+      { t:'Progress is not lost. It is paused. Resume now.', m:'Resilience', r:'Streaks reset but the skill stays — pick it back up.' }
+    ],
+    early: [
+      { t:'Small proofs beat big plans.', m:'First steps', r:'You are in setup mode — quick wins matter most now.' },
+      { t:'Start simple enough that today cannot say no.', m:'Low friction', r:'New habits stick best when early days feel effortless.' },
+      { t:'The first streak is earned in ordinary moments.', m:'Beginner focus', r:'Your dashboard is building its first picture of your rhythm.' },
+      { t:'One percent better every day compounds into a new version of you.', m:'Atomic start', r:'Early consistency is the hardest and most valuable part.' }
+    ],
+    steady: [
+      { t:'Keep the cadence and the confidence follows.', m:'Calm focus', r:'Your pattern looks balanced with clear room to climb.' },
+      { t:'Reliable days create loud results.', m:'Measured drive', r:'Moderate consistency across habits — the base is solid.' },
+      { t:'Make today look like yesterday at its best.', m:'Repeatable flow', r:'The system sees rhythm forming — more repeatability will unlock elite mode.' },
+      { t:'Discipline is not motivation. It is a decision made once.', m:'Resolved', r:'You are building the decision muscle, not relying on mood.' }
+    ]
   };
 
-  saveEntry(todayStr(), entry);
-  showToast('✓ Entry saved!');
-}
+  /* ── UTILS ── */
+  function uid() { return Math.random().toString(36).slice(2,10); }
+  function el(id) { return document.getElementById(id); }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   LOAD TODAY'S ENTRY (pre-fill)
-══════════════════════════════════════════════════════════════════ */
-function loadTodayEntry() {
-  const entry = getEntry(todayStr());
-  if (!entry) return;
-
-  document.getElementById('hotFlashes').value = entry.hotFlashes || 0;
-  document.getElementById('sleepHours').value = entry.sleepHours || 7;
-  document.getElementById('brainFog').value   = entry.brainFog   || 5;
-  document.getElementById('anxiety').value    = entry.anxiety    || 5;
-  document.getElementById('energy').value     = entry.energy     || 5;
-  document.getElementById('notes').value      = entry.notes      || '';
-
-  // Update slider visuals
-  ['brainFog','anxiety','energy'].forEach(id => {
-    const el = document.getElementById(id);
-    const valId = id + 'Val';
-    updateSlider(el, valId);
-  });
-
-  // Toggles
-  setToggle('nightSweats', !!entry.nightSweats);
-  setToggle('wake3am',     !!entry.wake3am);
-  setToggle('jointPain',   !!entry.jointPain);
-  setToggle('headache',    !!entry.headache);
-  setToggle('bloating',    !!entry.bloating);
-  setToggle('period',      !!entry.period);
-  setToggle('spotting',    !!entry.spotting);
-  setToggle('hrtTaken',    !!entry.hrtTaken);
-
-  // Stars
-  if (entry.nightSweatSeverity) setStar('nightSweatSeverity', entry.nightSweatSeverity);
-  if (entry.sleepQuality)       setStar('sleepQuality',       entry.sleepQuality);
-
-  // Mood
-  if (entry.mood) selectMood(entry.mood);
-
-  // Joint severity
-  if (entry.jointPain && entry.jointSeverity) {
-    const js = document.getElementById('jointSeverity');
-    js.value = entry.jointSeverity;
-    updateSlider(js, 'jointSeverityVal');
+  function toast(msg) {
+    var t = el('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ t.classList.remove('show'); }, 2400);
   }
 
-  // Flow
-  if (entry.flow) document.getElementById('flow').value = entry.flow;
-
-  // HRT type
-  if (entry.hrtType) document.getElementById('hrtType').value = entry.hrtType;
-
-  // Supplements
-  const suppMap = { 'Magnesium':'Magnesium','Vitamin D':'VitaminD','Omega-3':'Omega3','Black Cohosh':'BlackCohosh','Other':'Other' };
-  (entry.supplements || []).forEach(s => {
-    const id = suppMap[s];
-    if (id) { const el = document.getElementById('supp_' + id); if (el) el.checked = true; }
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   CALENDAR HEATMAP
-══════════════════════════════════════════════════════════════════ */
-function changeCalMonth(delta) {
-  calMonth += delta;
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  if (calMonth < 0)  { calMonth = 11; calYear--; }
-  renderCalendar(calYear, calMonth);
-}
-
-function renderCalendar(year, month) {
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calMonthLabel').textContent = monthNames[month] + ' ' + year;
-
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-
-  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  const todayFull = todayStr();
-
-  // Empty cells before first day
-  for (let i = 0; i < firstDay; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'day-cell empty';
-    grid.appendChild(empty);
+  /* ── CALCULATIONS ── */
+  function rate(h) {
+    if (!h.hist.length) return 0;
+    var done = h.hist.filter(function(e){ return e.s === 'done'; }).length;
+    return Math.round(done / h.hist.length * 100);
   }
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    const entry = getEntry(dateStr);
-    const score = calculateDayScore(entry);
-
-    const cell = document.createElement('div');
-    let cls = 'day-cell ';
-    if (!entry) cls += 'no-data';
-    else if (score >= 7) cls += 'score-green';
-    else if (score >= 4) cls += 'score-yellow';
-    else cls += 'score-red';
-    if (dateStr === todayFull) cls += ' today-cell';
-    cell.className = cls;
-    cell.textContent = d;
-    cell.title = entry ? `Score: ${score}/10` : 'No data';
-    if (entry) cell.onclick = () => showDayModal(dateStr, entry);
-    grid.appendChild(cell);
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   DAY MODAL
-══════════════════════════════════════════════════════════════════ */
-function showDayModal(dateStr, entry) {
-  document.getElementById('modalDate').textContent = formatDate(dateStr);
-  const score = calculateDayScore(entry);
-  const rows = [
-    ['Wellness score', score + '/10'],
-    ['Hot flashes', entry.hotFlashes],
-    ['Night sweats', entry.nightSweats ? `Yes (severity ${entry.nightSweatSeverity}/5)` : 'No'],
-    ['Sleep', `${entry.sleepHours}h — quality ${entry.sleepQuality}/5`],
-    ['Woke at 3am', entry.wake3am ? 'Yes' : 'No'],
-    ['Brain fog', entry.brainFog + '/10'],
-    ['Anxiety', entry.anxiety + '/10'],
-    ['Energy', entry.energy + '/10'],
-    ['Mood', entry.mood || '—'],
-    ['Joint pain', entry.jointPain ? `Yes (${entry.jointSeverity}/5)` : 'No'],
-    ['Headache', entry.headache ? 'Yes' : 'No'],
-    ['Bloating', entry.bloating ? 'Yes' : 'No'],
-    ['Period', entry.period ? `Yes (${entry.flow || 'flow not set'})` : 'No'],
-    ['Spotting', entry.spotting ? 'Yes' : 'No'],
-    ['HRT taken', entry.hrtTaken ? `Yes — ${entry.hrtType || 'type not set'}` : 'No'],
-    ['Supplements', (entry.supplements || []).join(', ') || 'None'],
-    ['Notes', entry.notes || '—'],
-  ];
-  const body = document.getElementById('modalBody');
-  body.innerHTML = rows.map(([k,v]) =>
-    `<div class="flex justify-between gap-2 py-1 border-b border-gray-100">
-       <span class="font-medium text-gray-500">${k}</span>
-       <span class="text-right font-semibold">${v}</span>
-     </div>`
-  ).join('');
-  document.getElementById('dayModal').classList.remove('hidden');
-}
-function closeModal(e) {
-  if (e.target.id === 'dayModal') document.getElementById('dayModal').classList.add('hidden');
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   CHARTS
-══════════════════════════════════════════════════════════════════ */
-function renderCharts() {
-  const isDark = document.body.classList.contains('dark');
-  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
-  const tickColor = isDark ? '#94a3b8' : '#6b7280';
-
-  const today = todayStr();
-  const start = subtractDays(today, 29);
-  const labels = dateRange(start, today).map(d => {
-    const dt = new Date(d + 'T00:00:00');
-    return String(dt.getDate()).padStart(2,'0') + '/' + String(dt.getMonth()+1).padStart(2,'0');
-  });
-  const dates = dateRange(start, today);
-  const all = getAllEntries();
-
-  const energyData   = dates.map(d => all[d] ? all[d].energy   : null);
-  const moodData     = dates.map(d => all[d] ? moodToNum(all[d].mood) : null);
-  const hotFlashData = dates.map(d => all[d] ? all[d].hotFlashes : 0);
-  const fogData      = dates.map(d => all[d] ? all[d].brainFog  : null);
-  const anxData      = dates.map(d => all[d] ? all[d].anxiety   : null);
-
-  const commonOpts = {
-    responsive: true,
-    interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { labels: { color: tickColor, font: { size: 11 } } } },
-    scales: {
-      x: { ticks: { color: tickColor, maxTicksLimit: 10, font: { size: 10 } }, grid: { color: gridColor } },
-      y: { ticks: { color: tickColor, font: { size: 10 } }, grid: { color: gridColor } },
+  function streak(h) {
+    var s = 0;
+    for (var i = h.hist.length - 1; i >= 0; i--) {
+      if (h.hist[i].s === 'done') s++;
+      else break;
     }
-  };
+    return s;
+  }
 
-  // Chart 1: Energy + Mood
-  const ctx1 = document.getElementById('chartEnergyMood').getContext('2d');
-  if (chartEM) chartEM.destroy();
-  chartEM = new Chart(ctx1, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Energy', data: energyData, borderColor: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.1)', tension: 0.3, fill: true, spanGaps: true, pointRadius: 3 },
-        { label: 'Mood',   data: moodData,   borderColor: '#EC4899', backgroundColor: 'rgba(236,72,153,0.1)', tension: 0.3, fill: true, spanGaps: true, pointRadius: 3 },
-      ]
-    },
-    options: { ...commonOpts, scales: { ...commonOpts.scales, y: { ...commonOpts.scales.y, min: 0, max: 10 } } }
-  });
+  function longestStreak(h) {
+    var best = 0, cur = 0;
+    for (var i = 0; i < h.hist.length; i++) {
+      if (h.hist[i].s === 'done') { cur++; if (cur > best) best = cur; }
+      else cur = 0;
+    }
+    return best;
+  }
 
-  // Chart 2: Hot flashes
-  const ctx2 = document.getElementById('chartHotFlash').getContext('2d');
-  if (chartHF) chartHF.destroy();
-  chartHF = new Chart(ctx2, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{ label: 'Hot Flashes', data: hotFlashData, backgroundColor: 'rgba(249,115,22,0.7)', borderColor: '#f97316', borderWidth: 1, borderRadius: 3 }]
-    },
-    options: { ...commonOpts, scales: { ...commonOpts.scales, y: { ...commonOpts.scales.y, min: 0, ticks: { ...commonOpts.scales.y.ticks, stepSize: 1 } } } }
-  });
+  function bestWindow() {
+    var done = actLog.filter(function(a){ return a.type === 'done'; });
+    if (!done.length) return '--';
+    var avg = done.reduce(function(s,a){ return s + new Date(a.ts).getHours(); }, 0) / done.length;
+    return avg < 11 ? 'Morning' : avg < 17 ? 'Afternoon' : 'Evening';
+  }
 
-  // Chart 3: Brain fog + Anxiety
-  const ctx3 = document.getElementById('chartFogAnxiety').getContext('2d');
-  if (chartFA) chartFA.destroy();
-  chartFA = new Chart(ctx3, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Brain Fog', data: fogData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.3, fill: true, spanGaps: true, pointRadius: 3 },
-        { label: 'Anxiety',   data: anxData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)',  tension: 0.3, fill: true, spanGaps: true, pointRadius: 3 },
-      ]
-    },
-    options: { ...commonOpts, scales: { ...commonOpts.scales, y: { ...commonOpts.scales.y, min: 0, max: 10 } } }
-  });
-}
+  function totalDays() {
+    if (!habits.length) return 0;
+    return Math.max.apply(null, habits.map(function(h){ return h.hist.length; }));
+  }
 
-/* ══════════════════════════════════════════════════════════════════
-   MONTHLY STATS
-══════════════════════════════════════════════════════════════════ */
-function renderMonthStats() {
-  const year  = calYear;
-  const month = calMonth;
-  const start = year + '-' + String(month+1).padStart(2,'0') + '-01';
-  const lastDay = new Date(year, month+1, 0).getDate();
-  const end   = year + '-' + String(month+1).padStart(2,'0') + '-' + String(lastDay).padStart(2,'0');
-  const entries = getEntriesInRange(start, end);
+  function scoreCalc() {
+    if (!habits.length) return 0;
+    var avg = habits.reduce(function(s,h){ return s + rate(h); }, 0) / habits.length;
+    var streakBoost = Math.min(25,
+      habits.reduce(function(s,h){ return s + streak(h); }, 0) * 2);
+    return Math.min(100, Math.round(avg * 0.78 + streakBoost));
+  }
 
-  if (!entries.length) {
-    ['statHotFlash','statSleep','statEnergy','statNightSweats'].forEach(id => {
-      document.getElementById(id).textContent = '—';
+  function detectMode() {
+    if (!habits.length) return 'early';
+    var avg = habits.reduce(function(s,h){ return s + rate(h); }, 0) / habits.length;
+    var top = Math.max.apply(null, habits.map(streak));
+    var skipCount = habits.reduce(function(s,h){
+      return s + h.hist.filter(function(e){ return e.s === 'skip'; }).length;
+    }, 0);
+    if (avg >= 75 && top >= 3) return 'strong';
+    if (avg < 42 || skipCount > habits.length * 10) return 'recovering';
+    return 'steady';
+  }
+
+  /* ── QUOTE ── */
+  function renderQuote() {
+    var mode = detectMode();
+    var list = QUOTES[mode];
+    var q = list[qIdx % list.length];
+    qIdx++;
+    el('qText').textContent = '\u201c' + q.t + '\u201d';
+    el('qMood').textContent = q.m;
+    el('qReason').textContent = q.r;
+  }
+
+  /* ── CHART ── */
+  function renderChart() {
+    // Build per-day counts for last 7 days using timestamps
+    var now = Date.now();
+    var DAY = 86400000;
+    var labels = [];
+    var doneCounts = [];
+    var ratios = [];
+
+    for (var d = 6; d >= 0; d--) {
+      var dayStart = now - d * DAY;
+      var dayEnd = dayStart + DAY;
+      var date = new Date(dayStart);
+      labels.push(date.toLocaleDateString(undefined, { weekday: 'short' }));
+
+      var doneToday = 0;
+      var totalToday = 0;
+      habits.forEach(function(h) {
+        h.hist.forEach(function(e) {
+          var t = typeof e.ts === 'number' ? e.ts : new Date(e.ts).getTime();
+          if (t >= dayStart && t < dayEnd) {
+            totalToday++;
+            if (e.s === 'done') doneToday++;
+          }
+        });
+      });
+      doneCounts.push(doneToday);
+      ratios.push(totalToday > 0 ? Math.round(doneToday / totalToday * 100) : 0);
+    }
+
+    var cs = getComputedStyle(document.documentElement);
+    var textCol = cs.getPropertyValue('--col-text').trim() || '#e9ece8';
+    var mutedCol = cs.getPropertyValue('--muted').trim() || '#a6b0ab';
+
+    if (chartInst) { chartInst.destroy(); chartInst = null; }
+    chartInst = new Chart(el('chartCanvas'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Completions',
+            data: doneCounts,
+            borderRadius: 8,
+            backgroundColor: 'rgba(92,199,194,.5)',
+            borderSkipped: false,
+            maxBarThickness: 32,
+            order: 2
+          },
+          {
+            type: 'line',
+            label: 'Done %',
+            data: ratios,
+            borderColor: '#8be7dc',
+            backgroundColor: 'transparent',
+            tension: 0.42,
+            borderWidth: 2.5,
+            pointRadius: 4,
+            pointBackgroundColor: '#8be7dc',
+            yAxisID: 'y1',
+            order: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: textCol, boxWidth: 12, padding: 16 } },
+          tooltip: { backgroundColor: 'rgba(20,25,24,.9)', titleColor: textCol, bodyColor: mutedCol }
+        },
+        scales: {
+          x: {
+            ticks: { color: mutedCol, font: { size: 12 } },
+            grid: { display: false },
+            border: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: mutedCol, precision: 0, font: { size: 12 } },
+            grid: { color: 'rgba(128,128,128,.1)', drawBorder: false },
+            border: { display: false }
+          },
+          y1: {
+            position: 'right',
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              color: mutedCol, font: { size: 12 },
+              callback: function(v){ return v + '%'; }
+            },
+            grid: { display: false },
+            border: { display: false }
+          }
+        }
+      }
     });
-    return;
   }
 
-  const avg = (arr) => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : '—';
-  document.getElementById('statHotFlash').textContent   = avg(entries.map(e => e.hotFlashes || 0));
-  document.getElementById('statSleep').textContent      = avg(entries.map(e => e.sleepHours || 0));
-  document.getElementById('statEnergy').textContent     = avg(entries.map(e => e.energy || 0));
-  document.getElementById('statNightSweats').textContent = entries.filter(e => e.nightSweats).length;
-}
+  /* ── HEATMAP ── */
+  function renderHeatmap() {
+    var sel = el('heatmapHabit').value;
+    var grid = el('heatmapGrid');
+    var now = new Date();
+    var DAY = 86400000;
+    var cells = 364; // 52 weeks * 7
 
-/* ══════════════════════════════════════════════════════════════════
-   DOCTOR REPORT
-══════════════════════════════════════════════════════════════════ */
-function buildReport() {
-  const name  = document.getElementById('reportName').value || 'Patient';
-  const days  = parseInt(document.querySelector('input[name="reportRange"]:checked').value);
-  const today = todayStr();
-  const start = subtractDays(today, days - 1);
-  const entries = getEntriesInRange(start, today);
-  const allDates = dateRange(start, today);
-  const all = getAllEntries();
-
-  const html = generateReport(name, days, start, today, entries, allDates, all);
-  const container = document.getElementById('printable-report');
-  container.innerHTML = html;
-  container.classList.remove('hidden');
-
-  // Scroll to report
-  setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-
-  // Auto-print
-  setTimeout(() => window.print(), 400);
-}
-
-function generateReport(name, days, start, end, entries, allDates, all) {
-  const today = todayStr();
-  const tracked = entries.length;
-
-  // ── Vasomotor ──
-  const totalHF = entries.reduce((s,e) => s + (e.hotFlashes||0), 0);
-  const avgHF   = tracked ? (totalHF / tracked).toFixed(1) : 0;
-  const peakHFEntry = entries.reduce((best, e) => (!best || (e.hotFlashes||0) > (best.hotFlashes||0)) ? e : best, null);
-  const peakHFDay   = peakHFEntry ? peakHFEntry.date : '—';
-  const nsNights    = entries.filter(e => e.nightSweats).length;
-  const avgNSSev    = nsNights ? (entries.filter(e=>e.nightSweats).reduce((s,e)=>s+(e.nightSweatSeverity||0),0)/nsNights).toFixed(1) : 0;
-
-  // ── Sleep ──
-  const sleepEntries = entries.filter(e => e.sleepHours > 0);
-  const avgSleep  = sleepEntries.length ? (sleepEntries.reduce((s,e)=>s+e.sleepHours,0)/sleepEntries.length).toFixed(1) : '—';
-  const avgSleepQ = sleepEntries.length ? (sleepEntries.reduce((s,e)=>s+(e.sleepQuality||0),0)/sleepEntries.length).toFixed(1) : '—';
-  const wake3amN  = entries.filter(e => e.wake3am).length;
-  const wake3amPct = tracked ? Math.round(wake3amN/tracked*100) : 0;
-
-  // Best sleep week
-  let bestWeekLabel = '—';
-  if (allDates.length >= 7) {
-    let bestAvg = -1, bestStart = '';
-    for (let i = 0; i <= allDates.length - 7; i++) {
-      const week = allDates.slice(i, i+7).map(d => all[d]).filter(Boolean);
-      if (!week.length) continue;
-      const wa = week.reduce((s,e)=>s+(e.sleepHours||0),0)/week.length;
-      if (wa > bestAvg) { bestAvg = wa; bestStart = allDates[i]; }
+    // Build a map: dateStr -> done count, total count
+    var map = {};
+    for (var i = 0; i < cells; i++) {
+      var d = new Date(now - (cells - 1 - i) * DAY);
+      var key = d.toISOString().slice(0,10);
+      map[key] = { done: 0, total: 0 };
     }
-    if (bestStart) {
-      const bs = new Date(bestStart+'T00:00:00');
-      const be = new Date(bestStart+'T00:00:00'); be.setDate(be.getDate()+6);
-      bestWeekLabel = bs.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' – ' + be.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    }
-  }
 
-  // ── Cognitive ──
-  const fogEntries = entries.filter(e => e.brainFog);
-  const anxEntries = entries.filter(e => e.anxiety);
-  const engEntries = entries.filter(e => e.energy);
-  const avgFog = fogEntries.length ? (fogEntries.reduce((s,e)=>s+e.brainFog,0)/fogEntries.length).toFixed(1) : '—';
-  const avgAnx = anxEntries.length ? (anxEntries.reduce((s,e)=>s+e.anxiety,0)/anxEntries.length).toFixed(1) : '—';
-  const avgEng = engEntries.length ? (engEntries.reduce((s,e)=>s+e.energy,0)/engEntries.length).toFixed(1) : '—';
-  const fogHigh = fogEntries.filter(e=>e.brainFog>=7).length;
-  const anxHigh = anxEntries.filter(e=>e.anxiety>=7).length;
-  const engLow  = engEntries.filter(e=>e.energy<=3).length;
+    var targetHabits = sel === 'all' ? habits : habits.filter(function(h){ return h.id === sel; });
+    targetHabits.forEach(function(h) {
+      h.hist.forEach(function(e) {
+        var ts = typeof e.ts === 'number' ? e.ts : new Date(e.ts).getTime();
+        var key = new Date(ts).toISOString().slice(0,10);
+        if (map[key]) {
+          map[key].total++;
+          if (e.s === 'done') map[key].done++;
+        }
+      });
+    });
 
-  // Trend helper (simple: compare first half vs second half)
-  function trend(arr, key) {
-    if (arr.length < 4) return '→ Stable';
-    const half = Math.floor(arr.length/2);
-    const first = arr.slice(0,half).reduce((s,e)=>s+(e[key]||0),0)/half;
-    const second= arr.slice(half).reduce((s,e)=>s+(e[key]||0),0)/(arr.length-half);
-    const diff = second - first;
-    if (Math.abs(diff) < 0.5) return '→ Stable';
-    return diff > 0 ? '↑ Increasing' : '↓ Decreasing';
-  }
-
-  // ── Cycle ──
-  const periodDays  = entries.filter(e=>e.period).map(e=>e.date);
-  const spottingCnt = entries.filter(e=>e.spotting).length;
-
-  // ── Medications ──
-  const hrtDays = entries.filter(e=>e.hrtTaken).length;
-  const hrtPct  = tracked ? Math.round(hrtDays/tracked*100) : 0;
-  const hrtTypes = [...new Set(entries.filter(e=>e.hrtTaken&&e.hrtType).map(e=>e.hrtType))];
-  const allSupps = {};
-  entries.forEach(e => (e.supplements||[]).forEach(s => { allSupps[s] = (allSupps[s]||0)+1; }));
-  const suppList = Object.entries(allSupps).map(([k,v])=>`${k} (${v}d)`).join(', ') || 'None';
-
-  // ── Daily table ──
-  const tableRows = allDates.map(d => {
-    const e = all[d];
-    if (!e) return `<tr><td>${d}</td><td colspan="7" style="color:#9ca3af;text-align:center">No entry</td></tr>`;
-    return `<tr>
-      <td>${d}</td>
-      <td>${e.hotFlashes||0}</td>
-      <td>${e.sleepHours||'—'}</td>
-      <td>${e.energy||'—'}</td>
-      <td>${e.brainFog||'—'}</td>
-      <td>${e.anxiety||'—'}</td>
-      <td>${e.mood||'—'}</td>
-      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.notes||''}</td>
-    </tr>`;
-  }).join('');
-
-  const fmtDate = (s) => new Date(s+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
-
-  return `
-  <div style="font-family: Georgia, serif;">
-    <div style="text-align:center; border-bottom: 2px solid #7C3AED; padding-bottom: 1rem; margin-bottom: 1.5rem;">
-      <h1 style="font-size:1.4rem; font-weight:700; color:#4c1d95; letter-spacing:0.05em;">PERIMENOPAUSE SYMPTOM REPORT</h1>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.25rem; margin-top:0.75rem; font-size:0.85rem;">
-        <div><strong>Patient:</strong> ${name}</div>
-        <div><strong>Date Generated:</strong> ${fmtDate(today)}</div>
-        <div><strong>Report Period:</strong> ${fmtDate(start)} to ${fmtDate(end)}</div>
-        <div><strong>Days Tracked:</strong> ${tracked} of ${days}</div>
-      </div>
-    </div>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">1. Vasomotor Symptoms</h2>
-      <table class="report-table">
-        <thead><tr><th>Symptom</th><th>Total Episodes</th><th>Avg Per Day</th><th>Peak Day</th><th>Severity</th></tr></thead>
-        <tbody>
-          <tr><td>Hot Flashes</td><td>${totalHF}</td><td>${avgHF}</td><td>${peakHFDay}</td><td>—</td></tr>
-          <tr><td>Night Sweats</td><td>${nsNights} nights</td><td>${tracked ? (nsNights/tracked).toFixed(2) : 0}</td><td>${nsNights} of ${tracked} nights</td><td>${avgNSSev}/5</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">2. Sleep Analysis</h2>
-      <table class="report-table">
-        <tbody>
-          <tr><td><strong>Average hours slept</strong></td><td>${avgSleep} hrs</td></tr>
-          <tr><td><strong>Average sleep quality</strong></td><td>${avgSleepQ} / 5</td></tr>
-          <tr><td><strong>Nights with 3am waking</strong></td><td>${wake3amN} (${wake3amPct}%)</td></tr>
-          <tr><td><strong>Best sleep week</strong></td><td>${bestWeekLabel}</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">3. Cognitive &amp; Emotional</h2>
-      <table class="report-table">
-        <thead><tr><th>Symptom</th><th>Average (1–10)</th><th>Days Rated 7+</th><th>Trend</th></tr></thead>
-        <tbody>
-          <tr><td>Brain Fog</td><td>${avgFog}</td><td>${fogHigh}</td><td>${trend(fogEntries,'brainFog')}</td></tr>
-          <tr><td>Anxiety</td><td>${avgAnx}</td><td>${anxHigh}</td><td>${trend(anxEntries,'anxiety')}</td></tr>
-          <tr><td>Energy (low = bad)</td><td>${avgEng}</td><td>${engLow} days ≤3</td><td>${trend(engEntries,'energy')}</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">4. Cycle Log</h2>
-      <table class="report-table">
-        <tbody>
-          <tr><td><strong>Period days</strong></td><td>${periodDays.length ? periodDays.join(', ') : 'None recorded'}</td></tr>
-          <tr><td><strong>Spotting days</strong></td><td>${spottingCnt}</td></tr>
-          <tr><td><strong>Notes</strong></td><td>${periodDays.length === 0 ? 'No period recorded in this period.' : `${periodDays.length} period day(s) recorded.`}</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">5. Medications &amp; Supplements</h2>
-      <table class="report-table">
-        <tbody>
-          <tr><td><strong>HRT compliance</strong></td><td>Taken ${hrtDays} of ${tracked} days (${hrtPct}%)</td></tr>
-          <tr><td><strong>HRT type(s)</strong></td><td>${hrtTypes.join(', ') || 'Not specified'}</td></tr>
-          <tr><td><strong>Supplements used</strong></td><td>${suppList}</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">6. Daily Log</h2>
-      <div style="overflow-x:auto;">
-        <table class="report-table" style="font-size:0.75rem;">
-          <thead><tr><th>Date</th><th>Hot Flashes</th><th>Sleep hrs</th><th>Energy</th><th>Brain Fog</th><th>Anxiety</th><th>Mood</th><th>Notes</th></tr></thead>
-          <tbody>${tableRows}</tbody>
-        </table>
-      </div>
-    </section>
-
-    <div style="margin-top:2rem; padding-top:1rem; border-top:1px solid #e9d5ff; font-size:0.75rem; color:#9ca3af; text-align:center;">
-      Generated by PeriTrack — All data stored locally on device. For discussion with your healthcare provider.
-    </div>
-  </div>`;
-}
-
-function copyReportText() {
-  const container = document.getElementById('printable-report');
-  if (container.classList.contains('hidden')) {
-    showToast('⚠️ Generate report first!');
-    return;
-  }
-  const text = container.innerText;
-  navigator.clipboard.writeText(text).then(() => showToast('📋 Copied to clipboard!')).catch(() => {
-    // Fallback
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('📋 Copied to clipboard!');
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   SETTINGS — EXPORT / IMPORT / CLEAR
-══════════════════════════════════════════════════════════════════ */
-function exportData() {
-  const data = {
-    entries:  getAllEntries(),
-    settings: getSettings(),
-    exported: new Date().toISOString(),
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'peritrack_data_' + todayStr() + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('⬇️ Download started!');
-}
-
-function importData(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.entries) {
-        const existing = getAllEntries();
-        const merged = { ...existing, ...data.entries };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    var keys = Object.keys(map);
+    var html = '';
+    keys.forEach(function(key) {
+      var v = map[key];
+      var level = 0;
+      if (v.total > 0) {
+        var pct = v.done / v.total;
+        if (pct === 0) level = 0;
+        else if (pct <= 0.25) level = 1;
+        else if (pct <= 0.5) level = 2;
+        else if (pct <= 0.75) level = 3;
+        else level = 4;
       }
-      if (data.settings) {
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
-      }
-      showToast('✓ Data imported!');
-      loadTodayEntry();
-    } catch(err) {
-      showToast('❌ Invalid file!');
-    }
-  };
-  reader.readAsText(file);
-  input.value = '';
-}
+      html += '<div class="hm-cell hm-' + level + '" title="' + key + ': ' +
+        v.done + '/' + (v.total || habits.length) + ' done" aria-label="' + key + '"></div>';
+    });
+    grid.innerHTML = html;
 
-function clearAllData() {
-  if (confirm('Are you sure? This will permanently delete ALL your tracking data. This cannot be undone.')) {
-    localStorage.removeItem(STORAGE_KEY);
-    showToast('🗑️ All data cleared.');
-    // Reset form
-    location.reload();
+    // Rebuild habit select
+    var hSel = el('heatmapHabit');
+    var prev = hSel.value;
+    hSel.innerHTML = '<option value="all">All habits</option>';
+    habits.forEach(function(h) {
+      var opt = document.createElement('option');
+      opt.value = h.id;
+      opt.textContent = h.icon + ' ' + h.name;
+      hSel.appendChild(opt);
+    });
+    hSel.value = prev;
+    if (!hSel.value) hSel.value = 'all';
   }
-}
 
-/* ══════════════════════════════════════════════════════════════════
-   INIT
-══════════════════════════════════════════════════════════════════ */
-function init() {
-  // Set today's date display
-  const d = new Date();
-  document.getElementById('todayDateDisplay').textContent = d.toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
+  /* ── PATTERNS ── */
+  function renderPatterns() {
+    var mode = detectMode();
+    var win = bestWindow();
+    var top = habits.length ? Math.max.apply(null, habits.map(streak)) : 0;
+    var topLong = habits.length ? Math.max.apply(null, habits.map(longestStreak)) : 0;
+    var days = totalDays();
+    var weakest = habits.length
+      ? habits.slice().sort(function(a,b){ return rate(a) - rate(b); })[0]
+      : null;
+    var strongest = habits.length
+      ? habits.slice().sort(function(a,b){ return rate(b) - rate(a); })[0]
+      : null;
+    var headline = mode === 'strong' ? 'You are compounding 🔥'
+      : mode === 'recovering' ? 'Recovery mode detected'
+      : habits.length ? 'Your rhythm is forming'
+      : 'Waiting for your rhythm';
+    var hint = mode === 'strong'
+      ? 'Best results in the ' + win.toLowerCase() + '. Protect that window every day.'
+      : mode === 'recovering'
+      ? 'Finish one easy habit today to restart momentum.'
+      : habits.length
+      ? win + ' is your strongest window. Keep it consistent.'
+      : 'Log habits to unlock insights, streak analysis, and adaptive quotes.';
 
-  // Init all sliders visual state
-  ['brainFog','anxiety','energy'].forEach(id => {
-    const el = document.getElementById(id);
-    updateSlider(el, id + 'Val');
-  });
-  const js = document.getElementById('jointSeverity');
-  updateSlider(js, 'jointSeverityVal');
+    el('patHead').textContent = headline;
+    el('patHint').textContent = hint;
 
-  // Load settings
-  const s = getSettings();
-  if (s.darkMode) {
-    document.body.classList.add('dark');
+    var strips = [
+      { k:'Best completion window', v: win },
+      { k:'Current longest streak', v: top ? top + ' day' + (top > 1 ? 's' : '') : 'Build your first chain' },
+      { k:'All-time best streak', v: topLong ? topLong + ' day' + (topLong > 1 ? 's' : '') : '--' },
+      { k:'Days of history', v: days ? days + ' day' + (days > 1 ? 's' : '') + ' recorded' : 'No history yet' },
+      { k:'Needs most attention', v: weakest ? weakest.icon + ' ' + weakest.name + ' (' + rate(weakest) + '%)' : '--' },
+      { k:'Leading habit', v: strongest ? strongest.icon + ' ' + strongest.name + ' (' + rate(strongest) + '%)' : '--' }
+    ];
+
+    el('patStrips').innerHTML = strips.map(function(s) {
+      return '<div class="strip"><strong>' + s.k + '</strong>' +
+        '<span class="strip-val">' + s.v + '</span></div>';
+    }).join('');
   }
-  updateDarkToggleUI();
 
-  // Pre-fill today's entry if exists
-  loadTodayEntry();
-
-  // Default toggle states (No selected)
-  ['nightSweats','wake3am','jointPain','headache','bloating','period','spotting','hrtTaken'].forEach(f => {
-    if (!state[f]) {
-      const noBtn = document.getElementById(f + 'No');
-      if (noBtn) noBtn.className = 'toggle-btn active-no';
-    }
-  });
-}
-
-
-/* ══════════════════════════════════════════════════════════════════
-   PIN / PASSWORD PROTECTION
-══════════════════════════════════════════════════════════════════ */
-const PIN_KEY      = 'peritrack_pin';       // stored hashed
-const SESSION_KEY  = 'peritrack_unlocked';  // sessionStorage flag
-
-let pinBuffer = '';
-let pinMode   = 'unlock'; // 'unlock' | 'setup' | 'confirm'
-let pinFirst  = '';       // stores first entry during setup
-
-function simpleHash(str) {
-  // Simple non-crypto hash — good enough for local privacy
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return hash.toString();
-}
-
-function updatePinDots() {
-  for (let i = 0; i < 4; i++) {
-    const dot = document.getElementById('dot' + i);
-    dot.classList.toggle('filled', i < pinBuffer.length);
-    dot.classList.remove('error');
-  }
-}
-
-function pinPress(digit) {
-  if (pinBuffer.length >= 4) return;
-  pinBuffer += digit;
-  updatePinDots();
-  document.getElementById('pinError').textContent = '';
-  if (pinBuffer.length === 4) {
-    setTimeout(pinSubmit, 150); // auto-submit when 4 digits entered
-  }
-}
-
-function pinClear() {
-  pinBuffer = pinBuffer.slice(0, -1);
-  updatePinDots();
-  document.getElementById('pinError').textContent = '';
-}
-
-function pinSubmit() {
-  if (pinBuffer.length === 0) return;
-
-  const stored = localStorage.getItem(PIN_KEY);
-
-  if (pinMode === 'unlock') {
-    if (!stored) {
-      // No PIN set yet — go to setup
-      pinMode = 'setup';
-      pinBuffer = '';
-      updatePinDots();
-      document.getElementById('lockSubtitle').textContent = 'Create a 4-digit PIN';
-      document.getElementById('lockHint').textContent = 'Choose a PIN to protect your data';
+  /* ── TIMELINE ── */
+  function renderTimeline() {
+    var tl = el('timeline');
+    if (!actLog.length) {
+      tl.innerHTML = '<div class="strip"><strong>No activity yet</strong>' +
+        '<span>Mark habits done or skip them — your log appears here.</span></div>';
       return;
     }
-    if (simpleHash(pinBuffer) === stored) {
-      // Correct PIN
-      sessionStorage.setItem(SESSION_KEY, '1');
-      unlockApp();
-    } else {
-      // Wrong PIN
-      pinBuffer = '';
-      updatePinDots();
-      for (let i = 0; i < 4; i++) {
-        document.getElementById('dot' + i).classList.add('error');
-      }
-      document.getElementById('pinError').textContent = 'Incorrect PIN. Try again.';
-      setTimeout(() => {
-        for (let i = 0; i < 4; i++)
-          document.getElementById('dot' + i).classList.remove('error');
-      }, 600);
-    }
+    tl.innerHTML = actLog.map(function(item) {
+      var t = new Date(item.ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+      var label = item.type === 'done' ? 'Marked complete ✓'
+        : item.type === 'skip' ? 'Skipped'
+        : 'Habit created';
+      return '<div class="tl-row">' +
+        '<div class="tl-badge">' + item.icon + '</div>' +
+        '<div><strong>' + item.text + '</strong><span>' + label + '</span></div>' +
+        '<div class="tl-time">' + t + '</div>' +
+        '</div>';
+    }).join('');
+  }
 
-  } else if (pinMode === 'setup') {
-    if (pinBuffer.length < 4) {
-      document.getElementById('pinError').textContent = 'Please enter all 4 digits.';
+  /* ── HABITS ── */
+  function renderHabits() {
+    var grid = el('habitsGrid');
+    var empty = el('emptyState');
+    empty.hidden = habits.length > 0;
+    if (!habits.length) { grid.innerHTML = ''; return; }
+
+    grid.innerHTML = habits.map(function(h) {
+      var r = rate(h);
+      var s = streak(h);
+      var ls = longestStreak(h);
+      var lastEntry = h.hist.length ? h.hist[h.hist.length - 1] : null;
+      var doneNow = lastEntry && lastEntry.s === 'done';
+      var skippedNow = lastEntry && lastEntry.s === 'skip';
+
+      return '<article class="habit-card">' +
+        '<div class="habit-top">' +
+          '<div class="habit-title-row">' +
+            '<div class="habit-icon">' + h.icon + '</div>' +
+            '<div>' +
+              '<span class="habit-name">' + h.name + '</span>' +
+              '<span class="habit-cat">' + h.cat + ' · ' + h.target + '×/day</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="streak-badge" title="Current streak">' +
+            '<span class="streak-num">' + s + '</span>' +
+            '<span class="streak-lbl">streak</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="bar-wrap">' +
+          '<div class="bar-row">' +
+            '<span>Completion rate</span>' +
+            '<strong>' + r + '%</strong>' +
+          '</div>' +
+          '<div class="bar"><div class="bar-fill" style="width:' + Math.max(r,3) + '%"></div></div>' +
+        '</div>' +
+        '<p class="habit-cue">' + h.cue + '</p>' +
+        '<div class="habit-btns">' +
+          '<button class="btn hbtn ' + (doneNow ? 'hbtn-done-active' : 'hbtn-done') + '" ' +
+            'data-act="done" data-hid="' + h.id + '">' +
+            (doneNow ? '✓ Done today' : 'Mark done') +
+          '</button>' +
+          '<button class="btn hbtn hbtn-skip ' + (skippedNow ? 'hbtn-done' : '') + '" ' +
+            'data-act="skip" data-hid="' + h.id + '">' +
+            (skippedNow ? '— Skipped' : 'Skip') +
+          '</button>' +
+        '</div>' +
+        '<div style="margin-top:.55rem;display:flex;gap:1rem;font-size:var(--text-xs);color:var(--muted);">' +
+          '<span>' + h.hist.length + ' days logged</span>' +
+          '<span>Best streak: ' + ls + 'd</span>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+  }
+
+  /* ── KPIs ── */
+  function renderKPIs() {
+    if (!habits.length) {
+      ['kRate','kStreaks','kBest','kScore'].forEach(function(id){ el(id).textContent = id === 'kBest' ? '--' : '0'; });
+      el('ringVal').textContent = '0%';
+      el('scoreRing').style.setProperty('--p', 0);
+      el('sDone').textContent = '0';
+      el('sStreaks').textContent = '0';
+      el('sWindow').textContent = '--';
+      el('sDays').textContent = '0';
+      el('sTotal').textContent = '0';
       return;
     }
-    pinFirst = pinBuffer;
-    pinBuffer = '';
-    updatePinDots();
-    pinMode = 'confirm';
-    document.getElementById('lockSubtitle').textContent = 'Confirm your PIN';
-    document.getElementById('lockHint').textContent = 'Enter the same PIN again';
-    document.getElementById('pinError').textContent = '';
 
-  } else if (pinMode === 'confirm') {
-    if (pinBuffer === pinFirst) {
-      localStorage.setItem(PIN_KEY, simpleHash(pinBuffer));
-      sessionStorage.setItem(SESSION_KEY, '1');
-      showToast('🔒 PIN set successfully!');
-      unlockApp();
-    } else {
-      pinBuffer = '';
-      pinFirst  = '';
-      pinMode   = 'setup';
-      updatePinDots();
-      document.getElementById('lockSubtitle').textContent = 'Create a 4-digit PIN';
-      document.getElementById('lockHint').textContent = "PINs didn't match. Try again.";
-      document.getElementById('pinError').textContent = "PINs didn't match.";
+    var score = scoreCalc();
+    var avg = Math.round(habits.reduce(function(s,h){ return s+rate(h); },0) / habits.length);
+    var doneToday = habits.filter(function(h){
+      return h.hist.length && h.hist[h.hist.length-1].s === 'done';
+    }).length;
+    var activeStreaks = habits.filter(function(h){ return streak(h) > 0; }).length;
+    var maxStreak = Math.max.apply(null, habits.map(streak));
+    var best = habits.slice().sort(function(a,b){ return rate(b)-rate(a); })[0];
+    var mode = detectMode();
+    var win = bestWindow();
+
+    el('kRate').textContent = avg + '%';
+    el('kStreaks').textContent = activeStreaks;
+    el('kBest').textContent = best ? best.name : '--';
+    el('kScore').textContent = score;
+
+    el('kRateBadge').textContent = avg > 0 ? '▲ ' + doneToday + ' done today' : '▲ ready to start';
+    el('kRateBadge').className = 'badge ' + (avg >= 70 ? 'b-ok' : 'b-warn');
+    el('kStreakBadge').textContent = maxStreak ? '▲ ' + maxStreak + '-day best streak' : '▲ no chain yet';
+    el('kBestBadge').textContent = best ? '▲ ' + rate(best) + '% hit rate' : '▲ add data';
+    el('kScoreBadge').textContent = mode === 'strong' ? '▲ elite consistency'
+      : mode === 'recovering' ? '▲ rebuild with one win' : '▲ grows with wins';
+    el('kScoreBadge').className = 'badge ' + (score >= 75 ? 'b-ok' : score >= 45 ? 'b-blue' : 'b-warn');
+
+    el('ringVal').textContent = score + '%';
+    el('scoreRing').style.setProperty('--p', score);
+    el('sDone').textContent = doneToday;
+    el('sStreaks').textContent = activeStreaks;
+    el('sWindow').textContent = win;
+    el('sDays').textContent = totalDays();
+    el('sTotal').textContent = habits.length;
+
+    el('heroTitle').textContent = best
+      ? best.name + ' leads at ' + rate(best) + '% — keep the chain alive.'
+      : 'Build streaks that compound into real results.';
+    el('heroSub').textContent = best
+      ? 'Score: ' + score + '/100 · Window: ' + win + ' · ' + totalDays() + ' days tracked'
+      : 'Mark habits done or skip — the dashboard adapts scores, quotes, and insights to your actual pattern.';
+  }
+
+  /* ── REFRESH ALL ── */
+  function refresh() {
+    renderKPIs();
+    renderHabits();
+    renderPatterns();
+    renderTimeline();
+    renderChart();
+    renderHeatmap();
+  }
+
+  /* ── ACTIVITY LOG ── */
+  function logAct(type, text, icon) {
+    actLog.unshift({ id:uid(), type:type, text:text, icon:icon, ts:new Date().toISOString() });
+    if (actLog.length > 20) actLog = actLog.slice(0,20);
+  }
+
+  /* ── ADD HABIT ── */
+  function addHabit(data, seedHist) {
+    var h = {
+      id: uid(),
+      name: data.name,
+      icon: data.icon,
+      cat: data.cat,
+      target: Math.max(1, parseInt(data.target) || 1),
+      cue: data.cue,
+      hist: seedHist || []
+    };
+    habits.unshift(h);
+    logAct('create', 'Created "' + h.name + '"', h.icon);
+    refresh();
+  }
+
+  /* ── MARK HABIT ── */
+  function markHabit(id, action) {
+    var h = habits.find(function(x){ return x.id === id; });
+    if (!h) return;
+    h.hist.push({ s: action, ts: Date.now() });
+    if (h.hist.length > 365) h.hist = h.hist.slice(-365);
+    logAct(action, h.name + (action === 'done' ? ' completed' : ' skipped'), h.icon);
+    refresh();
+    renderQuote();
+    toast(action === 'done' ? '✓ ' + h.name + ' marked done!' : h.name + ' skipped');
+  }
+
+  /* ── EXPORT CSV ── */
+  function exportCSV() {
+    if (!habits.length) { toast('Add habits first'); return; }
+    var today = new Date();
+    var rows = [];
+    rows.push('=== HABIT FLOW EXPORT ===');
+    rows.push('Generated,' + today.toISOString());
+    rows.push('');
+    rows.push('=== HABIT SUMMARY ===');
+    rows.push('Habit,Category,Target/day,Why it matters,Completion %,Current Streak,Best Streak,Days Logged');
+    habits.forEach(function(h) {
+      rows.push([
+        '"'+h.name+'"', '"'+h.cat+'"', h.target, '"'+h.cue+'"',
+        rate(h)+'%', streak(h), longestStreak(h), h.hist.length
+      ].join(','));
+    });
+    rows.push('');
+    rows.push('=== ACTIVITY LOG ===');
+    rows.push('Timestamp,Action,Type');
+    actLog.forEach(function(a) {
+      rows.push(['"'+a.ts+'"', '"'+a.text+'"', a.type].join(','));
+    });
+    var blob = new Blob([rows.join('\n')], { type:'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'habit-flow-' + today.toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('CSV exported successfully!');
+  }
+
+  /* ── SEED DEMO ── */
+  function seedDemo() {
+    habits = []; actLog = [];
+
+    // Realistic 60-day history with varied patterns
+    function makeHist(days, profile) {
+      var result = [];
+      var now = Date.now();
+      var DAY = 86400000;
+      for (var i = 0; i < days; i++) {
+        var daysAgo = days - 1 - i;
+        // profile: prob of done each day, with realistic variation
+        var p;
+        if (profile === 'strong')    p = 0.85 + Math.sin(i/7) * 0.1;
+        else if (profile === 'steady') p = 0.65 + Math.sin(i/5) * 0.15;
+        else if (profile === 'weak')   p = 0.40 + Math.random() * 0.2;
+        else if (profile === 'building') p = 0.3 + (i / days) * 0.55;
+        else p = 0.6;
+
+        result.push({
+          s: Math.random() < Math.min(0.98, Math.max(0.05, p)) ? 'done' : 'skip',
+          ts: now - daysAgo * DAY + Math.floor(Math.random() * 3600000 * 4) // random hour within day
+        });
+      }
+      return result;
     }
-  }
-}
 
-function unlockApp() {
-  document.getElementById('lockScreen').classList.add('hidden');
-  // Apply dark mode after unlock
-  const s = getSettings();
-  if (s.darkMode) document.body.classList.add('dark');
-  updateDarkToggleUI();
-  loadTodayEntry();
-  ['brainFog','anxiety','energy'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) updateSlider(el, id + 'Val');
-  });
-  const js = document.getElementById('jointSeverity');
-  if (js) updateSlider(js, 'jointSeverityVal');
-  ['nightSweats','wake3am','jointPain','headache','bloating','period','spotting','hrtTaken'].forEach(f => {
-    if (!state[f]) {
-      const noBtn = document.getElementById(f + 'No');
-      if (noBtn) noBtn.className = 'toggle-btn active-no';
+    addHabit(
+      { name:'Deep work', icon:'💻', cat:'Work', target:2, cue:'Protect interview prep time — stay sharp for system design rounds' },
+      makeHist(60, 'strong')
+    );
+    addHabit(
+      { name:'Morning run', icon:'🏃', cat:'Health', target:1, cue:'Keep energy and focus high throughout the day' },
+      makeHist(60, 'steady')
+    );
+    addHabit(
+      { name:'Technical reading', icon:'📚', cat:'Learning', target:1, cue:'Broaden system design and networking knowledge' },
+      makeHist(60, 'building')
+    );
+    addHabit(
+      { name:'Meditation', icon:'🧘', cat:'Mindset', target:1, cue:'Reduce pre-interview anxiety and improve clarity' },
+      makeHist(60, 'weak')
+    );
+
+    // Seed some recent activity log entries
+    var icons = ['💻','🏃','📚','🧘'];
+    var names = ['Deep work','Morning run','Technical reading','Meditation'];
+    for (var i = 0; i < 8; i++) {
+      var idx = Math.floor(Math.random() * 4);
+      var isDone = Math.random() > 0.3;
+      actLog.push({
+        id: uid(),
+        type: isDone ? 'done' : 'skip',
+        text: names[idx] + (isDone ? ' completed' : ' skipped'),
+        icon: icons[idx],
+        ts: new Date(Date.now() - i * 3600000 * 2).toISOString()
+      });
     }
+
+    toast('Demo loaded — 60 days of realistic history per habit!');
+    refresh();
+    renderQuote();
+  }
+
+  /* ── THEME ── */
+  function toggleTheme() {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    el('themeBtn').innerHTML = theme === 'dark'
+      ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+    setTimeout(refresh, 50); // let CSS vars apply first
+  }
+
+  /* ── DIALOG ── */
+  function openDlg() {
+    el('dlgBack').classList.add('open');
+    setTimeout(function(){ el('hName').focus(); }, 60);
+  }
+  function closeDlg() {
+    el('dlgBack').classList.remove('open');
+    el('habitForm').reset();
+  }
+
+  /* ── INIT ── */
+  el('dateChip').textContent = new Intl.DateTimeFormat(undefined, {
+    weekday:'short', month:'short', day:'numeric'
+  }).format(new Date());
+
+  document.documentElement.setAttribute('data-theme', theme);
+
+  // Dialog triggers
+  ['sideAddBtn','topAddBtn','heroAddBtn','secAddBtn','emptyAddBtn'].forEach(function(id) {
+    el(id).addEventListener('click', openDlg);
   });
-}
+  el('dlgClose').addEventListener('click', closeDlg);
+  el('dlgCancel').addEventListener('click', closeDlg);
+  el('dlgBack').addEventListener('click', function(e){ if (e.target === el('dlgBack')) closeDlg(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeDlg(); });
 
-function showPinReset() {
-  const msg = 'To reset your PIN, your data will be cleared. Continue?';
-  if (confirm(msg)) {
-    localStorage.removeItem(PIN_KEY);
-    localStorage.removeItem(STORAGE_KEY);
-    pinBuffer = '';
-    pinMode   = 'setup';
-    pinFirst  = '';
-    updatePinDots();
-    document.getElementById('lockSubtitle').textContent = 'Create a new 4-digit PIN';
-    document.getElementById('lockHint').textContent = 'Data cleared. Set a new PIN.';
-    document.getElementById('pinError').textContent = '';
-  }
-}
+  // Form submit
+  el('habitForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var fd = new FormData(el('habitForm'));
+    var name = (fd.get('hName') || '').trim();
+    var cat = (fd.get('hCat') || '').trim();
+    var cue = (fd.get('hCue') || '').trim();
+    if (!name || !cat || !cue) { toast('Please fill all required fields'); return; }
+    addHabit({ name:name, icon:fd.get('hIcon'), cat:cat, target:fd.get('hTarget'), cue:cue });
+    closeDlg();
+    toast('✓ Habit added to your dashboard!');
+    renderQuote();
+  });
 
-// Change PIN from Settings tab
-function changePinFromSettings() {
-  pinBuffer = '';
-  pinMode   = 'setup';
-  pinFirst  = '';
-  updatePinDots();
-  document.getElementById('lockSubtitle').textContent = 'Create a new 4-digit PIN';
-  document.getElementById('lockHint').textContent = 'Enter a new PIN';
-  document.getElementById('pinError').textContent = '';
-  document.getElementById('lockScreen').classList.remove('hidden');
-}
+  // Habit action via delegation
+  el('habitsGrid').addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-act]');
+    if (btn) markHabit(btn.dataset.hid, btn.dataset.act);
+  });
 
-// Keyboard support for PIN entry
-document.addEventListener('keydown', function(e) {
-  if (document.getElementById('lockScreen').classList.contains('hidden')) return;
-  if (e.key >= '0' && e.key <= '9') pinPress(e.key);
-  else if (e.key === 'Backspace') pinClear();
-  else if (e.key === 'Enter') pinSubmit();
-});
+  // Toolbar
+  el('exportBtn').addEventListener('click', exportCSV);
+  el('demoBtn').addEventListener('click', seedDemo);
+  el('themeBtn').addEventListener('click', toggleTheme);
+  el('clearTlBtn').addEventListener('click', function(){ actLog = []; renderTimeline(); toast('Activity log cleared'); });
+  el('refreshQuoteBtn').addEventListener('click', function(){ renderQuote(); toast('Quote refreshed'); });
+  el('heroAnalBtn').addEventListener('click', function(){
+    el('sec-analytics').scrollIntoView({ behavior:'smooth' });
+  });
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Check session — if already unlocked this session, skip lock
-  const stored = localStorage.getItem(PIN_KEY);
-  if (sessionStorage.getItem(SESSION_KEY) === '1') {
-    unlockApp();
-  } else if (!stored) {
-    // First time — go straight to PIN setup
-    pinMode = 'setup';
-    document.getElementById('lockSubtitle').textContent = 'Create a 4-digit PIN';
-    document.getElementById('lockHint').textContent = 'Protect your health data with a PIN';
-  }
-  // else: show lock screen (default state)
-  init();
-});
+  // Heatmap habit select
+  el('heatmapHabit').addEventListener('change', renderHeatmap);
+
+  // Sidebar nav
+  document.querySelectorAll('.nav-btn[data-sec]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      el(btn.dataset.sec).scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+
+  // Boot with demo data
+  seedDemo();
+
+}());
 </script>
 </body>
 </html>
