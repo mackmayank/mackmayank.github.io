@@ -6,6 +6,7 @@
   <title>Habit Tracker Dashboard</title>
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
   <style>
     :root, [data-theme="light"] {
       --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
@@ -113,7 +114,7 @@
     }
     .nav-btn:hover, .nav-btn.active { background: var(--color-primary-highlight); color: var(--color-text); transform: translateX(3px); }
     .nav-btn .dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; opacity: .7; }
-    .sidebar h2 { font-size: var(--text-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-faint); margin: 0 0 .8rem; }
+    .sidebar h2, .panel-title { font-size: var(--text-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-faint); margin: 0 0 .8rem; }
     .today-card, .tip-card, .add-panel { padding: var(--space-5); }
     .ring-wrap { display: grid; place-items: center; margin: .6rem 0 1rem; }
     .ring {
@@ -142,7 +143,7 @@
     }
     .topbar-left h1 { margin: 0; font: 700 var(--text-xl)/1.05 var(--font-display); letter-spacing: -.03em; }
     .topbar-left p { margin: .35rem 0 0; color: var(--color-text-muted); font-size: var(--text-sm); }
-    .topbar-actions { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .topbar-actions { display: flex; align-items: center; gap: .75rem; }
     .chip, .icon-btn, .primary-btn, .ghost-btn, .habit-action {
       border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
       background: color-mix(in srgb, var(--color-surface-2) 90%, transparent);
@@ -352,7 +353,6 @@
       </div>
       <div class="topbar-actions">
         <button class="chip" id="dateChip" aria-label="Today"></button>
-        <button class="ghost-btn" id="exportCSV">Export CSV</button>
         <button class="ghost-btn" id="seedDemo">Load demo data</button>
         <button class="icon-btn" data-theme-toggle aria-label="Toggle theme">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -410,7 +410,7 @@
           <div class="card-head">
             <div>
               <h3>7-day momentum</h3>
-              <p>Daily completions trend (last 7 days shown).</p>
+              <p>Daily completions and consistency trend.</p>
             </div>
             <button class="ghost-btn" id="refreshQuote">Refresh quote</button>
           </div>
@@ -458,6 +458,7 @@
     </main>
   </div>
 
+  <!-- Add Habit Dialog -->
   <div class="dialog-backdrop" id="habitDialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
     <div class="dialog">
       <header>
@@ -508,7 +509,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
     const appState = {
       habits: [], activity: [], dailyHistory: [],
@@ -636,11 +636,11 @@
       if (appState.chart) appState.chart.destroy();
       appState.chart = new Chart(ctx, {
         type: 'bar',
-         {
+        data: {
           labels: appState.dailyHistory.map(d => d.label),
           datasets: [
-            { type: 'bar', label: 'Completed',  appState.dailyHistory.map(d => d.done), borderRadius: 999, backgroundColor: 'rgba(92,199,194,0.45)', borderSkipped: false, maxBarThickness: 26 },
-            { type: 'line', label: 'Consistency %',  appState.dailyHistory.map(d => d.score), borderColor: '#8be7dc', backgroundColor: '#8be7dc', tension: 0.38, borderWidth: 3, pointRadius: 4, yAxisID: 'y1' }
+            { type: 'bar', label: 'Completed', data: appState.dailyHistory.map(d => d.done), borderRadius: 999, backgroundColor: 'rgba(92,199,194,0.45)', borderSkipped: false, maxBarThickness: 26 },
+            { type: 'line', label: 'Consistency %', data: appState.dailyHistory.map(d => d.score), borderColor: '#8be7dc', backgroundColor: '#8be7dc', tension: 0.38, borderWidth: 3, pointRadius: 4, yAxisID: 'y1' }
           ]
         },
         options: {
@@ -772,11 +772,11 @@
     }
 
     function createHistory(seedDone = 2) {
-      return Array.from({ length: 30 }).map((_, i) => ({ date: i, status: (Math.random() > 0.28) ? 'done' : 'skip' }));
+      return Array.from({ length: 7 }).map((_, i) => ({ date: i, status: (i >= 7 - seedDone || Math.random() > 0.35) ? 'done' : 'skip' }));
     }
 
     function addHabit({ name, category, target, cue, icon }, seed = false) {
-      const habit = { id: uid(), name, category, target: Number(target), cue, icon, history: seed ? createHistory() : [{ date: Date.now(), status: 'skip' }] };
+      const habit = { id: uid(), name, category, target: Number(target), cue, icon, history: seed ? createHistory(3 + Math.floor(Math.random() * 3)) : [{ date: Date.now(), status: 'skip' }] };
       appState.habits.unshift(habit);
       addActivity('create', `Created ${habit.name}`, habit.icon);
       refreshAll();
@@ -786,57 +786,10 @@
       const habit = appState.habits.find(h => h.id === id);
       if (!habit) return;
       habit.history.push({ date: Date.now(), status: action });
-      if (habit.history.length > 365) habit.history = habit.history.slice(-365);
+      if (habit.history.length > 7) habit.history = habit.history.slice(-7);
       addActivity(action, `${habit.name} ${action === 'done' ? 'completed' : 'skipped'}`, habit.icon);
       refreshAll();
       showToast(action === 'done' ? `${habit.name} marked done` : `${habit.name} skipped`);
-    }
-
-    function exportCSV() {
-      if (!appState.habits.length) { showToast('No habits to export'); return; }
-
-      const today = new Date();
-      const dateLabels = Array.from({ length: 365 }).map((_, i) => {
-        const d = new Date(today);
-        d.setDate(today.getDate() - (364 - i));
-        return d.toISOString().slice(0, 10);
-      });
-
-      const headers = ['Date', ...appState.habits.map(h => h.name + ' (' + h.category + ')')];
-      const rows = [headers.join(',')];
-
-      dateLabels.forEach((dateStr, dayIdx) => {
-        const row = [dateStr];
-        appState.habits.forEach(habit => {
-          const entry = habit.history[dayIdx];
-          row.push(entry ? entry.status : 'no data');
-        });
-        rows.push(row.join(','));
-      });
-
-      rows.push('');
-      rows.push('Habit Summary');
-      rows.push(['Habit', 'Category', 'Target/day', 'Why it matters', 'Completion %', 'Current Streak', 'Total Entries'].join(','));
-      appState.habits.forEach(h => {
-        rows.push(['"' + h.name + '"', '"' + h.category + '"', h.target, '"' + h.cue + '"',
-          getCompletionRate(h) + '%', getStreak(h), h.history.length].join(','));
-      });
-
-      rows.push('');
-      rows.push('Activity Log');
-      rows.push(['Timestamp', 'Habit', 'Action'].join(','));
-      appState.activity.forEach(a => {
-        rows.push(['"' + a.timestamp + '"', '"' + a.text + '"', a.type].join(','));
-      });
-
-      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'habit-flow-export-' + new Date().toISOString().slice(0, 10) + '.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('CSV exported successfully');
     }
 
     function seedDemoData() {
@@ -860,8 +813,7 @@
       }
     });
 
-    ['openAddHabit','openAddHabitTop','heroAddHabit','sectionAddHabit','emptyAddHabit']
-      .forEach(id => document.getElementById(id)?.addEventListener('click', openDialog));
+    ['openAddHabit','openAddHabitTop','heroAddHabit','sectionAddHabit','emptyAddHabit'].forEach(id => document.getElementById(id)?.addEventListener('click', openDialog));
     document.getElementById('closeDialog').addEventListener('click', closeDialog);
     document.getElementById('cancelDialog').addEventListener('click', closeDialog);
     els.dialog.addEventListener('click', e => { if (e.target === els.dialog) closeDialog(); });
@@ -873,10 +825,7 @@
       els.form.reset(); closeDialog(); showToast('Habit added to dashboard');
     });
 
-    document.getElementById('clearActivity').addEventListener('click', () => {
-      appState.activity = []; renderTimeline(); showToast('Timeline cleared');
-    });
-    document.getElementById('exportCSV').addEventListener('click', exportCSV);
+    document.getElementById('clearActivity').addEventListener('click', () => { appState.activity = []; renderTimeline(); showToast('Timeline cleared'); });
     document.getElementById('seedDemo').addEventListener('click', seedDemoData);
     document.getElementById('refreshQuote').addEventListener('click', () => { updateQuote(detectPattern().mode); showToast('Quote refreshed'); });
     document.getElementById('jumpAnalytics').addEventListener('click', () => document.getElementById('analytics').scrollIntoView({ behavior: 'smooth' }));
