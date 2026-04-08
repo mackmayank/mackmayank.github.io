@@ -1,1736 +1,897 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌸 PeriTrack — Your Perimenopause Companion</title>
-  <!-- PWA support -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="PeriTrack" />
-  <meta name="theme-color" content="#7C3AED" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237C3AED'/><text y='.9em' font-size='80' x='10'>🌸</text></svg>" />
-  <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22PeriTrack%22%2C%22short_name%22%3A%22PeriTrack%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23FDF4FF%22%2C%22theme_color%22%3A%22%237C3AED%22%7D" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Habit Tracker Dashboard</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
   <style>
-
-    /* ── Lock Screen ──────────────────────────────────────────────── */
-    #lockScreen {
-      position: fixed; inset: 0; z-index: 9999;
-      background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column;
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+      --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+      --space-12: 3rem; --space-16: 4rem;
+      --radius-sm: 0.5rem; --radius-md: 0.9rem; --radius-lg: 1.25rem;
+      --radius-xl: 1.75rem; --radius-full: 999px;
+      --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9;
+      --color-surface-offset: #efece6; --color-surface-dynamic: #e5e1d9;
+      --color-border: #d8d3ca; --color-divider: #e2ddd4;
+      --color-text: #221f1a; --color-text-muted: #6f6a61;
+      --color-text-faint: #aaa39a; --color-text-inverse: #f8f7f3;
+      --color-primary: #01696f; --color-primary-2: #0b8f94;
+      --color-primary-highlight: #d8eceb;
+      --color-success: #437a22; --color-warning: #b77407;
+      --color-error: #a12c7b; --color-orange: #da7101; --color-blue: #006494;
+      --shadow-sm: 0 1px 2px rgba(20,16,10,0.08);
+      --shadow-md: 0 10px 28px rgba(20,16,10,0.08);
+      --shadow-lg: 0 24px 60px rgba(20,16,10,0.14);
+      --font-body: 'Satoshi', 'Inter', sans-serif;
+      --font-display: 'General Sans', 'Satoshi', sans-serif;
+      --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
     }
-    #lockScreen.hidden { display: none; }
-    .lock-card {
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 24px;
-      padding: 2.5rem 2rem;
-      width: 320px;
-      max-width: 90vw;
-      text-align: center;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    [data-theme="dark"] {
+      --color-bg: #111312; --color-surface: #171a19; --color-surface-2: #1d201f;
+      --color-surface-offset: #202523; --color-surface-dynamic: #29302d;
+      --color-border: #303835; --color-divider: #242a28;
+      --color-text: #e9ece8; --color-text-muted: #a6b0ab;
+      --color-text-faint: #6d7672; --color-text-inverse: #101311;
+      --color-primary: #5cc7c2; --color-primary-2: #8be7dc;
+      --color-primary-highlight: rgba(92,199,194,0.16);
+      --color-success: #84c35f; --color-warning: #f0b348;
+      --color-error: #e676bd; --color-orange: #ff9f52; --color-blue: #70a7ff;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.22);
+      --shadow-md: 0 12px 28px rgba(0,0,0,0.28);
+      --shadow-lg: 0 22px 54px rgba(0,0,0,0.38);
     }
-    .lock-card h1 { color: #fff; font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .lock-card p  { color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 1.5rem; }
-    .pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 1.5rem; }
-    .pin-dot {
-      width: 16px; height: 16px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.6);
-      background: transparent; transition: background 0.2s;
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --color-bg: #111312; --color-surface: #171a19; --color-surface-2: #1d201f;
+        --color-surface-offset: #202523; --color-surface-dynamic: #29302d;
+        --color-border: #303835; --color-divider: #242a28;
+        --color-text: #e9ece8; --color-text-muted: #a6b0ab;
+        --color-text-faint: #6d7672; --color-text-inverse: #101311;
+        --color-primary: #5cc7c2; --color-primary-2: #8be7dc;
+        --color-primary-highlight: rgba(92,199,194,0.16);
+      }
     }
-    .pin-dot.filled { background: #fff; border-color: #fff; }
-    .pin-dot.error  { background: #f87171; border-color: #f87171; }
-    .pin-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 12px; margin-bottom: 1rem;
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-text);
+      background:
+        radial-gradient(circle at top right, rgba(92,199,194,0.18), transparent 26%),
+        radial-gradient(circle at bottom left, rgba(112,167,255,0.14), transparent 24%),
+        var(--color-bg);
+      line-height: 1.5;
     }
-    .pin-btn {
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 14px; color: #fff;
-      font-size: 1.4rem; font-weight: 600;
-      padding: 1rem; cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-      -webkit-tap-highlight-color: transparent;
+    img, canvas, svg { display: block; max-width: 100%; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .skip-link {
+      position: absolute; left: 1rem; top: -3rem; z-index: 100;
+      background: var(--color-primary); color: var(--color-text-inverse);
+      padding: .7rem 1rem; border-radius: .75rem; text-decoration: none;
     }
-    .pin-btn:active { background: rgba(255,255,255,0.4); transform: scale(0.95); }
-    .pin-error-msg { color: #fca5a5; font-size: 0.85rem; min-height: 1.2rem; margin-top: 0.5rem; }
-    .lock-setup-hint { color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 1rem; }
-    .lock-link { color: rgba(255,255,255,0.9); text-decoration: underline; cursor: pointer; font-size: 0.8rem; }
-
-    /* ── Base & Scrollbar ─────────────────────────────────────────── */
-    :root {
-      --primary: #7C3AED;
-      --accent:  #EC4899;
-      --bg-light: #FDF4FF;
+    .skip-link:focus { top: 1rem; }
+    .app {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      grid-template-rows: 84px 1fr;
+      height: 100dvh;
     }
-    body { background-color: var(--bg-light); }
-    body.dark { background-color: #1a1a2e; color: #e2e8f0; }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 3px; }
-
-    /* ── Dark mode card overrides ─────────────────────────────────── */
-    body.dark .card { background-color: #16213e !important; border-color: #2d3a5e !important; }
-    body.dark .tab-btn { color: #a78bfa; }
-    body.dark .tab-btn.active { background-color: #7C3AED; color: #fff; }
-    body.dark input, body.dark textarea, body.dark select {
-      background-color: #0f3460 !important;
-      border-color: #2d3a5e !important;
-      color: #e2e8f0 !important;
+    .sidebar {
+      grid-row: 1 / -1;
+      background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+      border-right: 1px solid rgba(255,255,255,0.06);
+      padding: var(--space-6);
+      display: flex; flex-direction: column; gap: var(--space-6);
+      overflow-y: auto; overscroll-behavior: contain;
+      backdrop-filter: blur(18px);
     }
-    body.dark .section-title { color: #c4b5fd; }
-    body.dark .label-text { color: #94a3b8; }
-    body.dark .stat-card { background-color: #16213e !important; border-color: #2d3a5e !important; }
-    body.dark .day-cell { border-color: #2d3a5e; }
-    body.dark .day-cell.no-data { background-color: #1e2a4a; color: #64748b; }
-    body.dark .modal-bg { background-color: rgba(0,0,0,0.7); }
-    body.dark .modal-card { background-color: #16213e; border-color: #2d3a5e; }
-    body.dark .report-card { background-color: #16213e; border-color: #2d3a5e; color: #e2e8f0; }
-    body.dark .report-table th { background-color: #0f3460; }
-    body.dark .report-table td { border-color: #2d3a5e; }
-    body.dark .toggle-btn { background-color: #0f3460; border-color: #2d3a5e; color: #94a3b8; }
-    body.dark .toggle-btn.active-yes { background-color: #059669; border-color: #059669; color: #fff; }
-    body.dark .toggle-btn.active-no  { background-color: #dc2626; border-color: #dc2626; color: #fff; }
-    body.dark .header-bar { background-color: #16213e; border-color: #2d3a5e; }
-    body.dark .tab-bar { background-color: #16213e; border-color: #2d3a5e; }
-    body.dark .settings-section { background-color: #16213e; border-color: #2d3a5e; }
-
-    /* ── Tabs ─────────────────────────────────────────────────────── */
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .tab-btn { transition: all 0.2s; }
-    .tab-btn.active { background-color: #7C3AED; color: #fff; }
-
-    /* ── Toggle buttons ───────────────────────────────────────────── */
-    .toggle-btn {
-      padding: 0.35rem 1rem;
-      border: 1.5px solid #d1d5db;
-      border-radius: 9999px;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: #fff;
-      color: #374151;
+    .brand { display: flex; align-items: center; gap: var(--space-3); }
+    .brand svg { width: 42px; height: 42px; color: var(--color-primary); filter: drop-shadow(0 10px 20px rgba(92,199,194,.2)); }
+    .brand-text strong { display: block; font-family: var(--font-display); font-size: 1.08rem; letter-spacing: .01em; }
+    .brand-text span { color: var(--color-text-muted); font-size: var(--text-xs); }
+    .nav-group, .tip-card, .add-panel, .today-card {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface-2) 92%, transparent), color-mix(in srgb, var(--color-surface-offset) 94%, transparent));
+      border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+      border-radius: var(--radius-xl); box-shadow: var(--shadow-md);
     }
-    .toggle-btn.active-yes { background-color: #059669; border-color: #059669; color: #fff; }
-    .toggle-btn.active-no  { background-color: #dc2626; border-color: #dc2626; color: #fff; }
-
-    /* ── Star rating ──────────────────────────────────────────────── */
-    .star { cursor: pointer; font-size: 1.5rem; color: #d1d5db; transition: color 0.1s; }
-    .star.filled { color: #f59e0b; }
-
-    /* ── Emoji mood ───────────────────────────────────────────────── */
-    .mood-btn {
-      font-size: 1.75rem;
-      cursor: pointer;
-      padding: 0.25rem;
-      border-radius: 0.5rem;
-      border: 2px solid transparent;
-      transition: all 0.15s;
+    .nav-group { padding: var(--space-3); }
+    .nav-btn {
+      width: 100%; display: flex; align-items: center; gap: var(--space-3); border: 0;
+      background: transparent; border-radius: 1rem; padding: .95rem 1rem; margin-bottom: .35rem;
+      text-align: left; color: var(--color-text-muted);
+      transition: transform var(--transition), background var(--transition), color var(--transition);
     }
-    .mood-btn.selected { border-color: #7C3AED; background-color: #ede9fe; transform: scale(1.15); }
-    body.dark .mood-btn.selected { background-color: #3b1f6e; }
-
-    /* ── Slider ───────────────────────────────────────────────────── */
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 6px;
-      border-radius: 3px;
-      background: linear-gradient(to right, #7C3AED 0%, #7C3AED var(--val, 50%), #e5e7eb var(--val, 50%), #e5e7eb 100%);
-      outline: none;
-      cursor: pointer;
+    .nav-btn:hover, .nav-btn.active { background: var(--color-primary-highlight); color: var(--color-text); transform: translateX(3px); }
+    .nav-btn .dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; opacity: .7; }
+    .sidebar h2 { font-size: var(--text-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-faint); margin: 0 0 .8rem; }
+    .today-card, .tip-card, .add-panel { padding: var(--space-5); }
+    .ring-wrap { display: grid; place-items: center; margin: .6rem 0 1rem; }
+    .ring {
+      --p: 68;
+      width: 118px; height: 118px; border-radius: 50%; display: grid; place-items: center;
+      background: conic-gradient(var(--color-primary) calc(var(--p) * 1%), rgba(255,255,255,.08) 0);
+      position: relative;
     }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      background: #7C3AED;
-      border: 2px solid #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    .ring::after {
+      content: ''; position: absolute; inset: 11px; border-radius: 50%;
+      background: var(--color-surface); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
-    body.dark input[type=range] {
-      background: linear-gradient(to right, #7C3AED 0%, #7C3AED var(--val, 50%), #2d3a5e var(--val, 50%), #2d3a5e 100%) !important;
+    .ring strong, .ring span { position: relative; z-index: 1; text-align: center; }
+    .ring strong { display: block; font-size: 1.35rem; font-family: var(--font-display); }
+    .ring span { display: block; font-size: var(--text-xs); color: var(--color-text-muted); }
+    .today-stats { display: grid; gap: .8rem; }
+    .mini-stat { display: flex; justify-content: space-between; color: var(--color-text-muted); font-size: var(--text-sm); }
+    .tip-card p { margin: 0; color: var(--color-text-muted); }
+    .tip-card strong { display:block; font-size: var(--text-lg); margin-bottom: .45rem; font-family: var(--font-display); }
+    .topbar {
+      grid-column: 2; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid color-mix(in srgb, var(--color-border) 68%, transparent);
+      background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+      backdrop-filter: blur(18px); position: sticky; top: 0; z-index: 8;
     }
-
-    /* ── Calendar heatmap ─────────────────────────────────────────── */
-    .day-cell {
-      aspect-ratio: 1;
-      border-radius: 0.375rem;
-      border: 1px solid #e5e7eb;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.1s;
+    .topbar-left h1 { margin: 0; font: 700 var(--text-xl)/1.05 var(--font-display); letter-spacing: -.03em; }
+    .topbar-left p { margin: .35rem 0 0; color: var(--color-text-muted); font-size: var(--text-sm); }
+    .topbar-actions { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .chip, .icon-btn, .primary-btn, .ghost-btn, .habit-action {
+      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      background: color-mix(in srgb, var(--color-surface-2) 90%, transparent);
+      color: var(--color-text); border-radius: 999px;
+      transition: transform var(--transition), background var(--transition), border-color var(--transition);
     }
-    .day-cell:hover { transform: scale(1.1); }
-    .day-cell.no-data   { background-color: #f3f4f6; color: #9ca3af; }
-    .day-cell.score-red { background-color: #fecaca; color: #991b1b; }
-    .day-cell.score-yellow { background-color: #fef08a; color: #854d0e; }
-    .day-cell.score-green  { background-color: #bbf7d0; color: #166534; }
-    .day-cell.today-cell { outline: 2px solid #7C3AED; outline-offset: 1px; }
-    .day-cell.empty { background: transparent; border-color: transparent; cursor: default; }
-
-    /* ── Modal ────────────────────────────────────────────────────── */
-    .modal-bg {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 50;
-      display: flex; align-items: center; justify-content: center;
-      padding: 1rem;
+    .chip { padding: .7rem 1rem; font-size: var(--text-sm); }
+    .icon-btn { width: 44px; height: 44px; display: grid; place-items: center; }
+    .icon-btn:hover, .primary-btn:hover, .ghost-btn:hover, .habit-action:hover { transform: translateY(-2px); }
+    .primary-btn {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-2));
+      color: var(--color-text-inverse); border: 0; padding: .82rem 1.15rem; font-weight: 700;
+      box-shadow: 0 14px 30px rgba(92,199,194,.24);
     }
-    .modal-card {
-      background: #fff;
-      border-radius: 1rem;
-      max-width: 480px; width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 1.5rem;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    .ghost-btn { padding: .82rem 1.05rem; }
+    .main { grid-column: 2; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-6); }
+    .hero-grid { display: grid; grid-template-columns: 1.45fr .95fr; gap: var(--space-6); margin-bottom: var(--space-6); }
+    .hero-card, .quote-card, .kpi-card, .chart-card, .habit-card, .activity-card, .empty-state {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface-2) 92%, transparent), color-mix(in srgb, var(--color-surface-offset) 95%, transparent));
+      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      border-radius: var(--radius-xl); box-shadow: var(--shadow-md);
+      position: relative; overflow: hidden;
     }
-
-    /* ── Toast ────────────────────────────────────────────────────── */
-    #toast {
-      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-      background: #059669; color: #fff;
-      padding: 0.6rem 1.5rem; border-radius: 9999px;
-      font-weight: 600; font-size: 0.9rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 100;
-      opacity: 0; transition: opacity 0.3s;
+    .hero-card { padding: var(--space-6); min-height: 260px; }
+    .hero-card::before {
+      content: ''; position: absolute; inset: auto -12% -30% auto;
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(92,199,194,.22), transparent 60%);
       pointer-events: none;
     }
-    #toast.show { opacity: 1; }
-
-    /* ── Report / Print ───────────────────────────────────────────── */
-    .report-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; }
-    .report-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .report-table th { background: #f5f3ff; padding: 0.4rem 0.6rem; text-align: left; font-weight: 600; color: #4c1d95; }
-    .report-table td { padding: 0.4rem 0.6rem; border-bottom: 1px solid #f3f4f6; }
-    .report-table tr:last-child td { border-bottom: none; }
-
-    @media print {
-      body * { visibility: hidden; }
-      #printable-report, #printable-report * { visibility: visible; }
-      #printable-report {
-        position: absolute; left: 0; top: 0;
-        width: 100%; padding: 1.5rem;
-        background: #fff !important; color: #000 !important;
-      }
-      .report-table th { background: #f0f0f0 !important; color: #000 !important; }
-      .report-table td { border-bottom: 1px solid #ccc !important; }
+    .eyebrow { color: var(--color-primary); font-size: var(--text-xs); letter-spacing: .14em; text-transform: uppercase; }
+    .hero-card h2 { margin: .75rem 0 .9rem; font: 800 clamp(1.8rem, 1.2rem + 2vw, 3rem)/1 var(--font-display); max-width: 14ch; letter-spacing: -.04em; }
+    .hero-card p { max-width: 54ch; color: var(--color-text-muted); margin: 0 0 1.1rem; }
+    .hero-actions, .habit-actions { display: flex; gap: .8rem; flex-wrap: wrap; }
+    .quote-card { padding: var(--space-6); display: flex; flex-direction: column; justify-content: space-between; min-height: 260px; }
+    .quote-card blockquote { margin: 1rem 0; font: 700 clamp(1.25rem, 1.1rem + .8vw, 1.9rem)/1.2 var(--font-display); letter-spacing: -.03em; }
+    .quote-meta { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
+    .kpi-card { padding: var(--space-5); }
+    .kpi-card .label { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .kpi-card .value { margin-top: .45rem; font: 800 clamp(1.6rem, 1.2rem + 1vw, 2.3rem)/1 var(--font-display); font-variant-numeric: tabular-nums; }
+    .delta { margin-top: .65rem; display:inline-flex; gap: .4rem; align-items:center; padding: .45rem .7rem; border-radius: 999px; font-size: var(--text-xs); }
+    .up { background: rgba(132,195,95,.15); color: var(--color-success); }
+    .mid-grid { display:grid; grid-template-columns: 1.3fr .95fr; gap: var(--space-6); margin-bottom: var(--space-6); }
+    .chart-card, .activity-card { padding: var(--space-5); }
+    .card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom: 1rem; }
+    .card-head h3 { margin: 0; font-size: var(--text-lg); font-family: var(--font-display); }
+    .card-head p { margin: .28rem 0 0; color: var(--color-text-muted); font-size: var(--text-sm); }
+    .chart-wrap { height: 300px; }
+    .pattern-panel { display:grid; gap: 1rem; }
+    .pattern-strip {
+      background: color-mix(in srgb, var(--color-bg) 65%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-border) 58%, transparent);
+      padding: 1rem; border-radius: 1rem;
     }
-
-    /* ── Misc ─────────────────────────────────────────────────────── */
-    .section-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #7C3AED; margin-bottom: 0.75rem; }
-    .label-text { font-size: 0.875rem; color: #374151; font-weight: 500; }
-    .card { background: #fff; border: 1px solid #f3e8ff; border-radius: 1rem; padding: 1.25rem; }
-    .stat-card { background: #fff; border: 1px solid #f3e8ff; border-radius: 0.75rem; padding: 1rem; text-align: center; }
-    .header-bar { background: #fff; border-bottom: 1px solid #f3e8ff; }
-    .tab-bar { background: #fff; border-bottom: 1px solid #f3e8ff; }
-    .settings-section { background: #fff; border: 1px solid #f3e8ff; border-radius: 0.75rem; padding: 1.25rem; }
-    .supplement-cb { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-    .supplement-cb input { accent-color: #7C3AED; width: 1rem; height: 1rem; }
+    .pattern-strip strong { display:block; margin-bottom: .2rem; }
+    .pattern-strip span { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .section-head { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom: 1rem; }
+    .section-head h3 { margin:0; font-size: var(--text-lg); font-family: var(--font-display); }
+    .section-head p { margin: .2rem 0 0; color: var(--color-text-muted); font-size: var(--text-sm); }
+    .habits-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--space-4); }
+    .habit-card { padding: var(--space-5); }
+    .habit-top { display:flex; justify-content:space-between; gap:.8rem; align-items:flex-start; }
+    .habit-title { display:flex; gap:.85rem; align-items:center; }
+    .habit-icon {
+      width: 46px; height: 46px; border-radius: 14px; display:grid; place-items:center; font-size:1.1rem;
+      background: var(--color-primary-highlight); color: var(--color-primary);
+    }
+    .habit-title strong { display:block; font-size: 1.05rem; }
+    .habit-title span { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .habit-streak { text-align:right; font-size: var(--text-sm); color: var(--color-text-muted); }
+    .habit-progress { margin: 1rem 0 .8rem; }
+    .bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,.07); overflow:hidden; }
+    .bar > span { display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-2)); }
+    .meta-row { display:flex; justify-content:space-between; color: var(--color-text-muted); font-size: var(--text-sm); margin: .55rem 0 1rem; }
+    .habit-action { padding: .8rem 1rem; }
+    .habit-action.done { background: var(--color-primary-highlight); border-color: transparent; }
+    .habit-action.skip { background: transparent; }
+    .timeline { display:grid; gap:.8rem; }
+    .event-row {
+      display:grid; grid-template-columns: 42px 1fr auto; gap: .9rem; align-items:center;
+      padding: .8rem .9rem; border-radius: 1rem;
+      background: color-mix(in srgb, var(--color-bg) 64%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+    }
+    .event-badge { width: 42px; height: 42px; display:grid; place-items:center; border-radius: 13px; background: var(--color-primary-highlight); color: var(--color-primary); }
+    .event-row strong { display:block; }
+    .event-row span { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .event-time { color: var(--color-text-faint); font-size: var(--text-xs); }
+    .empty-state { padding: var(--space-8); text-align:center; }
+    .empty-state p { color: var(--color-text-muted); margin: .5rem auto 1rem; max-width: 40ch; }
+    .dialog-backdrop {
+      position: fixed; inset: 0; background: rgba(2,6,7,.48); backdrop-filter: blur(10px);
+      display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 30;
+    }
+    .dialog-backdrop.open { display:flex; }
+    .dialog {
+      width:min(680px, 100%);
+      background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface));
+      border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      border-radius: 28px; box-shadow: var(--shadow-lg); overflow:hidden;
+    }
+    .dialog header { padding: 1.15rem 1.25rem; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent); }
+    .dialog header h3 { margin:0; font-family: var(--font-display); }
+    .dialog-body { padding: 1.25rem; display:grid; gap: 1rem; }
+    .form-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
+    .field { display:grid; gap:.45rem; }
+    .field label { font-size: var(--text-sm); color: var(--color-text-muted); }
+    .field input, .field select {
+      width:100%; border:1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+      border-radius: 14px; background: color-mix(in srgb, var(--color-bg) 60%, transparent);
+      padding: .9rem 1rem; outline: none;
+    }
+    .field input:focus, .field select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(92,199,194,.14); }
+    .dialog footer { display:flex; justify-content:flex-end; gap:.8rem; padding: 0 1.25rem 1.25rem; }
+    .toast {
+      position: fixed; right: 1rem; bottom: 1rem; z-index: 40;
+      min-width: 240px; max-width: 320px; border-radius: 18px; padding: .95rem 1rem;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-2));
+      color: var(--color-text-inverse); box-shadow: var(--shadow-lg);
+      transform: translateY(120%); transition: transform var(--transition);
+    }
+    .toast.show { transform: translateY(0); }
+    .muted { color: var(--color-text-muted); }
+    @media (max-width: 1180px) {
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .mid-grid, .hero-grid, .habits-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 920px) {
+      html, body { overflow: auto; }
+      .app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; height: auto; }
+      .sidebar { grid-row: auto; grid-column: 1; border-right: 0; border-bottom: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent); }
+      .topbar, .main { grid-column: 1; }
+      .main { overflow: visible; }
+    }
+    @media (max-width: 640px) {
+      .topbar { padding: 1rem; align-items:flex-start; flex-direction:column; }
+      .topbar-actions { width:100%; flex-wrap:wrap; }
+      .sidebar, .main { padding: 1rem; }
+      .kpi-grid, .form-grid { grid-template-columns: 1fr; }
+      .hero-card h2 { max-width: 11ch; }
+      .section-head { align-items:flex-start; flex-direction:column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
   </style>
 </head>
-<body class="min-h-screen transition-colors duration-300">
-
-<!-- ══ LOCK SCREEN ══════════════════════════════════════════════ -->
-<div id="lockScreen">
-  <div class="lock-card">
-    <div style="font-size:3rem;margin-bottom:0.5rem">🌸</div>
-    <h1>PeriTrack</h1>
-    <p id="lockSubtitle">Enter your PIN to continue</p>
-    <div class="pin-dots" id="pinDots">
-      <div class="pin-dot" id="dot0"></div>
-      <div class="pin-dot" id="dot1"></div>
-      <div class="pin-dot" id="dot2"></div>
-      <div class="pin-dot" id="dot3"></div>
-    </div>
-    <div class="pin-grid">
-      <button class="pin-btn" onclick="pinPress('1')">1</button>
-      <button class="pin-btn" onclick="pinPress('2')">2</button>
-      <button class="pin-btn" onclick="pinPress('3')">3</button>
-      <button class="pin-btn" onclick="pinPress('4')">4</button>
-      <button class="pin-btn" onclick="pinPress('5')">5</button>
-      <button class="pin-btn" onclick="pinPress('6')">6</button>
-      <button class="pin-btn" onclick="pinPress('7')">7</button>
-      <button class="pin-btn" onclick="pinPress('8')">8</button>
-      <button class="pin-btn" onclick="pinPress('9')">9</button>
-      <button class="pin-btn" onclick="pinClear()" style="font-size:1rem">⌫</button>
-      <button class="pin-btn" onclick="pinPress('0')">0</button>
-      <button class="pin-btn" onclick="pinSubmit()" style="font-size:1rem;background:rgba(255,255,255,0.35)">✓</button>
-    </div>
-    <div class="pin-error-msg" id="pinError"></div>
-    <div class="lock-setup-hint" id="lockHint"></div>
-    <div style="margin-top:1rem">
-      <span class="lock-link" onclick="showPinReset()">Forgot PIN?</span>
-    </div>
-  </div>
-</div>
-
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     HEADER
-═══════════════════════════════════════════════════════════════════ -->
-<header class="header-bar sticky top-0 z-40 shadow-sm">
-  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <span class="text-2xl">🌸</span>
-      <div>
-        <h1 class="font-bold text-lg leading-tight" style="color:#7C3AED">PeriTrack</h1>
-        <p class="text-xs text-gray-400 leading-none">Your Perimenopause Companion</p>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="app">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="brand">
+        <svg viewBox="0 0 64 64" fill="none" aria-label="Habit Flow logo">
+          <rect x="8" y="8" width="48" height="48" rx="16" stroke="currentColor" stroke-width="4"></rect>
+          <path d="M20 36C24 28 28 24 34 24C40 24 44 28 44 36" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+          <circle cx="24" cy="38" r="3" fill="currentColor"></circle>
+          <circle cx="40" cy="38" r="3" fill="currentColor"></circle>
+        </svg>
+        <div class="brand-text">
+          <strong>Habit Flow</strong>
+          <span>Adaptive daily tracker</span>
+        </div>
       </div>
-    </div>
-    <button id="darkToggle" onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-purple-50 transition-colors" title="Toggle dark mode">
-      <span id="darkIcon" class="text-xl">🌙</span>
-    </button>
-  </div>
-</header>
 
-<!-- ═══════════════════════════════════════════════════════════════════
-     TAB BAR
-═══════════════════════════════════════════════════════════════════ -->
-<nav class="tab-bar sticky top-[60px] z-30">
-  <div class="max-w-3xl mx-auto px-4">
-    <div class="flex gap-1 py-2 overflow-x-auto">
-      <button class="tab-btn active flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-600" onclick="switchTab('today')">📋 Today</button>
-      <button class="tab-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-600" onclick="switchTab('history')">📊 History</button>
-      <button class="tab-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-600" onclick="switchTab('report')">⭐ Doctor Report</button>
-      <button class="tab-btn flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-600" onclick="switchTab('settings')">⚙️ Settings</button>
-    </div>
-  </div>
-</nav>
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     MAIN CONTENT
-═══════════════════════════════════════════════════════════════════ -->
-<main class="max-w-3xl mx-auto px-4 py-6 pb-20">
-
-<!-- ─────────────────────────────────────────────────────────────────
-     TAB 1 — TODAY
-───────────────────────────────────────────────────────────────── -->
-<div id="tab-today" class="tab-content active space-y-4">
-
-  <!-- Date banner -->
-  <div class="card flex items-center justify-between">
-    <div>
-      <p class="text-xs text-gray-400 font-medium">Today's Log</p>
-      <p id="todayDateDisplay" class="text-xl font-bold" style="color:#7C3AED"></p>
-    </div>
-    <span class="text-3xl">📝</span>
-  </div>
-
-  <!-- HOT FLASHES & NIGHT SWEATS -->
-  <div class="card space-y-4">
-    <p class="section-title">🔥 Hot Flashes &amp; Night Sweats</p>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Hot flashes today</label>
-      <input id="hotFlashes" type="number" min="0" max="20" value="0"
-        class="w-20 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-purple-400" />
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Night sweats</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="nightSweatsYes" onclick="setToggle('nightSweats', true)">Yes</button>
-        <button class="toggle-btn active-no" id="nightSweatsNo" onclick="setToggle('nightSweats', false)">No</button>
+      <div class="nav-group" role="navigation" aria-label="Sections">
+        <button class="nav-btn active" data-scroll="#overview"><span class="dot"></span> Overview</button>
+        <button class="nav-btn" data-scroll="#analytics"><span class="dot"></span> Analytics</button>
+        <button class="nav-btn" data-scroll="#habits"><span class="dot"></span> Habits</button>
+        <button class="nav-btn" data-scroll="#activity"><span class="dot"></span> Activity log</button>
       </div>
-    </div>
 
-    <div id="nightSweatSeverityRow" class="hidden">
-      <label class="label-text block mb-2">Night sweat severity</label>
-      <div id="nightSweatStars" class="flex gap-1">
-        <span class="star" data-group="nightSweatSeverity" data-val="1" onclick="setStar('nightSweatSeverity',1)">★</span>
-        <span class="star" data-group="nightSweatSeverity" data-val="2" onclick="setStar('nightSweatSeverity',2)">★</span>
-        <span class="star" data-group="nightSweatSeverity" data-val="3" onclick="setStar('nightSweatSeverity',3)">★</span>
-        <span class="star" data-group="nightSweatSeverity" data-val="4" onclick="setStar('nightSweatSeverity',4)">★</span>
-        <span class="star" data-group="nightSweatSeverity" data-val="5" onclick="setStar('nightSweatSeverity',5)">★</span>
+      <section class="today-card" aria-labelledby="today-score">
+        <h2 id="today-score">Today score</h2>
+        <div class="ring-wrap">
+          <div class="ring" id="scoreRing" aria-hidden="true">
+            <div>
+              <strong id="todayPercent">0%</strong>
+              <span>focus pulse</span>
+            </div>
+          </div>
+        </div>
+        <div class="today-stats">
+          <div class="mini-stat"><span>Completed</span><strong id="sideCompleted">0</strong></div>
+          <div class="mini-stat"><span>Active streaks</span><strong id="sideStreaks">0</strong></div>
+          <div class="mini-stat"><span>Best window</span><strong id="sideWindow">--</strong></div>
+        </div>
+      </section>
+
+      <section class="tip-card" aria-labelledby="coach-tip-title">
+        <h2 id="coach-tip-title">Pattern cue</h2>
+        <strong id="patternHeadline">Waiting for your rhythm</strong>
+        <p id="patternHint">Log a few habits to unlock adaptive insights, streak intelligence, and mood-aware quotes.</p>
+      </section>
+
+      <section class="add-panel" aria-labelledby="quick-add-title">
+        <h2 id="quick-add-title">Quick add</h2>
+        <p class="muted">Create a habit your way, from coding to walking to reading.</p>
+        <button class="primary-btn" id="openAddHabit">Add new habit</button>
+      </section>
+    </aside>
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Build consistency with a live dashboard</h1>
+        <p>Your habits, streaks, patterns, and quotes update as you interact.</p>
       </div>
+      <div class="topbar-actions">
+        <button class="chip" id="dateChip" aria-label="Today"></button>
+        <button class="ghost-btn" id="exportCSV">Export CSV</button>
+        <button class="ghost-btn" id="seedDemo">Load demo data</button>
+        <button class="icon-btn" data-theme-toggle aria-label="Toggle theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+        <button class="primary-btn" id="openAddHabitTop">Add habit</button>
+      </div>
+    </header>
+
+    <main class="main" id="main" tabindex="-1">
+      <section class="hero-grid" id="overview">
+        <article class="hero-card">
+          <span class="eyebrow">Daily operating system</span>
+          <h2 id="heroTitle">Start with one habit, then watch the dashboard learn you.</h2>
+          <p id="heroSub">As you mark habits done or skipped, Habit Flow highlights your strongest time window, trend line, and momentum score.</p>
+          <div class="hero-actions">
+            <button class="primary-btn" id="heroAddHabit">Create custom habit</button>
+            <button class="ghost-btn" id="jumpAnalytics">View dashboard</button>
+          </div>
+        </article>
+        <article class="quote-card" aria-live="polite">
+          <span class="eyebrow">Adaptive quote</span>
+          <blockquote id="quoteText">Momentum loves small proofs.</blockquote>
+          <div class="quote-meta">
+            <strong id="quoteMood">Calm focus</strong>
+            <div id="quoteReason">This changes based on streaks, misses, and completion time.</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="kpi-grid" aria-label="Key metrics">
+        <article class="kpi-card">
+          <div class="label">Completion rate</div>
+          <div class="value" id="kpiCompletion">0%</div>
+          <div class="delta up" id="kpiDelta1">▲ ready to begin</div>
+        </article>
+        <article class="kpi-card">
+          <div class="label">Current streaks</div>
+          <div class="value" id="kpiStreaks">0</div>
+          <div class="delta up" id="kpiDelta2">▲ build your first chain</div>
+        </article>
+        <article class="kpi-card">
+          <div class="label">Best habit</div>
+          <div class="value" id="kpiBest">--</div>
+          <div class="delta up" id="kpiDelta3">▲ no trend yet</div>
+        </article>
+        <article class="kpi-card">
+          <div class="label">Consistency score</div>
+          <div class="value" id="kpiScore">0</div>
+          <div class="delta up" id="kpiDelta4">▲ grows with repeat wins</div>
+        </article>
+      </section>
+
+      <section class="mid-grid" id="analytics">
+        <article class="chart-card">
+          <div class="card-head">
+            <div>
+              <h3>7-day momentum</h3>
+              <p>Daily completions trend (last 7 days shown).</p>
+            </div>
+            <button class="ghost-btn" id="refreshQuote">Refresh quote</button>
+          </div>
+          <div class="chart-wrap"><canvas id="momentumChart" aria-label="Momentum chart"></canvas></div>
+        </article>
+        <article class="activity-card">
+          <div class="card-head">
+            <div>
+              <h3>Pattern engine</h3>
+              <p>Insights inferred from your recent behavior.</p>
+            </div>
+          </div>
+          <div class="pattern-panel" id="patternPanel"></div>
+        </article>
+      </section>
+
+      <section id="habits">
+        <div class="section-head">
+          <div>
+            <h3>Your habits</h3>
+            <p>Add any habit and track streak, target, and progress.</p>
+          </div>
+          <button class="primary-btn" id="sectionAddHabit">Add custom habit</button>
+        </div>
+        <div class="habits-grid" id="habitsGrid"></div>
+        <div class="empty-state" id="emptyState" hidden>
+          <h3>No habits yet</h3>
+          <p>Add your first habit to unlock the dashboard, quotes, and trend analysis.</p>
+          <button class="primary-btn" id="emptyAddHabit">Add first habit</button>
+        </div>
+      </section>
+
+      <section id="activity" style="margin-top: 2rem;">
+        <div class="section-head">
+          <div>
+            <h3>Recent activity</h3>
+            <p>Every action updates your timeline instantly.</p>
+          </div>
+          <button class="ghost-btn" id="clearActivity">Clear timeline</button>
+        </div>
+        <article class="activity-card">
+          <div class="timeline" id="timeline"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="dialog-backdrop" id="habitDialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+    <div class="dialog">
+      <header>
+        <h3 id="dialogTitle">Add a custom habit</h3>
+        <button class="icon-btn" id="closeDialog" aria-label="Close dialog">✕</button>
+      </header>
+      <form id="habitForm">
+        <div class="dialog-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="habitName">Habit name</label>
+              <input id="habitName" name="habitName" type="text" placeholder="e.g. Deep work" required />
+            </div>
+            <div class="field">
+              <label for="habitIcon">Icon</label>
+              <select id="habitIcon" name="habitIcon">
+                <option value="💻">💻 Coding</option>
+                <option value="📚">📚 Reading</option>
+                <option value="🏃">🏃 Fitness</option>
+                <option value="🧘">🧘 Mindfulness</option>
+                <option value="💧">💧 Hydration</option>
+                <option value="🌙">🌙 Sleep</option>
+                <option value="✍️">✍️ Writing</option>
+                <option value="🎯">🎯 Focus</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="habitCategory">Category</label>
+              <input id="habitCategory" name="habitCategory" type="text" placeholder="Health, Work, Learning" required />
+            </div>
+            <div class="field">
+              <label for="habitTarget">Daily target</label>
+              <input id="habitTarget" name="habitTarget" type="number" min="1" max="12" value="1" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="habitCue">Why it matters</label>
+            <input id="habitCue" name="habitCue" type="text" placeholder="Helps me stay interview-ready" required />
+          </div>
+        </div>
+        <footer>
+          <button type="button" class="ghost-btn" id="cancelDialog">Cancel</button>
+          <button type="submit" class="primary-btn">Save habit</button>
+        </footer>
+      </form>
     </div>
   </div>
 
-  <!-- SLEEP -->
-  <div class="card space-y-4">
-    <p class="section-title">😴 Sleep</p>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Hours slept</label>
-      <input id="sleepHours" type="number" min="0" max="12" step="0.5" value="7"
-        class="w-20 text-center border border-gray-200 rounded-lg px-2 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-purple-400" />
-    </div>
-
-    <div>
-      <label class="label-text block mb-2">Sleep quality</label>
-      <div id="sleepQualityStars" class="flex gap-1">
-        <span class="star" data-group="sleepQuality" data-val="1" onclick="setStar('sleepQuality',1)">★</span>
-        <span class="star" data-group="sleepQuality" data-val="2" onclick="setStar('sleepQuality',2)">★</span>
-        <span class="star" data-group="sleepQuality" data-val="3" onclick="setStar('sleepQuality',3)">★</span>
-        <span class="star" data-group="sleepQuality" data-val="4" onclick="setStar('sleepQuality',4)">★</span>
-        <span class="star" data-group="sleepQuality" data-val="5" onclick="setStar('sleepQuality',5)">★</span>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Woke at 3am</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="wake3amYes" onclick="setToggle('wake3am', true)">Yes</button>
-        <button class="toggle-btn active-no" id="wake3amNo" onclick="setToggle('wake3am', false)">No</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MIND & MOOD -->
-  <div class="card space-y-5">
-    <p class="section-title">🧠 Mind &amp; Mood</p>
-
-    <div>
-      <div class="flex justify-between items-center mb-1">
-        <label class="label-text">Brain fog</label>
-        <span id="brainFogVal" class="text-sm font-bold" style="color:#7C3AED">5</span>
-      </div>
-      <div class="flex justify-between text-xs text-gray-400 mb-1"><span>Clear</span><span>Foggy</span></div>
-      <input id="brainFog" type="range" min="1" max="10" value="5" oninput="updateSlider(this,'brainFogVal')" />
-    </div>
-
-    <div>
-      <div class="flex justify-between items-center mb-1">
-        <label class="label-text">Anxiety</label>
-        <span id="anxietyVal" class="text-sm font-bold" style="color:#7C3AED">5</span>
-      </div>
-      <div class="flex justify-between text-xs text-gray-400 mb-1"><span>Calm</span><span>Anxious</span></div>
-      <input id="anxiety" type="range" min="1" max="10" value="5" oninput="updateSlider(this,'anxietyVal')" />
-    </div>
-
-    <div>
-      <label class="label-text block mb-2">Mood</label>
-      <div class="flex gap-2 flex-wrap">
-        <button class="mood-btn" data-mood="😢" onclick="selectMood('😢')">😢</button>
-        <button class="mood-btn" data-mood="😠" onclick="selectMood('😠')">😠</button>
-        <button class="mood-btn" data-mood="😐" onclick="selectMood('😐')">😐</button>
-        <button class="mood-btn" data-mood="🙂" onclick="selectMood('🙂')">🙂</button>
-        <button class="mood-btn" data-mood="😊" onclick="selectMood('😊')">😊</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BODY -->
-  <div class="card space-y-5">
-    <p class="section-title">💪 Body</p>
-
-    <div>
-      <div class="flex justify-between items-center mb-1">
-        <label class="label-text">Energy</label>
-        <span id="energyVal" class="text-sm font-bold" style="color:#7C3AED">5</span>
-      </div>
-      <div class="flex justify-between text-xs text-gray-400 mb-1"><span>Exhausted</span><span>Energised</span></div>
-      <input id="energy" type="range" min="1" max="10" value="5" oninput="updateSlider(this,'energyVal')" />
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Joint pain</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="jointPainYes" onclick="setToggle('jointPain', true)">Yes</button>
-        <button class="toggle-btn active-no" id="jointPainNo" onclick="setToggle('jointPain', false)">No</button>
-      </div>
-    </div>
-
-    <div id="jointSeverityRow" class="hidden">
-      <div class="flex justify-between items-center mb-1">
-        <label class="label-text">Joint pain severity</label>
-        <span id="jointSeverityVal" class="text-sm font-bold" style="color:#7C3AED">3</span>
-      </div>
-      <input id="jointSeverity" type="range" min="1" max="5" value="3" oninput="updateSlider(this,'jointSeverityVal')" />
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Headache</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="headacheYes" onclick="setToggle('headache', true)">Yes</button>
-        <button class="toggle-btn active-no" id="headacheNo" onclick="setToggle('headache', false)">No</button>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Bloating</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="bloatingYes" onclick="setToggle('bloating', true)">Yes</button>
-        <button class="toggle-btn active-no" id="bloatingNo" onclick="setToggle('bloating', false)">No</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CYCLE -->
-  <div class="card space-y-4">
-    <p class="section-title">🩸 Cycle</p>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Period today</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="periodYes" onclick="setToggle('period', true)">Yes</button>
-        <button class="toggle-btn active-no" id="periodNo" onclick="setToggle('period', false)">No</button>
-      </div>
-    </div>
-
-    <div id="flowRow" class="hidden flex items-center justify-between gap-4">
-      <label class="label-text">Flow</label>
-      <select id="flow" class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
-        <option value="">Select...</option>
-        <option value="Light">Light</option>
-        <option value="Medium">Medium</option>
-        <option value="Heavy">Heavy</option>
-      </select>
-    </div>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">Spotting</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="spottingYes" onclick="setToggle('spotting', true)">Yes</button>
-        <button class="toggle-btn active-no" id="spottingNo" onclick="setToggle('spotting', false)">No</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MEDICATIONS -->
-  <div class="card space-y-4">
-    <p class="section-title">💊 Medications &amp; Supplements</p>
-
-    <div class="flex items-center justify-between gap-4">
-      <label class="label-text">HRT taken today</label>
-      <div class="flex gap-2">
-        <button class="toggle-btn" id="hrtTakenYes" onclick="setToggle('hrtTaken', true)">Yes</button>
-        <button class="toggle-btn active-no" id="hrtTakenNo" onclick="setToggle('hrtTaken', false)">No</button>
-      </div>
-    </div>
-
-    <div id="hrtTypeRow" class="hidden">
-      <label class="label-text block mb-1">HRT type</label>
-      <input id="hrtType" type="text" placeholder="e.g. Estradiol patch 50mcg"
-        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
-    </div>
-
-    <div>
-      <label class="label-text block mb-2">Supplements taken</label>
-      <div class="grid grid-cols-2 gap-2">
-        <label class="supplement-cb"><input type="checkbox" id="supp_Magnesium" value="Magnesium" /><span class="text-sm">Magnesium</span></label>
-        <label class="supplement-cb"><input type="checkbox" id="supp_VitaminD" value="Vitamin D" /><span class="text-sm">Vitamin D</span></label>
-        <label class="supplement-cb"><input type="checkbox" id="supp_Omega3" value="Omega-3" /><span class="text-sm">Omega-3</span></label>
-        <label class="supplement-cb"><input type="checkbox" id="supp_BlackCohosh" value="Black Cohosh" /><span class="text-sm">Black Cohosh</span></label>
-        <label class="supplement-cb"><input type="checkbox" id="supp_Other" value="Other" /><span class="text-sm">Other</span></label>
-      </div>
-    </div>
-  </div>
-
-  <!-- NOTES -->
-  <div class="card">
-    <p class="section-title">📝 Notes</p>
-    <textarea id="notes" rows="4" placeholder="How are you feeling today? Any observations..."
-      class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-400"></textarea>
-  </div>
-
-  <!-- SAVE BUTTON -->
-  <button onclick="saveTodayEntry()"
-    class="w-full py-3.5 rounded-xl font-bold text-white text-base shadow-lg transition-transform active:scale-95"
-    style="background: linear-gradient(135deg, #7C3AED, #EC4899)">
-    💾 Save Today's Entry
-  </button>
-
-</div><!-- /tab-today -->
-
-<!-- ─────────────────────────────────────────────────────────────────
-     TAB 2 — HISTORY
-───────────────────────────────────────────────────────────────── -->
-<div id="tab-history" class="tab-content space-y-6">
-
-  <!-- Calendar heatmap -->
-  <div class="card">
-    <div class="flex items-center justify-between mb-4">
-      <button onclick="changeCalMonth(-1)" class="p-2 rounded-full hover:bg-purple-50 transition-colors text-purple-600 font-bold text-lg">‹</button>
-      <h2 id="calMonthLabel" class="font-bold text-base" style="color:#7C3AED"></h2>
-      <button onclick="changeCalMonth(1)" class="p-2 rounded-full hover:bg-purple-50 transition-colors text-purple-600 font-bold text-lg">›</button>
-    </div>
-    <!-- Day-of-week headers -->
-    <div class="grid grid-cols-7 gap-1 mb-1">
-      <div class="text-center text-xs font-semibold text-gray-400">Su</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Mo</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Tu</div>
-      <div class="text-center text-xs font-semibold text-gray-400">We</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Th</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Fr</div>
-      <div class="text-center text-xs font-semibold text-gray-400">Sa</div>
-    </div>
-    <div id="calGrid" class="grid grid-cols-7 gap-1"></div>
-    <!-- Legend -->
-    <div class="flex gap-3 mt-3 flex-wrap">
-      <div class="flex items-center gap-1 text-xs text-gray-500"><span class="w-3 h-3 rounded bg-gray-200 inline-block"></span>No data</div>
-      <div class="flex items-center gap-1 text-xs text-gray-500"><span class="w-3 h-3 rounded bg-red-200 inline-block"></span>Low (1–3)</div>
-      <div class="flex items-center gap-1 text-xs text-gray-500"><span class="w-3 h-3 rounded bg-yellow-200 inline-block"></span>Mid (4–6)</div>
-      <div class="flex items-center gap-1 text-xs text-gray-500"><span class="w-3 h-3 rounded bg-green-200 inline-block"></span>Good (7–10)</div>
-    </div>
-  </div>
-
-  <!-- Charts -->
-  <div class="card">
-    <p class="section-title">📈 Energy &amp; Mood — 30 Days</p>
-    <canvas id="chartEnergyMood" height="120"></canvas>
-  </div>
-  <div class="card">
-    <p class="section-title">🔥 Hot Flashes — 30 Days</p>
-    <canvas id="chartHotFlash" height="100"></canvas>
-  </div>
-  <div class="card">
-    <p class="section-title">🧠 Brain Fog &amp; Anxiety — 30 Days</p>
-    <canvas id="chartFogAnxiety" height="120"></canvas>
-  </div>
-
-  <!-- Monthly stats -->
-  <div>
-    <p class="section-title">📊 This Month's Stats</p>
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div class="stat-card">
-        <p class="text-2xl font-bold" id="statHotFlash" style="color:#f97316">—</p>
-        <p class="text-xs text-gray-500 mt-1">Avg hot flashes/day</p>
-      </div>
-      <div class="stat-card">
-        <p class="text-2xl font-bold" id="statSleep" style="color:#7C3AED">—</p>
-        <p class="text-xs text-gray-500 mt-1">Avg sleep hours</p>
-      </div>
-      <div class="stat-card">
-        <p class="text-2xl font-bold" id="statEnergy" style="color:#EC4899">—</p>
-        <p class="text-xs text-gray-500 mt-1">Avg energy level</p>
-      </div>
-      <div class="stat-card">
-        <p class="text-2xl font-bold" id="statNightSweats" style="color:#3b82f6">—</p>
-        <p class="text-xs text-gray-500 mt-1">Days with night sweats</p>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /tab-history -->
-
-<!-- ─────────────────────────────────────────────────────────────────
-     TAB 3 — DOCTOR REPORT
-───────────────────────────────────────────────────────────────── -->
-<div id="tab-report" class="tab-content space-y-4">
-
-  <div class="card space-y-4">
-    <p class="section-title">⭐ Generate Doctor Report</p>
-
-    <div>
-      <label class="label-text block mb-1">Patient name</label>
-      <input id="reportName" type="text" placeholder="Your name"
-        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" />
-    </div>
-
-    <div>
-      <label class="label-text block mb-2">Report period</label>
-      <div class="flex gap-3 flex-wrap">
-        <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-          <input type="radio" name="reportRange" value="30" checked class="accent-purple-600" /> Last 30 days
-        </label>
-        <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-          <input type="radio" name="reportRange" value="60" class="accent-purple-600" /> Last 60 days
-        </label>
-        <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-          <input type="radio" name="reportRange" value="90" class="accent-purple-600" /> Last 90 days
-        </label>
-      </div>
-    </div>
-
-    <div class="flex gap-3 flex-wrap">
-      <button onclick="buildReport()"
-        class="flex-1 py-2.5 rounded-xl font-bold text-white text-sm shadow transition-transform active:scale-95"
-        style="background:#7C3AED">
-        🖨️ Generate &amp; Print Report
-      </button>
-      <button onclick="copyReportText()"
-        class="flex-1 py-2.5 rounded-xl font-bold text-sm border-2 border-purple-400 text-purple-600 transition-transform active:scale-95">
-        📋 Copy as Text
-      </button>
-    </div>
-  </div>
-
-  <!-- The actual report -->
-  <div id="printable-report" class="report-card p-6 space-y-6 hidden">
-    <!-- Filled dynamically -->
-  </div>
-
-</div><!-- /tab-report -->
-
-<!-- ─────────────────────────────────────────────────────────────────
-     TAB 4 — SETTINGS
-───────────────────────────────────────────────────────────────── -->
-<div id="tab-settings" class="tab-content space-y-4">
-
-  <div class="settings-section space-y-3">
-    <p class="section-title">👤 Profile</p>
-    <div>
-      <label class="label-text block mb-1">Your name</label>
-      <input id="settingsName" type="text" placeholder="Enter your name"
-        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
-        oninput="saveSetting('name', this.value)" />
-    </div>
-  </div>
-
-  <div class="settings-section space-y-3">
-    <p class="section-title">🎨 Appearance</p>
-    <div class="flex items-center justify-between">
-      <label class="label-text">Dark mode</label>
-      <button id="settingsDarkBtn" onclick="toggleDarkMode()"
-        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-        style="background:#d1d5db">
-        <span id="settingsDarkThumb" class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform translate-x-1"></span>
-      </button>
-    </div>
-  </div>
-
-  <div class="settings-section space-y-3">
-    <p class="section-title">🔒 Security</p>
-    <p class="text-sm text-gray-500">Your app is protected by a 4-digit PIN.</p>
-    <button onclick="changePinFromSettings()"
-      class="w-full py-2.5 rounded-xl font-semibold text-sm border-2 border-purple-400 text-purple-600 hover:bg-purple-50 transition-colors">
-      🔑 Change PIN
-    </button>
-  </div>
-
-    <div class="settings-section space-y-3">
-    <p class="section-title">💾 Data</p>
-    <button onclick="exportData()"
-      class="w-full py-2.5 rounded-xl font-semibold text-sm border-2 border-purple-400 text-purple-600 hover:bg-purple-50 transition-colors">
-      ⬇️ Download my data (JSON)
-    </button>
-    <div>
-      <label class="label-text block mb-1">Import data (JSON)</label>
-      <input type="file" id="importFile" accept=".json"
-        class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-        onchange="importData(this)" />
-    </div>
-    <button onclick="clearAllData()"
-      class="w-full py-2.5 rounded-xl font-semibold text-sm bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100 transition-colors">
-      🗑️ Clear all data
-    </button>
-  </div>
-
-  <div class="settings-section">
-    <p class="text-sm text-gray-500 text-center">
-      🔒 All your data is stored only on this device. Nothing is ever sent anywhere.
-    </p>
-  </div>
-
-</div><!-- /tab-settings -->
-
-</main><!-- /main -->
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     MODAL (day detail)
-═══════════════════════════════════════════════════════════════════ -->
-<div id="dayModal" class="modal-bg hidden" onclick="closeModal(event)">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="flex justify-between items-center mb-4">
-      <h3 id="modalDate" class="font-bold text-lg" style="color:#7C3AED"></h3>
-      <button onclick="document.getElementById('dayModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
-    </div>
-    <div id="modalBody" class="space-y-2 text-sm"></div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div id="toast">✓ Entry saved!</div>
-
-<!-- ═══════════════════════════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════════════════════════ -->
-<script>
-/* ══════════════════════════════════════════════════════════════════
-   CONSTANTS & STATE
-══════════════════════════════════════════════════════════════════ */
-const STORAGE_KEY  = 'peritrack_entries';
-const SETTINGS_KEY = 'peritrack_settings';
-
-// In-memory state for today's form
-const state = {
-  nightSweats: false,
-  nightSweatSeverity: 0,
-  sleepQuality: 0,
-  wake3am: false,
-  mood: '',
-  jointPain: false,
-  headache: false,
-  bloating: false,
-  period: false,
-  spotting: false,
-  hrtTaken: false,
-};
-
-// Calendar navigation state
-let calYear, calMonth;
-const now = new Date();
-calYear  = now.getFullYear();
-calMonth = now.getMonth(); // 0-indexed
-
-// Chart instances
-let chartEM = null, chartHF = null, chartFA = null;
-
-/* ══════════════════════════════════════════════════════════════════
-   STORAGE HELPERS
-══════════════════════════════════════════════════════════════════ */
-function getAllEntries() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-  catch(e) { return {}; }
-}
-function saveEntry(date, data) {
-  const all = getAllEntries();
-  all[date] = data;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-}
-function getEntry(date) {
-  return getAllEntries()[date] || null;
-}
-function getEntriesInRange(startDate, endDate) {
-  const all = getAllEntries();
-  const result = [];
-  const start = new Date(startDate + 'T00:00:00');
-  const end   = new Date(endDate   + 'T00:00:00');
-  Object.keys(all).sort().forEach(d => {
-    const dt = new Date(d + 'T00:00:00');
-    if (dt >= start && dt <= end) result.push(all[d]);
-  });
-  return result;
-}
-function getSettings() {
-  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); }
-  catch(e) { return {}; }
-}
-function saveSetting(key, value) {
-  const s = getSettings();
-  s[key] = value;
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   SCORING
-══════════════════════════════════════════════════════════════════ */
-function moodToNum(emoji) {
-  const map = { '😢': 1, '😠': 2, '😐': 5, '🙂': 8, '😊': 10 };
-  return map[emoji] || 5;
-}
-function calculateDayScore(entry) {
-  if (!entry) return null;
-  const energy   = entry.energy   || 5;
-  const moodN    = moodToNum(entry.mood);
-  const fogInv   = 11 - (entry.brainFog  || 5);
-  const anxInv   = 11 - (entry.anxiety   || 5);
-  return Math.round((energy + moodN + fogInv + anxInv) / 4);
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   DATE HELPERS
-══════════════════════════════════════════════════════════════════ */
-function todayStr() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
-}
-function subtractDays(dateStr, n) {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setDate(d.getDate() - n);
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function dateRange(startStr, endStr) {
-  const dates = [];
-  let cur = new Date(startStr + 'T00:00:00');
-  const end = new Date(endStr + 'T00:00:00');
-  while (cur <= end) {
-    dates.push(cur.getFullYear() + '-' + String(cur.getMonth()+1).padStart(2,'0') + '-' + String(cur.getDate()).padStart(2,'0'));
-    cur.setDate(cur.getDate() + 1);
-  }
-  return dates;
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   TAB SWITCHING
-══════════════════════════════════════════════════════════════════ */
-function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  const btns = document.querySelectorAll('.tab-btn');
-  const labels = ['today','history','report','settings'];
-  btns[labels.indexOf(name)].classList.add('active');
-
-  if (name === 'history') {
-    renderCalendar(calYear, calMonth);
-    renderCharts();
-    renderMonthStats();
-  }
-  if (name === 'report') {
-    const s = getSettings();
-    document.getElementById('reportName').value = s.name || '';
-  }
-  if (name === 'settings') {
-    const s = getSettings();
-    document.getElementById('settingsName').value = s.name || '';
-    updateDarkToggleUI();
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   DARK MODE
-══════════════════════════════════════════════════════════════════ */
-function toggleDarkMode() {
-  const isDark = document.body.classList.toggle('dark');
-  saveSetting('darkMode', isDark);
-  updateDarkToggleUI();
-  // Re-render charts with new theme
-  if (document.getElementById('tab-history').classList.contains('active')) {
-    renderCharts();
-  }
-}
-function updateDarkToggleUI() {
-  const isDark = document.body.classList.contains('dark');
-  document.getElementById('darkIcon').textContent = isDark ? '☀️' : '🌙';
-  const btn   = document.getElementById('settingsDarkBtn');
-  const thumb = document.getElementById('settingsDarkThumb');
-  if (btn && thumb) {
-    btn.style.background   = isDark ? '#7C3AED' : '#d1d5db';
-    thumb.style.transform  = isDark ? 'translateX(1.375rem)' : 'translateX(0.25rem)';
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   FORM HELPERS
-══════════════════════════════════════════════════════════════════ */
-function updateSlider(el, valId) {
-  const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
-  el.style.setProperty('--val', pct + '%');
-  document.getElementById(valId).textContent = el.value;
-}
-
-function setToggle(field, value) {
-  state[field] = value;
-  const yesBtn = document.getElementById(field + 'Yes');
-  const noBtn  = document.getElementById(field + 'No');
-  if (yesBtn) { yesBtn.className = 'toggle-btn' + (value ? ' active-yes' : ''); }
-  if (noBtn)  { noBtn.className  = 'toggle-btn' + (!value ? ' active-no' : ''); }
-
-  // Conditional rows
-  if (field === 'nightSweats') {
-    document.getElementById('nightSweatSeverityRow').classList.toggle('hidden', !value);
-  }
-  if (field === 'jointPain') {
-    document.getElementById('jointSeverityRow').classList.toggle('hidden', !value);
-  }
-  if (field === 'period') {
-    document.getElementById('flowRow').classList.toggle('hidden', !value);
-  }
-  if (field === 'hrtTaken') {
-    document.getElementById('hrtTypeRow').classList.toggle('hidden', !value);
-  }
-}
-
-function setStar(group, val) {
-  state[group] = val;
-  const container = group === 'sleepQuality' ? 'sleepQualityStars' : 'nightSweatStars';
-  document.querySelectorAll(`#${container} .star`).forEach(s => {
-    s.classList.toggle('filled', parseInt(s.dataset.val) <= val);
-  });
-}
-
-function selectMood(emoji) {
-  state.mood = emoji;
-  document.querySelectorAll('.mood-btn').forEach(b => {
-    b.classList.toggle('selected', b.dataset.mood === emoji);
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   SAVE TODAY
-══════════════════════════════════════════════════════════════════ */
-function saveTodayEntry() {
-  const supplements = [];
-  ['Magnesium','VitaminD','Omega3','BlackCohosh','Other'].forEach(id => {
-    const el = document.getElementById('supp_' + id);
-    if (el && el.checked) supplements.push(el.value);
-  });
-
-  const entry = {
-    date:               todayStr(),
-    hotFlashes:         parseInt(document.getElementById('hotFlashes').value) || 0,
-    nightSweats:        state.nightSweats,
-    nightSweatSeverity: state.nightSweatSeverity || 0,
-    sleepHours:         parseFloat(document.getElementById('sleepHours').value) || 0,
-    sleepQuality:       state.sleepQuality || 0,
-    wake3am:            state.wake3am,
-    brainFog:           parseInt(document.getElementById('brainFog').value) || 5,
-    anxiety:            parseInt(document.getElementById('anxiety').value) || 5,
-    mood:               state.mood || '😐',
-    energy:             parseInt(document.getElementById('energy').value) || 5,
-    jointPain:          state.jointPain,
-    jointSeverity:      state.jointPain ? (parseInt(document.getElementById('jointSeverity').value) || 0) : 0,
-    headache:           state.headache,
-    bloating:           state.bloating,
-    period:             state.period,
-    spotting:           state.spotting,
-    flow:               state.period ? (document.getElementById('flow').value || '') : '',
-    hrtTaken:           state.hrtTaken,
-    hrtType:            state.hrtTaken ? (document.getElementById('hrtType').value || '') : '',
-    supplements:        supplements,
-    notes:              document.getElementById('notes').value || '',
-  };
-
-  saveEntry(todayStr(), entry);
-  showToast('✓ Entry saved!');
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   LOAD TODAY'S ENTRY (pre-fill)
-══════════════════════════════════════════════════════════════════ */
-function loadTodayEntry() {
-  const entry = getEntry(todayStr());
-  if (!entry) return;
-
-  document.getElementById('hotFlashes').value = entry.hotFlashes || 0;
-  document.getElementById('sleepHours').value = entry.sleepHours || 7;
-  document.getElementById('brainFog').value   = entry.brainFog   || 5;
-  document.getElementById('anxiety').value    = entry.anxiety    || 5;
-  document.getElementById('energy').value     = entry.energy     || 5;
-  document.getElementById('notes').value      = entry.notes      || '';
-
-  // Update slider visuals
-  ['brainFog','anxiety','energy'].forEach(id => {
-    const el = document.getElementById(id);
-    const valId = id + 'Val';
-    updateSlider(el, valId);
-  });
-
-  // Toggles
-  setToggle('nightSweats', !!entry.nightSweats);
-  setToggle('wake3am',     !!entry.wake3am);
-  setToggle('jointPain',   !!entry.jointPain);
-  setToggle('headache',    !!entry.headache);
-  setToggle('bloating',    !!entry.bloating);
-  setToggle('period',      !!entry.period);
-  setToggle('spotting',    !!entry.spotting);
-  setToggle('hrtTaken',    !!entry.hrtTaken);
-
-  // Stars
-  if (entry.nightSweatSeverity) setStar('nightSweatSeverity', entry.nightSweatSeverity);
-  if (entry.sleepQuality)       setStar('sleepQuality',       entry.sleepQuality);
-
-  // Mood
-  if (entry.mood) selectMood(entry.mood);
-
-  // Joint severity
-  if (entry.jointPain && entry.jointSeverity) {
-    const js = document.getElementById('jointSeverity');
-    js.value = entry.jointSeverity;
-    updateSlider(js, 'jointSeverityVal');
-  }
-
-  // Flow
-  if (entry.flow) document.getElementById('flow').value = entry.flow;
-
-  // HRT type
-  if (entry.hrtType) document.getElementById('hrtType').value = entry.hrtType;
-
-  // Supplements
-  const suppMap = { 'Magnesium':'Magnesium','Vitamin D':'VitaminD','Omega-3':'Omega3','Black Cohosh':'BlackCohosh','Other':'Other' };
-  (entry.supplements || []).forEach(s => {
-    const id = suppMap[s];
-    if (id) { const el = document.getElementById('supp_' + id); if (el) el.checked = true; }
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   CALENDAR HEATMAP
-══════════════════════════════════════════════════════════════════ */
-function changeCalMonth(delta) {
-  calMonth += delta;
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  if (calMonth < 0)  { calMonth = 11; calYear--; }
-  renderCalendar(calYear, calMonth);
-}
-
-function renderCalendar(year, month) {
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('calMonthLabel').textContent = monthNames[month] + ' ' + year;
-
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-
-  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  const todayFull = todayStr();
-
-  // Empty cells before first day
-  for (let i = 0; i < firstDay; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'day-cell empty';
-    grid.appendChild(empty);
-  }
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    const entry = getEntry(dateStr);
-    const score = calculateDayScore(entry);
-
-    const cell = document.createElement('div');
-    let cls = 'day-cell ';
-    if (!entry) cls += 'no-data';
-    else if (score >= 7) cls += 'score-green';
-    else if (score >= 4) cls += 'score-yellow';
-    else cls += 'score-red';
-    if (dateStr === todayFull) cls += ' today-cell';
-    cell.className = cls;
-    cell.textContent = d;
-    cell.title = entry ? `Score: ${score}/10` : 'No data';
-    if (entry) cell.onclick = () => showDayModal(dateStr, entry);
-    grid.appendChild(cell);
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   DAY MODAL
-══════════════════════════════════════════════════════════════════ */
-function showDayModal(dateStr, entry) {
-  document.getElementById('modalDate').textContent = formatDate(dateStr);
-  const score = calculateDayScore(entry);
-  const rows = [
-    ['Wellness score', score + '/10'],
-    ['Hot flashes', entry.hotFlashes],
-    ['Night sweats', entry.nightSweats ? `Yes (severity ${entry.nightSweatSeverity}/5)` : 'No'],
-    ['Sleep', `${entry.sleepHours}h — quality ${entry.sleepQuality}/5`],
-    ['Woke at 3am', entry.wake3am ? 'Yes' : 'No'],
-    ['Brain fog', entry.brainFog + '/10'],
-    ['Anxiety', entry.anxiety + '/10'],
-    ['Energy', entry.energy + '/10'],
-    ['Mood', entry.mood || '—'],
-    ['Joint pain', entry.jointPain ? `Yes (${entry.jointSeverity}/5)` : 'No'],
-    ['Headache', entry.headache ? 'Yes' : 'No'],
-    ['Bloating', entry.bloating ? 'Yes' : 'No'],
-    ['Period', entry.period ? `Yes (${entry.flow || 'flow not set'})` : 'No'],
-    ['Spotting', entry.spotting ? 'Yes' : 'No'],
-    ['HRT taken', entry.hrtTaken ? `Yes — ${entry.hrtType || 'type not set'}` : 'No'],
-    ['Supplements', (entry.supplements || []).join(', ') || 'None'],
-    ['Notes', entry.notes || '—'],
-  ];
-  const body = document.getElementById('modalBody');
-  body.innerHTML = rows.map(([k,v]) =>
-    `<div class="flex justify-between gap-2 py-1 border-b border-gray-100">
-       <span class="font-medium text-gray-500">${k}</span>
-       <span class="text-right font-semibold">${v}</span>
-     </div>`
-  ).join('');
-  document.getElementById('dayModal').classList.remove('hidden');
-}
-function closeModal(e) {
-  if (e.target.id === 'dayModal') document.getElementById('dayModal').classList.add('hidden');
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   CHARTS
-══════════════════════════════════════════════════════════════════ */
-function renderCharts() {
-  const isDark = document.body.classList.contains('dark');
-  const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
-  const tickColor = isDark ? '#94a3b8' : '#6b7280';
-
-  const today = todayStr();
-  const start = subtractDays(today, 29);
-  const labels = dateRange(start, today).map(d => {
-    const dt = new Date(d + 'T00:00:00');
-    return String(dt.getDate()).padStart(2,'0') + '/' + String(dt.getMonth()+1).padStart(2,'0');
-  });
-  const dates = dateRange(start, today);
-  const all = getAllEntries();
-
-  const energyData   = dates.map(d => all[d] ? all[d].energy   : null);
-  const moodData     = dates.map(d => all[d] ? moodToNum(all[d].mood) : null);
-  const hotFlashData = dates.map(d => all[d] ? all[d].hotFlashes : 0);
-  const fogData      = dates.map(d => all[d] ? all[d].brainFog  : null);
-  const anxData      = dates.map(d => all[d] ? all[d].anxiety   : null);
-
-  const commonOpts = {
-    responsive: true,
-    interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { labels: { color: tickColor, font: { size: 11 } } } },
-    scales: {
-      x: { ticks: { color: tickColor, maxTicksLimit: 10, font: { size: 10 } }, grid: { color: gridColor } },
-      y: { ticks: { color: tickColor, font: { size: 10 } }, grid: { color: gridColor } },
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    const appState = {
+      habits: [], activity: [], dailyHistory: [],
+      chart: null,
+      theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+      quoteIndex: 0
+    };
+
+    const quoteSets = {
+      strong: [
+        { text: 'Discipline becomes identity when repeated quietly.', mood: 'Locked in', reason: 'You are sustaining streaks and high completion.' },
+        { text: 'Consistency removes drama from progress.', mood: 'Stable momentum', reason: 'Your dashboard shows repeat wins, not random effort.' },
+        { text: 'Your future trusts the habits you keep today.', mood: 'Compounding', reason: 'High follow-through signals durable routines.' }
+      ],
+      recovering: [
+        { text: 'A reset is still movement if you return today.', mood: 'Reset mode', reason: 'A few misses appeared, so the app shifts into recovery coaching.' },
+        { text: 'One completed habit can restart the whole rhythm.', mood: 'Restart energy', reason: 'Your pattern says a small win will help most right now.' },
+        { text: 'Momentum is rebuilt, not found.', mood: 'Gentle push', reason: 'Recent dips suggest low friction actions will work best.' }
+      ],
+      early: [
+        { text: 'Small proofs beat big plans.', mood: 'First steps', reason: 'You are in setup mode, so the quote favors quick wins.' },
+        { text: 'Start simple enough that today cannot say no.', mood: 'Low friction', reason: 'New habits stick best when the first days feel easy.' },
+        { text: 'The first streak is earned in ordinary moments.', mood: 'Beginner focus', reason: 'Your dashboard is waiting for early data.' }
+      ],
+      steady: [
+        { text: 'Keep the cadence, and the confidence follows.', mood: 'Calm focus', reason: 'Your pattern looks balanced with room to climb.' },
+        { text: 'Reliable days create loud results.', mood: 'Measured drive', reason: 'You are showing moderate consistency across habits.' },
+        { text: 'Make today look like yesterday at its best.', mood: 'Repeatable flow', reason: 'The app sees promising rhythm but wants more repeatability.' }
+      ]
+    };
+
+    const els = {
+      habitsGrid: document.getElementById('habitsGrid'),
+      emptyState: document.getElementById('emptyState'),
+      timeline: document.getElementById('timeline'),
+      patternPanel: document.getElementById('patternPanel'),
+      quoteText: document.getElementById('quoteText'),
+      quoteMood: document.getElementById('quoteMood'),
+      quoteReason: document.getElementById('quoteReason'),
+      heroTitle: document.getElementById('heroTitle'),
+      heroSub: document.getElementById('heroSub'),
+      todayPercent: document.getElementById('todayPercent'),
+      scoreRing: document.getElementById('scoreRing'),
+      sideCompleted: document.getElementById('sideCompleted'),
+      sideStreaks: document.getElementById('sideStreaks'),
+      sideWindow: document.getElementById('sideWindow'),
+      patternHeadline: document.getElementById('patternHeadline'),
+      patternHint: document.getElementById('patternHint'),
+      dateChip: document.getElementById('dateChip'),
+      kpiCompletion: document.getElementById('kpiCompletion'),
+      kpiStreaks: document.getElementById('kpiStreaks'),
+      kpiBest: document.getElementById('kpiBest'),
+      kpiScore: document.getElementById('kpiScore'),
+      kpiDelta1: document.getElementById('kpiDelta1'),
+      kpiDelta2: document.getElementById('kpiDelta2'),
+      kpiDelta3: document.getElementById('kpiDelta3'),
+      kpiDelta4: document.getElementById('kpiDelta4'),
+      toast: document.getElementById('toast'),
+      dialog: document.getElementById('habitDialog'),
+      form: document.getElementById('habitForm')
+    };
+
+    els.dateChip.textContent = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date());
+    document.documentElement.setAttribute('data-theme', appState.theme);
+
+    function uid() { return Math.random().toString(36).slice(2, 10); }
+
+    function showToast(msg) {
+      els.toast.textContent = msg;
+      els.toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove('show'), 2200);
     }
-  };
 
-  // Chart 1: Energy + Mood
-  const ctx1 = document.getElementById('chartEnergyMood').getContext('2d');
-  if (chartEM) chartEM.destroy();
-  chartEM = new Chart(ctx1, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Energy', data: energyData, borderColor: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.1)', tension: 0.3, fill: true, spanGaps: true, pointRadius: 3 },
-        { label: 'Mood',   data: moodData,   borderColor: '#EC4899', backgroundColor: 'rgba(236,72,153,0.1)', tension: 0.3, fill: true, spanGaps: true, pointRadius: 3 },
-      ]
-    },
-    options: { ...commonOpts, scales: { ...commonOpts.scales, y: { ...commonOpts.scales.y, min: 0, max: 10 } } }
-  });
+    function openDialog() { els.dialog.classList.add('open'); document.getElementById('habitName').focus(); }
+    function closeDialog() { els.dialog.classList.remove('open'); }
 
-  // Chart 2: Hot flashes
-  const ctx2 = document.getElementById('chartHotFlash').getContext('2d');
-  if (chartHF) chartHF.destroy();
-  chartHF = new Chart(ctx2, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{ label: 'Hot Flashes', data: hotFlashData, backgroundColor: 'rgba(249,115,22,0.7)', borderColor: '#f97316', borderWidth: 1, borderRadius: 3 }]
-    },
-    options: { ...commonOpts, scales: { ...commonOpts.scales, y: { ...commonOpts.scales.y, min: 0, ticks: { ...commonOpts.scales.y.ticks, stepSize: 1 } } } }
-  });
+    function getCompletionRate(habit) {
+      const total = habit.history.length || 1;
+      const done = habit.history.filter(e => e.status === 'done').length;
+      return Math.round((done / total) * 100);
+    }
 
-  // Chart 3: Brain fog + Anxiety
-  const ctx3 = document.getElementById('chartFogAnxiety').getContext('2d');
-  if (chartFA) chartFA.destroy();
-  chartFA = new Chart(ctx3, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Brain Fog', data: fogData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.3, fill: true, spanGaps: true, pointRadius: 3 },
-        { label: 'Anxiety',   data: anxData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)',  tension: 0.3, fill: true, spanGaps: true, pointRadius: 3 },
-      ]
-    },
-    options: { ...commonOpts, scales: { ...commonOpts.scales, y: { ...commonOpts.scales.y, min: 0, max: 10 } } }
-  });
-}
+    function getStreak(habit) {
+      let s = 0;
+      for (let i = habit.history.length - 1; i >= 0; i--) {
+        if (habit.history[i].status === 'done') s++;
+        else break;
+      }
+      return s;
+    }
 
-/* ══════════════════════════════════════════════════════════════════
-   MONTHLY STATS
-══════════════════════════════════════════════════════════════════ */
-function renderMonthStats() {
-  const year  = calYear;
-  const month = calMonth;
-  const start = year + '-' + String(month+1).padStart(2,'0') + '-01';
-  const lastDay = new Date(year, month+1, 0).getDate();
-  const end   = year + '-' + String(month+1).padStart(2,'0') + '-' + String(lastDay).padStart(2,'0');
-  const entries = getEntriesInRange(start, end);
+    function getBestWindow() {
+      const c = appState.activity.filter(a => a.type === 'done');
+      if (!c.length) return '--';
+      const avg = c.map(a => new Date(a.timestamp).getHours()).reduce((a, b) => a + b, 0) / c.length;
+      return avg < 11 ? 'Morning' : avg < 17 ? 'Afternoon' : 'Evening';
+    }
 
-  if (!entries.length) {
-    ['statHotFlash','statSleep','statEnergy','statNightSweats'].forEach(id => {
-      document.getElementById(id).textContent = '—';
+    function addActivity(type, text, icon) {
+      appState.activity.unshift({ id: uid(), type, text, icon, timestamp: new Date().toISOString() });
+      appState.activity = appState.activity.slice(0, 12);
+    }
+
+    function ensureHistory() {
+      const labels = Array.from({ length: 7 }).map((_, i) => {
+        const d = new Date(); d.setDate(d.getDate() - (6 - i));
+        return d.toLocaleDateString(undefined, { weekday: 'short' });
+      });
+      appState.dailyHistory = labels.map(label => ({ label, done: 0, score: 0 }));
+      appState.habits.forEach(h => {
+        h.history.slice(-7).forEach((entry, i) => {
+          if (entry.status === 'done') appState.dailyHistory[i].done += 1;
+        });
+      });
+      appState.dailyHistory.forEach((day, i) => {
+        const base = appState.habits.length ? (day.done / appState.habits.length) * 100 : 0;
+        day.score = Math.round(i === 0 ? base : base * 0.7 + (appState.dailyHistory[i - 1]?.score || 0) * 0.3);
+      });
+    }
+
+    function updateChart() {
+      ensureHistory();
+      const ctx = document.getElementById('momentumChart');
+      if (appState.chart) appState.chart.destroy();
+      appState.chart = new Chart(ctx, {
+        type: 'bar',
+         {
+          labels: appState.dailyHistory.map(d => d.label),
+          datasets: [
+            { type: 'bar', label: 'Completed',  appState.dailyHistory.map(d => d.done), borderRadius: 999, backgroundColor: 'rgba(92,199,194,0.45)', borderSkipped: false, maxBarThickness: 26 },
+            { type: 'line', label: 'Consistency %',  appState.dailyHistory.map(d => d.score), borderColor: '#8be7dc', backgroundColor: '#8be7dc', tension: 0.38, borderWidth: 3, pointRadius: 4, yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text') } } },
+          scales: {
+            x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted') }, grid: { display: false } },
+            y: { beginAtZero: true, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted'), precision: 0 }, grid: { color: 'rgba(255,255,255,0.08)' } },
+            y1: { position: 'right', beginAtZero: true, max: 100, ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted') }, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function detectPattern() {
+      if (!appState.habits.length) {
+        return { headline: 'Waiting for your rhythm', hint: 'Log a few habits to unlock adaptive insights.', mode: 'early',
+          insights: [['Setup phase','Add 2–4 habits to start pattern detection.'],['Quote engine','Quotes become smarter after your first completions.'],['Best next step','Start with one easy and one meaningful habit.']] };
+      }
+      const rates = appState.habits.map(getCompletionRate);
+      const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+      const longest = Math.max(...appState.habits.map(getStreak));
+      const skipped = appState.habits.flatMap(h => h.history).filter(h => h.status === 'skip').length;
+      let mode = 'steady';
+      if (avgRate >= 78 && longest >= 3) mode = 'strong';
+      else if (avgRate < 45 || skipped >= 3) mode = 'recovering';
+      const bestWindow = getBestWindow();
+      const weakest = [...appState.habits].sort((a, b) => getCompletionRate(a) - getCompletionRate(b))[0];
+      return {
+        headline: mode === 'strong' ? 'You are compounding' : mode === 'recovering' ? 'Recovery pattern detected' : 'Your rhythm is forming',
+        hint: mode === 'strong' ? `Best results in the ${bestWindow.toLowerCase()}. Protect that slot.`
+          : mode === 'recovering' ? 'Misses are clustering. Finish one easy habit first.'
+          : `A balanced routine is emerging. ${bestWindow} looks strongest.`,
+        mode,
+        insights: [['Best completion window', bestWindow], ['Longest live streak', `${longest} day${longest === 1 ? '' : 's'}`], ['Habit needing attention', weakest ? weakest.name : 'Add more data']]
+      };
+    }
+
+    function updateQuote(mode) {
+      const list = quoteSets[mode] || quoteSets.early;
+      const item = list[appState.quoteIndex % list.length];
+      appState.quoteIndex++;
+      els.quoteText.textContent = item.text;
+      els.quoteMood.textContent = item.mood;
+      els.quoteReason.textContent = item.reason;
+    }
+
+    function renderPatterns(pattern) {
+      els.patternHeadline.textContent = pattern.headline;
+      els.patternHint.textContent = pattern.hint;
+      els.patternPanel.innerHTML = pattern.insights.map(([t, v]) =>
+        `<div class="pattern-strip"><strong>${t}</strong><span>${v}</span></div>`).join('');
+    }
+
+    function renderTimeline() {
+      if (!appState.activity.length) {
+        els.timeline.innerHTML = '<div class="pattern-strip"><strong>No activity yet</strong><span>When you log habits, your timeline will appear here.</span></div>'; return;
+      }
+      els.timeline.innerHTML = appState.activity.map(item => {
+        const time = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `<div class="event-row"><div class="event-badge">${item.icon}</div><div><strong>${item.text}</strong><span>${item.type === 'done' ? 'Marked complete' : item.type === 'skip' ? 'Marked skip' : 'Created habit'}</span></div><div class="event-time">${time}</div></div>`;
+      }).join('');
+    }
+
+    function renderHabits() {
+      els.emptyState.hidden = appState.habits.length > 0;
+      els.habitsGrid.innerHTML = appState.habits.map(habit => {
+        const streak = getStreak(habit);
+        const rate = getCompletionRate(habit);
+        const completedToday = habit.history[habit.history.length - 1]?.status === 'done';
+        return `<article class="habit-card">
+          <div class="habit-top">
+            <div class="habit-title">
+              <div class="habit-icon">${habit.icon}</div>
+              <div><strong>${habit.name}</strong><span>${habit.category} · target ${habit.target}/day</span></div>
+            </div>
+            <div class="habit-streak"><strong>${streak}</strong><br/>day streak</div>
+          </div>
+          <div class="habit-progress"><div class="bar"><span style="width:${Math.max(rate, 6)}%"></span></div></div>
+          <div class="meta-row"><span>${rate}% consistency</span><span>${habit.cue}</span></div>
+          <div class="habit-actions">
+            <button class="habit-action ${completedToday ? 'done' : ''}" data-action="done" data-id="${habit.id}">${completedToday ? 'Done today' : 'Mark done'}</button>
+            <button class="habit-action skip" data-action="skip" data-id="${habit.id}">Skip</button>
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    function computeScore() {
+      if (!appState.habits.length) return 0;
+      const avg = appState.habits.map(getCompletionRate).reduce((a, b) => a + b, 0) / appState.habits.length;
+      const streakBoost = Math.min(20, appState.habits.map(getStreak).reduce((a, b) => a + b, 0) * 2);
+      return Math.min(100, Math.round(avg * 0.8 + streakBoost));
+    }
+
+    function renderKPIs(pattern) {
+      const completedToday = appState.habits.filter(h => h.history[h.history.length - 1]?.status === 'done').length;
+      const streaks = appState.habits.filter(h => getStreak(h) > 0).length;
+      const score = computeScore();
+      const best = [...appState.habits].sort((a, b) => getCompletionRate(b) - getCompletionRate(a))[0];
+      const avg = appState.habits.length ? Math.round(appState.habits.map(getCompletionRate).reduce((a, b) => a + b, 0) / appState.habits.length) : 0;
+      els.kpiCompletion.textContent = `${avg}%`;
+      els.kpiStreaks.textContent = streaks;
+      els.kpiBest.textContent = best ? best.name : '--';
+      els.kpiScore.textContent = score;
+      els.kpiDelta1.textContent = avg > 0 ? `▲ ${completedToday} completed today` : '▲ ready to begin';
+      els.kpiDelta2.textContent = streaks ? `▲ ${Math.max(...appState.habits.map(getStreak))} day best streak` : '▲ build your first chain';
+      els.kpiDelta3.textContent = best ? `▲ ${getCompletionRate(best)}% hit rate` : '▲ no trend yet';
+      els.kpiDelta4.textContent = pattern.mode === 'strong' ? '▲ elite consistency' : pattern.mode === 'recovering' ? '▲ rebuild with one win' : '▲ grows with repeat wins';
+      els.todayPercent.textContent = `${score}%`;
+      els.scoreRing.style.setProperty('--p', score);
+      els.sideCompleted.textContent = completedToday;
+      els.sideStreaks.textContent = streaks;
+      els.sideWindow.textContent = getBestWindow();
+      els.heroTitle.textContent = best ? `${best.name} is leading your stack. Keep the streak alive.` : 'Start with one habit, then watch the dashboard learn you.';
+      els.heroSub.textContent = best
+        ? `Your consistency score is ${score}. Strongest window: ${getBestWindow()}.`
+        : 'As you mark habits done or skipped, Habit Flow highlights your strongest time window, trend line, and momentum score.';
+    }
+
+    function refreshAll() {
+      const pattern = detectPattern();
+      renderHabits();
+      renderTimeline();
+      renderPatterns(pattern);
+      renderKPIs(pattern);
+      updateQuote(pattern.mode);
+      updateChart();
+    }
+
+    function createHistory(seedDone = 2) {
+      return Array.from({ length: 30 }).map((_, i) => ({ date: i, status: (Math.random() > 0.28) ? 'done' : 'skip' }));
+    }
+
+    function addHabit({ name, category, target, cue, icon }, seed = false) {
+      const habit = { id: uid(), name, category, target: Number(target), cue, icon, history: seed ? createHistory() : [{ date: Date.now(), status: 'skip' }] };
+      appState.habits.unshift(habit);
+      addActivity('create', `Created ${habit.name}`, habit.icon);
+      refreshAll();
+    }
+
+    function updateHabit(id, action) {
+      const habit = appState.habits.find(h => h.id === id);
+      if (!habit) return;
+      habit.history.push({ date: Date.now(), status: action });
+      if (habit.history.length > 365) habit.history = habit.history.slice(-365);
+      addActivity(action, `${habit.name} ${action === 'done' ? 'completed' : 'skipped'}`, habit.icon);
+      refreshAll();
+      showToast(action === 'done' ? `${habit.name} marked done` : `${habit.name} skipped`);
+    }
+
+    function exportCSV() {
+      if (!appState.habits.length) { showToast('No habits to export'); return; }
+
+      const today = new Date();
+      const dateLabels = Array.from({ length: 365 }).map((_, i) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() - (364 - i));
+        return d.toISOString().slice(0, 10);
+      });
+
+      const headers = ['Date', ...appState.habits.map(h => h.name + ' (' + h.category + ')')];
+      const rows = [headers.join(',')];
+
+      dateLabels.forEach((dateStr, dayIdx) => {
+        const row = [dateStr];
+        appState.habits.forEach(habit => {
+          const entry = habit.history[dayIdx];
+          row.push(entry ? entry.status : 'no data');
+        });
+        rows.push(row.join(','));
+      });
+
+      rows.push('');
+      rows.push('Habit Summary');
+      rows.push(['Habit', 'Category', 'Target/day', 'Why it matters', 'Completion %', 'Current Streak', 'Total Entries'].join(','));
+      appState.habits.forEach(h => {
+        rows.push(['"' + h.name + '"', '"' + h.category + '"', h.target, '"' + h.cue + '"',
+          getCompletionRate(h) + '%', getStreak(h), h.history.length].join(','));
+      });
+
+      rows.push('');
+      rows.push('Activity Log');
+      rows.push(['Timestamp', 'Habit', 'Action'].join(','));
+      appState.activity.forEach(a => {
+        rows.push(['"' + a.timestamp + '"', '"' + a.text + '"', a.type].join(','));
+      });
+
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'habit-flow-export-' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('CSV exported successfully');
+    }
+
+    function seedDemoData() {
+      appState.habits = []; appState.activity = [];
+      [{ name: 'Deep work', category: 'Work', target: 2, cue: 'Protect interview prep', icon: '💻' },
+       { name: 'Workout', category: 'Health', target: 1, cue: 'Keep energy high', icon: '🏃' },
+       { name: 'Reading', category: 'Learning', target: 1, cue: 'Sharpen technical depth', icon: '📚' },
+       { name: 'Meditation', category: 'Mindset', target: 1, cue: 'Reduce mental noise', icon: '🧘' }]
+      .forEach(item => addHabit(item, true));
+      showToast('Demo data loaded');
+    }
+
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('[data-action]');
+      if (a) updateHabit(a.dataset.id, a.dataset.action);
+      const s = e.target.closest('[data-scroll]');
+      if (s) {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        s.classList.add('active');
+        document.querySelector(s.dataset.scroll)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     });
-    return;
-  }
 
-  const avg = (arr) => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : '—';
-  document.getElementById('statHotFlash').textContent   = avg(entries.map(e => e.hotFlashes || 0));
-  document.getElementById('statSleep').textContent      = avg(entries.map(e => e.sleepHours || 0));
-  document.getElementById('statEnergy').textContent     = avg(entries.map(e => e.energy || 0));
-  document.getElementById('statNightSweats').textContent = entries.filter(e => e.nightSweats).length;
-}
+    ['openAddHabit','openAddHabitTop','heroAddHabit','sectionAddHabit','emptyAddHabit']
+      .forEach(id => document.getElementById(id)?.addEventListener('click', openDialog));
+    document.getElementById('closeDialog').addEventListener('click', closeDialog);
+    document.getElementById('cancelDialog').addEventListener('click', closeDialog);
+    els.dialog.addEventListener('click', e => { if (e.target === els.dialog) closeDialog(); });
 
-/* ══════════════════════════════════════════════════════════════════
-   DOCTOR REPORT
-══════════════════════════════════════════════════════════════════ */
-function buildReport() {
-  const name  = document.getElementById('reportName').value || 'Patient';
-  const days  = parseInt(document.querySelector('input[name="reportRange"]:checked').value);
-  const today = todayStr();
-  const start = subtractDays(today, days - 1);
-  const entries = getEntriesInRange(start, today);
-  const allDates = dateRange(start, today);
-  const all = getAllEntries();
+    els.form.addEventListener('submit', e => {
+      e.preventDefault();
+      const d = new FormData(els.form);
+      addHabit({ name: d.get('habitName').trim(), icon: d.get('habitIcon'), category: d.get('habitCategory').trim(), target: d.get('habitTarget'), cue: d.get('habitCue').trim() });
+      els.form.reset(); closeDialog(); showToast('Habit added to dashboard');
+    });
 
-  const html = generateReport(name, days, start, today, entries, allDates, all);
-  const container = document.getElementById('printable-report');
-  container.innerHTML = html;
-  container.classList.remove('hidden');
+    document.getElementById('clearActivity').addEventListener('click', () => {
+      appState.activity = []; renderTimeline(); showToast('Timeline cleared');
+    });
+    document.getElementById('exportCSV').addEventListener('click', exportCSV);
+    document.getElementById('seedDemo').addEventListener('click', seedDemoData);
+    document.getElementById('refreshQuote').addEventListener('click', () => { updateQuote(detectPattern().mode); showToast('Quote refreshed'); });
+    document.getElementById('jumpAnalytics').addEventListener('click', () => document.getElementById('analytics').scrollIntoView({ behavior: 'smooth' }));
 
-  // Scroll to report
-  setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    document.querySelector('[data-theme-toggle]').addEventListener('click', function() {
+      appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', appState.theme);
+      this.innerHTML = appState.theme === 'dark'
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>';
+      refreshAll();
+    });
 
-  // Auto-print
-  setTimeout(() => window.print(), 400);
-}
-
-function generateReport(name, days, start, end, entries, allDates, all) {
-  const today = todayStr();
-  const tracked = entries.length;
-
-  // ── Vasomotor ──
-  const totalHF = entries.reduce((s,e) => s + (e.hotFlashes||0), 0);
-  const avgHF   = tracked ? (totalHF / tracked).toFixed(1) : 0;
-  const peakHFEntry = entries.reduce((best, e) => (!best || (e.hotFlashes||0) > (best.hotFlashes||0)) ? e : best, null);
-  const peakHFDay   = peakHFEntry ? peakHFEntry.date : '—';
-  const nsNights    = entries.filter(e => e.nightSweats).length;
-  const avgNSSev    = nsNights ? (entries.filter(e=>e.nightSweats).reduce((s,e)=>s+(e.nightSweatSeverity||0),0)/nsNights).toFixed(1) : 0;
-
-  // ── Sleep ──
-  const sleepEntries = entries.filter(e => e.sleepHours > 0);
-  const avgSleep  = sleepEntries.length ? (sleepEntries.reduce((s,e)=>s+e.sleepHours,0)/sleepEntries.length).toFixed(1) : '—';
-  const avgSleepQ = sleepEntries.length ? (sleepEntries.reduce((s,e)=>s+(e.sleepQuality||0),0)/sleepEntries.length).toFixed(1) : '—';
-  const wake3amN  = entries.filter(e => e.wake3am).length;
-  const wake3amPct = tracked ? Math.round(wake3amN/tracked*100) : 0;
-
-  // Best sleep week
-  let bestWeekLabel = '—';
-  if (allDates.length >= 7) {
-    let bestAvg = -1, bestStart = '';
-    for (let i = 0; i <= allDates.length - 7; i++) {
-      const week = allDates.slice(i, i+7).map(d => all[d]).filter(Boolean);
-      if (!week.length) continue;
-      const wa = week.reduce((s,e)=>s+(e.sleepHours||0),0)/week.length;
-      if (wa > bestAvg) { bestAvg = wa; bestStart = allDates[i]; }
-    }
-    if (bestStart) {
-      const bs = new Date(bestStart+'T00:00:00');
-      const be = new Date(bestStart+'T00:00:00'); be.setDate(be.getDate()+6);
-      bestWeekLabel = bs.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' – ' + be.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    }
-  }
-
-  // ── Cognitive ──
-  const fogEntries = entries.filter(e => e.brainFog);
-  const anxEntries = entries.filter(e => e.anxiety);
-  const engEntries = entries.filter(e => e.energy);
-  const avgFog = fogEntries.length ? (fogEntries.reduce((s,e)=>s+e.brainFog,0)/fogEntries.length).toFixed(1) : '—';
-  const avgAnx = anxEntries.length ? (anxEntries.reduce((s,e)=>s+e.anxiety,0)/anxEntries.length).toFixed(1) : '—';
-  const avgEng = engEntries.length ? (engEntries.reduce((s,e)=>s+e.energy,0)/engEntries.length).toFixed(1) : '—';
-  const fogHigh = fogEntries.filter(e=>e.brainFog>=7).length;
-  const anxHigh = anxEntries.filter(e=>e.anxiety>=7).length;
-  const engLow  = engEntries.filter(e=>e.energy<=3).length;
-
-  // Trend helper (simple: compare first half vs second half)
-  function trend(arr, key) {
-    if (arr.length < 4) return '→ Stable';
-    const half = Math.floor(arr.length/2);
-    const first = arr.slice(0,half).reduce((s,e)=>s+(e[key]||0),0)/half;
-    const second= arr.slice(half).reduce((s,e)=>s+(e[key]||0),0)/(arr.length-half);
-    const diff = second - first;
-    if (Math.abs(diff) < 0.5) return '→ Stable';
-    return diff > 0 ? '↑ Increasing' : '↓ Decreasing';
-  }
-
-  // ── Cycle ──
-  const periodDays  = entries.filter(e=>e.period).map(e=>e.date);
-  const spottingCnt = entries.filter(e=>e.spotting).length;
-
-  // ── Medications ──
-  const hrtDays = entries.filter(e=>e.hrtTaken).length;
-  const hrtPct  = tracked ? Math.round(hrtDays/tracked*100) : 0;
-  const hrtTypes = [...new Set(entries.filter(e=>e.hrtTaken&&e.hrtType).map(e=>e.hrtType))];
-  const allSupps = {};
-  entries.forEach(e => (e.supplements||[]).forEach(s => { allSupps[s] = (allSupps[s]||0)+1; }));
-  const suppList = Object.entries(allSupps).map(([k,v])=>`${k} (${v}d)`).join(', ') || 'None';
-
-  // ── Daily table ──
-  const tableRows = allDates.map(d => {
-    const e = all[d];
-    if (!e) return `<tr><td>${d}</td><td colspan="7" style="color:#9ca3af;text-align:center">No entry</td></tr>`;
-    return `<tr>
-      <td>${d}</td>
-      <td>${e.hotFlashes||0}</td>
-      <td>${e.sleepHours||'—'}</td>
-      <td>${e.energy||'—'}</td>
-      <td>${e.brainFog||'—'}</td>
-      <td>${e.anxiety||'—'}</td>
-      <td>${e.mood||'—'}</td>
-      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.notes||''}</td>
-    </tr>`;
-  }).join('');
-
-  const fmtDate = (s) => new Date(s+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
-
-  return `
-  <div style="font-family: Georgia, serif;">
-    <div style="text-align:center; border-bottom: 2px solid #7C3AED; padding-bottom: 1rem; margin-bottom: 1.5rem;">
-      <h1 style="font-size:1.4rem; font-weight:700; color:#4c1d95; letter-spacing:0.05em;">PERIMENOPAUSE SYMPTOM REPORT</h1>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.25rem; margin-top:0.75rem; font-size:0.85rem;">
-        <div><strong>Patient:</strong> ${name}</div>
-        <div><strong>Date Generated:</strong> ${fmtDate(today)}</div>
-        <div><strong>Report Period:</strong> ${fmtDate(start)} to ${fmtDate(end)}</div>
-        <div><strong>Days Tracked:</strong> ${tracked} of ${days}</div>
-      </div>
-    </div>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">1. Vasomotor Symptoms</h2>
-      <table class="report-table">
-        <thead><tr><th>Symptom</th><th>Total Episodes</th><th>Avg Per Day</th><th>Peak Day</th><th>Severity</th></tr></thead>
-        <tbody>
-          <tr><td>Hot Flashes</td><td>${totalHF}</td><td>${avgHF}</td><td>${peakHFDay}</td><td>—</td></tr>
-          <tr><td>Night Sweats</td><td>${nsNights} nights</td><td>${tracked ? (nsNights/tracked).toFixed(2) : 0}</td><td>${nsNights} of ${tracked} nights</td><td>${avgNSSev}/5</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">2. Sleep Analysis</h2>
-      <table class="report-table">
-        <tbody>
-          <tr><td><strong>Average hours slept</strong></td><td>${avgSleep} hrs</td></tr>
-          <tr><td><strong>Average sleep quality</strong></td><td>${avgSleepQ} / 5</td></tr>
-          <tr><td><strong>Nights with 3am waking</strong></td><td>${wake3amN} (${wake3amPct}%)</td></tr>
-          <tr><td><strong>Best sleep week</strong></td><td>${bestWeekLabel}</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">3. Cognitive &amp; Emotional</h2>
-      <table class="report-table">
-        <thead><tr><th>Symptom</th><th>Average (1–10)</th><th>Days Rated 7+</th><th>Trend</th></tr></thead>
-        <tbody>
-          <tr><td>Brain Fog</td><td>${avgFog}</td><td>${fogHigh}</td><td>${trend(fogEntries,'brainFog')}</td></tr>
-          <tr><td>Anxiety</td><td>${avgAnx}</td><td>${anxHigh}</td><td>${trend(anxEntries,'anxiety')}</td></tr>
-          <tr><td>Energy (low = bad)</td><td>${avgEng}</td><td>${engLow} days ≤3</td><td>${trend(engEntries,'energy')}</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">4. Cycle Log</h2>
-      <table class="report-table">
-        <tbody>
-          <tr><td><strong>Period days</strong></td><td>${periodDays.length ? periodDays.join(', ') : 'None recorded'}</td></tr>
-          <tr><td><strong>Spotting days</strong></td><td>${spottingCnt}</td></tr>
-          <tr><td><strong>Notes</strong></td><td>${periodDays.length === 0 ? 'No period recorded in this period.' : `${periodDays.length} period day(s) recorded.`}</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1.5rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">5. Medications &amp; Supplements</h2>
-      <table class="report-table">
-        <tbody>
-          <tr><td><strong>HRT compliance</strong></td><td>Taken ${hrtDays} of ${tracked} days (${hrtPct}%)</td></tr>
-          <tr><td><strong>HRT type(s)</strong></td><td>${hrtTypes.join(', ') || 'Not specified'}</td></tr>
-          <tr><td><strong>Supplements used</strong></td><td>${suppList}</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section style="margin-bottom:1rem;">
-      <h2 style="font-size:1rem; font-weight:700; color:#7C3AED; border-bottom:1px solid #e9d5ff; padding-bottom:0.3rem; margin-bottom:0.75rem;">6. Daily Log</h2>
-      <div style="overflow-x:auto;">
-        <table class="report-table" style="font-size:0.75rem;">
-          <thead><tr><th>Date</th><th>Hot Flashes</th><th>Sleep hrs</th><th>Energy</th><th>Brain Fog</th><th>Anxiety</th><th>Mood</th><th>Notes</th></tr></thead>
-          <tbody>${tableRows}</tbody>
-        </table>
-      </div>
-    </section>
-
-    <div style="margin-top:2rem; padding-top:1rem; border-top:1px solid #e9d5ff; font-size:0.75rem; color:#9ca3af; text-align:center;">
-      Generated by PeriTrack — All data stored locally on device. For discussion with your healthcare provider.
-    </div>
-  </div>`;
-}
-
-function copyReportText() {
-  const container = document.getElementById('printable-report');
-  if (container.classList.contains('hidden')) {
-    showToast('⚠️ Generate report first!');
-    return;
-  }
-  const text = container.innerText;
-  navigator.clipboard.writeText(text).then(() => showToast('📋 Copied to clipboard!')).catch(() => {
-    // Fallback
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('📋 Copied to clipboard!');
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   SETTINGS — EXPORT / IMPORT / CLEAR
-══════════════════════════════════════════════════════════════════ */
-function exportData() {
-  const data = {
-    entries:  getAllEntries(),
-    settings: getSettings(),
-    exported: new Date().toISOString(),
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'peritrack_data_' + todayStr() + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('⬇️ Download started!');
-}
-
-function importData(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.entries) {
-        const existing = getAllEntries();
-        const merged = { ...existing, ...data.entries };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      }
-      if (data.settings) {
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
-      }
-      showToast('✓ Data imported!');
-      loadTodayEntry();
-    } catch(err) {
-      showToast('❌ Invalid file!');
-    }
-  };
-  reader.readAsText(file);
-  input.value = '';
-}
-
-function clearAllData() {
-  if (confirm('Are you sure? This will permanently delete ALL your tracking data. This cannot be undone.')) {
-    localStorage.removeItem(STORAGE_KEY);
-    showToast('🗑️ All data cleared.');
-    // Reset form
-    location.reload();
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   INIT
-══════════════════════════════════════════════════════════════════ */
-function init() {
-  // Set today's date display
-  const d = new Date();
-  document.getElementById('todayDateDisplay').textContent = d.toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
-
-  // Init all sliders visual state
-  ['brainFog','anxiety','energy'].forEach(id => {
-    const el = document.getElementById(id);
-    updateSlider(el, id + 'Val');
-  });
-  const js = document.getElementById('jointSeverity');
-  updateSlider(js, 'jointSeverityVal');
-
-  // Load settings
-  const s = getSettings();
-  if (s.darkMode) {
-    document.body.classList.add('dark');
-  }
-  updateDarkToggleUI();
-
-  // Pre-fill today's entry if exists
-  loadTodayEntry();
-
-  // Default toggle states (No selected)
-  ['nightSweats','wake3am','jointPain','headache','bloating','period','spotting','hrtTaken'].forEach(f => {
-    if (!state[f]) {
-      const noBtn = document.getElementById(f + 'No');
-      if (noBtn) noBtn.className = 'toggle-btn active-no';
-    }
-  });
-}
-
-
-/* ══════════════════════════════════════════════════════════════════
-   PIN / PASSWORD PROTECTION
-══════════════════════════════════════════════════════════════════ */
-const PIN_KEY      = 'peritrack_pin';       // stored hashed
-const SESSION_KEY  = 'peritrack_unlocked';  // sessionStorage flag
-
-let pinBuffer = '';
-let pinMode   = 'unlock'; // 'unlock' | 'setup' | 'confirm'
-let pinFirst  = '';       // stores first entry during setup
-
-function simpleHash(str) {
-  // Simple non-crypto hash — good enough for local privacy
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return hash.toString();
-}
-
-function updatePinDots() {
-  for (let i = 0; i < 4; i++) {
-    const dot = document.getElementById('dot' + i);
-    dot.classList.toggle('filled', i < pinBuffer.length);
-    dot.classList.remove('error');
-  }
-}
-
-function pinPress(digit) {
-  if (pinBuffer.length >= 4) return;
-  pinBuffer += digit;
-  updatePinDots();
-  document.getElementById('pinError').textContent = '';
-  if (pinBuffer.length === 4) {
-    setTimeout(pinSubmit, 150); // auto-submit when 4 digits entered
-  }
-}
-
-function pinClear() {
-  pinBuffer = pinBuffer.slice(0, -1);
-  updatePinDots();
-  document.getElementById('pinError').textContent = '';
-}
-
-function pinSubmit() {
-  if (pinBuffer.length === 0) return;
-
-  const stored = localStorage.getItem(PIN_KEY);
-
-  if (pinMode === 'unlock') {
-    if (!stored) {
-      // No PIN set yet — go to setup
-      pinMode = 'setup';
-      pinBuffer = '';
-      updatePinDots();
-      document.getElementById('lockSubtitle').textContent = 'Create a 4-digit PIN';
-      document.getElementById('lockHint').textContent = 'Choose a PIN to protect your data';
-      return;
-    }
-    if (simpleHash(pinBuffer) === stored) {
-      // Correct PIN
-      sessionStorage.setItem(SESSION_KEY, '1');
-      unlockApp();
-    } else {
-      // Wrong PIN
-      pinBuffer = '';
-      updatePinDots();
-      for (let i = 0; i < 4; i++) {
-        document.getElementById('dot' + i).classList.add('error');
-      }
-      document.getElementById('pinError').textContent = 'Incorrect PIN. Try again.';
-      setTimeout(() => {
-        for (let i = 0; i < 4; i++)
-          document.getElementById('dot' + i).classList.remove('error');
-      }, 600);
-    }
-
-  } else if (pinMode === 'setup') {
-    if (pinBuffer.length < 4) {
-      document.getElementById('pinError').textContent = 'Please enter all 4 digits.';
-      return;
-    }
-    pinFirst = pinBuffer;
-    pinBuffer = '';
-    updatePinDots();
-    pinMode = 'confirm';
-    document.getElementById('lockSubtitle').textContent = 'Confirm your PIN';
-    document.getElementById('lockHint').textContent = 'Enter the same PIN again';
-    document.getElementById('pinError').textContent = '';
-
-  } else if (pinMode === 'confirm') {
-    if (pinBuffer === pinFirst) {
-      localStorage.setItem(PIN_KEY, simpleHash(pinBuffer));
-      sessionStorage.setItem(SESSION_KEY, '1');
-      showToast('🔒 PIN set successfully!');
-      unlockApp();
-    } else {
-      pinBuffer = '';
-      pinFirst  = '';
-      pinMode   = 'setup';
-      updatePinDots();
-      document.getElementById('lockSubtitle').textContent = 'Create a 4-digit PIN';
-      document.getElementById('lockHint').textContent = "PINs didn't match. Try again.";
-      document.getElementById('pinError').textContent = "PINs didn't match.";
-    }
-  }
-}
-
-function unlockApp() {
-  document.getElementById('lockScreen').classList.add('hidden');
-  // Apply dark mode after unlock
-  const s = getSettings();
-  if (s.darkMode) document.body.classList.add('dark');
-  updateDarkToggleUI();
-  loadTodayEntry();
-  ['brainFog','anxiety','energy'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) updateSlider(el, id + 'Val');
-  });
-  const js = document.getElementById('jointSeverity');
-  if (js) updateSlider(js, 'jointSeverityVal');
-  ['nightSweats','wake3am','jointPain','headache','bloating','period','spotting','hrtTaken'].forEach(f => {
-    if (!state[f]) {
-      const noBtn = document.getElementById(f + 'No');
-      if (noBtn) noBtn.className = 'toggle-btn active-no';
-    }
-  });
-}
-
-function showPinReset() {
-  const msg = 'To reset your PIN, your data will be cleared. Continue?';
-  if (confirm(msg)) {
-    localStorage.removeItem(PIN_KEY);
-    localStorage.removeItem(STORAGE_KEY);
-    pinBuffer = '';
-    pinMode   = 'setup';
-    pinFirst  = '';
-    updatePinDots();
-    document.getElementById('lockSubtitle').textContent = 'Create a new 4-digit PIN';
-    document.getElementById('lockHint').textContent = 'Data cleared. Set a new PIN.';
-    document.getElementById('pinError').textContent = '';
-  }
-}
-
-// Change PIN from Settings tab
-function changePinFromSettings() {
-  pinBuffer = '';
-  pinMode   = 'setup';
-  pinFirst  = '';
-  updatePinDots();
-  document.getElementById('lockSubtitle').textContent = 'Create a new 4-digit PIN';
-  document.getElementById('lockHint').textContent = 'Enter a new PIN';
-  document.getElementById('pinError').textContent = '';
-  document.getElementById('lockScreen').classList.remove('hidden');
-}
-
-// Keyboard support for PIN entry
-document.addEventListener('keydown', function(e) {
-  if (document.getElementById('lockScreen').classList.contains('hidden')) return;
-  if (e.key >= '0' && e.key <= '9') pinPress(e.key);
-  else if (e.key === 'Backspace') pinClear();
-  else if (e.key === 'Enter') pinSubmit();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Check session — if already unlocked this session, skip lock
-  const stored = localStorage.getItem(PIN_KEY);
-  if (sessionStorage.getItem(SESSION_KEY) === '1') {
-    unlockApp();
-  } else if (!stored) {
-    // First time — go straight to PIN setup
-    pinMode = 'setup';
-    document.getElementById('lockSubtitle').textContent = 'Create a 4-digit PIN';
-    document.getElementById('lockHint').textContent = 'Protect your health data with a PIN';
-  }
-  // else: show lock screen (default state)
-  init();
-});
-</script>
+    seedDemoData();
+    refreshAll();
+  </script>
 </body>
 </html>
