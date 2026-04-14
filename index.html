@@ -1,692 +1,723 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Habit Flow — Daily Tracker</title>
-  <link rel="preconnect" href="https://api.fontshare.com" />
-  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
-  <style>
-    :root,[data-theme="light"]{
-      --text-xs:clamp(0.75rem,0.7rem + 0.25vw,0.875rem);
-      --text-sm:clamp(0.875rem,0.8rem + 0.35vw,1rem);
-      --text-base:clamp(1rem,0.95rem + 0.25vw,1.125rem);
-      --text-lg:clamp(1.125rem,1rem + 0.75vw,1.5rem);
-      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
-      --sp1:.25rem;--sp2:.5rem;--sp3:.75rem;--sp4:1rem;--sp5:1.25rem;
-      --sp6:1.5rem;--sp8:2rem;--sp10:2.5rem;--sp12:3rem;--sp16:4rem;
-      --r-sm:.5rem;--r-md:.9rem;--r-lg:1.25rem;--r-xl:1.75rem;--r-full:999px;
-      --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;
-      --surf-off:#efece6;--surf-dyn:#e5e1d9;
-      --border:#d8d3ca;--divider:#e2ddd4;
-      --col-text:#221f1a;--muted:#6f6a61;--faint:#aaa39a;--inv:#f8f7f3;
-      --p1:#01696f;--p2:#0b8f94;--ph:#d8eceb;
-      --ok:#437a22;--warn:#b77407;--err:#a12c7b;--orange:#da7101;--blue:#006494;
-      --sh-sm:0 1px 2px rgba(20,16,10,.08);
-      --sh-md:0 10px 28px rgba(20,16,10,.08);
-      --sh-lg:0 24px 60px rgba(20,16,10,.14);
-      --fb:'Satoshi','Inter',sans-serif;--fd:'General Sans','Satoshi',sans-serif;
-      --ease:220ms cubic-bezier(.16,1,.3,1);
-    }
-    [data-theme="dark"]{
-      --bg:#111312;--surf:#171a19;--surf2:#1d201f;
-      --surf-off:#202523;--surf-dyn:#29302d;
-      --border:#303835;--divider:#242a28;
-      --col-text:#e9ece8;--muted:#a6b0ab;--faint:#6d7672;--inv:#101311;
-      --p1:#5cc7c2;--p2:#8be7dc;--ph:rgba(92,199,194,.16);
-      --ok:#84c35f;--warn:#f0b348;--err:#e676bd;--orange:#ff9f52;--blue:#70a7ff;
-      --sh-sm:0 1px 2px rgba(0,0,0,.22);
-      --sh-md:0 12px 28px rgba(0,0,0,.28);
-      --sh-lg:0 22px 54px rgba(0,0,0,.38);
-    }
-    @media(prefers-color-scheme:dark){
-      :root:not([data-theme="light"]){
-        --bg:#111312;--surf:#171a19;--surf2:#1d201f;
-        --surf-off:#202523;--surf-dyn:#29302d;
-        --border:#303835;--divider:#242a28;
-        --col-text:#e9ece8;--muted:#a6b0ab;--faint:#6d7672;--inv:#101311;
-        --p1:#5cc7c2;--p2:#8be7dc;--ph:rgba(92,199,194,.16);
-      }
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html,body{height:100%;overflow:hidden;}
-    body{
-      font-family:var(--fb);font-size:var(--text-base);color:var(--col-text);line-height:1.5;
-      background:
-        radial-gradient(circle at top right,rgba(92,199,194,.15),transparent 28%),
-        radial-gradient(circle at bottom left,rgba(112,167,255,.1),transparent 26%),
-        var(--bg);
-    }
-    img,canvas,svg{display:block;max-width:100%;}
-    button,input,select,textarea{font:inherit;color:inherit;}
-    button{cursor:pointer;background:none;border:none;}
-    .skip{position:absolute;left:1rem;top:-3rem;z-index:100;background:var(--p1);
-      color:var(--inv);padding:.7rem 1rem;border-radius:.75rem;text-decoration:none;}
-    .skip:focus{top:1rem;}
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#111312"/>
+<title>Habit Flow</title>
+<link rel="preconnect" href="https://api.fontshare.com"/>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet"/>
+<style>
+:root,[data-theme="light"]{
+  --text-xs:0.75rem;--text-sm:0.875rem;--text-base:1rem;--text-lg:1.2rem;--text-xl:1.6rem;
+  --sp1:.25rem;--sp2:.5rem;--sp3:.75rem;--sp4:1rem;--sp5:1.25rem;--sp6:1.5rem;--sp8:2rem;
+  --r-sm:.5rem;--r-md:.85rem;--r-lg:1.15rem;--r-xl:1.5rem;--r-2xl:1.85rem;--r-full:999px;
+  --bg:#f7f6f2;--surf:#f9f8f5;--surf2:#fbfbf9;--surf-off:#efece6;--surf-dyn:#e5e1d9;
+  --border:#d8d3ca;--divider:#e2ddd4;
+  --col-text:#221f1a;--muted:#6f6a61;--faint:#aaa39a;--inv:₹#f8f7f3;
+  --p1:#01696f;--p2:#0b8f94;--ph:#d8eceb;--p-glow:rgba(1,105,111,.18);
+  --ok:#437a22;--warn:#b77407;--err:#a12c7b;--blue:#006494;
+  --sh-sm:0 1px 3px rgba(20,16,10,.08);--sh-md:0 8px 24px rgba(20,16,10,.1);
+  --sh-lg:0 20px 50px rgba(20,16,10,.14);
+  --fb:'Satoshi','Inter',sans-serif;--fd:'General Sans','Satoshi',sans-serif;
+  --ease:220ms cubic-bezier(.16,1,.3,1);--ease-spring:380ms cubic-bezier(.34,1.56,.64,1);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --tab-h:calc(64px + var(--safe-b));
+}
+[data-theme="dark"]{
+  --bg:#111312;--surf:#171a19;--surf2:#1d201f;--surf-off:#202523;--surf-dyn:#29302d;
+  --border:#303835;--divider:#242a28;
+  --col-text:#e9ece8;--muted:#a6b0ab;--faint:#6d7672;--inv:#101311;
+  --p1:#5cc7c2;--p2:#8be7dc;--ph:rgba(92,199,194,.14);--p-glow:rgba(92,199,194,.18);
+  --ok:#84c35f;--warn:#f0b348;--err:#e676bd;--blue:#70a7ff;
+  --sh-sm:0 1px 3px rgba(0,0,0,.2);--sh-md:0 8px 24px rgba(0,0,0,.28);
+  --sh-lg:0 20px 50px rgba(0,0,0,.38);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111312;--surf:#171a19;--surf2:#1d201f;--surf-off:#202523;--surf-dyn:#29302d;
+  --border:#303835;--divider:#242a28;--col-text:#e9ece8;--muted:#a6b0ab;--faint:#6d7672;--inv:#101311;
+  --p1:#5cc7c2;--p2:#8be7dc;--ph:rgba(92,199,194,.14);--p-glow:rgba(92,199,194,.18);
+}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:var(--fb);font-size:var(--text-base);color:var(--col-text);
+  line-height:1.5;background:var(--bg);overscroll-behavior:none;
+}
+button,input,select,textarea{font:inherit;color:inherit;-webkit-appearance:none;}
+button{cursor:pointer;background:none;border:none;touch-action:manipulation;}
+img,svg{display:block;max-width:100%;}
 
-    /* LAYOUT */
-    .app{display:grid;grid-template-columns:290px 1fr;grid-template-rows:76px 1fr;height:100dvh;}
+/* ── SHELL ── */
+.shell{display:flex;flex-direction:column;height:100dvh;overflow:hidden;position:relative;}
 
-    /* SIDEBAR */
-    .sidebar{
-      grid-row:1/-1;padding:var(--sp5) var(--sp4);
-      background:color-mix(in srgb,var(--surf) 92%,transparent);
-      border-right:1px solid color-mix(in srgb,var(--border) 60%,transparent);
-      display:flex;flex-direction:column;gap:var(--sp4);
-      overflow-y:auto;overscroll-behavior:contain;
-      backdrop-filter:blur(20px);
-    }
-    .brand{display:flex;align-items:center;gap:var(--sp3);padding:.4rem .2rem;}
-    .brand svg{width:38px;height:38px;flex-shrink:0;color:var(--p1);
-      filter:drop-shadow(0 6px 14px rgba(92,199,194,.3));}
-    .brand-name{font-family:var(--fd);font-size:1rem;font-weight:700;display:block;letter-spacing:-.01em;}
-    .brand-sub{color:var(--muted);font-size:var(--text-xs);}
+/* ── TOP HEADER ── */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.1rem .9rem;
+  padding-top:calc(.9rem + env(safe-area-inset-top,0px));
+  background:color-mix(in srgb,var(--bg) 80%,transparent);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);
+  position:sticky;top:0;z-index:10;flex-shrink:0;
+}
+.hdr-brand{display:flex;align-items:center;gap:.55rem;}
+.hdr-brand svg{width:30px;height:30px;color:var(--p1);}
+.hdr-brand span{font:700 1rem/1 var(--fd);letter-spacing:-.01em;}
+.hdr-right{display:flex;align-items:center;gap:.5rem;}
+.icon-btn{
+  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  border:1px solid color-mix(in srgb,var(--border) 60%,transparent);
+  background:color-mix(in srgb,var(--surf2) 90%,transparent);
+  transition:transform var(--ease),background var(--ease);
+}
+.icon-btn:active{transform:scale(.93);}
+.fab{
+  position:fixed;right:1.1rem;bottom:calc(var(--tab-h) + 1rem);z-index:9;
+  width:56px;height:56px;border-radius:18px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--p1),var(--p2));
+  box-shadow:0 8px 24px var(--p-glow);border:0;
+  transition:transform var(--ease-spring),box-shadow var(--ease);
+}
+.fab:active{transform:scale(.93);}
+.fab svg{color:var(--inv);}
 
-    /* cards */
-    .scard{
-      background:linear-gradient(160deg,
-        color-mix(in srgb,var(--surf2) 88%,transparent),
-        color-mix(in srgb,var(--surf-off) 90%,transparent));
-      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
-      border-radius:var(--r-xl);box-shadow:var(--sh-sm);
-    }
-    .nav-card{padding:var(--sp2);}
-    .nav-btn{
-      width:100%;display:flex;align-items:center;gap:var(--sp3);
-      border-radius:.85rem;padding:.8rem .9rem;margin-bottom:.2rem;
-      text-align:left;color:var(--muted);font-size:var(--text-sm);
-      transition:transform var(--ease),background var(--ease),color var(--ease);
-    }
-    .nav-btn:last-child{margin-bottom:0;}
-    .nav-btn:hover,.nav-btn.active{background:var(--ph);color:var(--col-text);transform:translateX(2px);}
-    .nav-dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.65;flex-shrink:0;}
-    .sp{padding:var(--sp4) var(--sp5);}
-    .slabel{font-size:var(--text-xs);letter-spacing:.13em;text-transform:uppercase;
-      color:var(--faint);margin:0 0 .65rem;display:block;}
+/* ── SCROLL BODY ── */
+.pages{flex:1;overflow:hidden;position:relative;}
+.page{
+  position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:1rem 1rem calc(var(--tab-h) + 1.5rem);
+  display:none;
+}
+.page.active{display:block;}
 
-    /* ring */
-    .ring-wrap{display:grid;place-items:center;margin:.4rem 0 .9rem;}
-    .ring{
-      --p:0;width:108px;height:108px;border-radius:50%;
-      display:grid;place-items:center;position:relative;
-      background:conic-gradient(var(--p1) calc(var(--p)*1%),rgba(255,255,255,.07) 0);
-      transition:--p .6s ease;
-    }
-    .ring::after{content:'';position:absolute;inset:9px;border-radius:50%;
-      background:var(--surf);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
-    .ring-inner{position:relative;z-index:1;text-align:center;pointer-events:none;}
-    .ring-val{display:block;font:800 1.25rem/1 var(--fd);font-variant-numeric:tabular-nums;}
-    .ring-lbl{display:block;font-size:var(--text-xs);color:var(--muted);margin-top:.18rem;}
-    .mini-stats{display:grid;gap:.6rem;}
-    .mstat{display:flex;justify-content:space-between;align-items:center;
-      font-size:var(--text-sm);color:var(--muted);}
-    .mstat strong{color:var(--col-text);font-variant-numeric:tabular-nums;}
+/* ── BOTTOM TAB BAR ── */
+.tabbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:10;
+  display:flex;
+  background:color-mix(in srgb,var(--surf) 90%,transparent);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-top:1px solid color-mix(in srgb,var(--border) 55%,transparent);
+  padding-bottom:var(--safe-b);
+  box-shadow:0 -8px 32px rgba(0,0,0,.12);
+}
+.tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.2rem;padding:.75rem .5rem;color:var(--muted);
+  font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;font-weight:600;
+  transition:color var(--ease),transform var(--ease);
+  border:0;background:0;min-height:56px;touch-action:manipulation;
+}
+.tab:active{transform:scale(.93);}
+.tab svg{transition:transform var(--ease-spring);}
+.tab.active{color:var(--p1);}
+.tab.active svg{transform:scale(1.15);}
+.tab-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--p1);
+  opacity:0;transition:opacity var(--ease),transform var(--ease);margin-top:.1rem;
+}
+.tab.active .tab-dot{opacity:1;transform:scale(1);}
 
-    /* TOPBAR */
-    .topbar{
-      grid-column:2;display:flex;align-items:center;justify-content:space-between;gap:var(--sp4);
-      padding:0 var(--sp6);
-      border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);
-      background:color-mix(in srgb,var(--bg) 75%,transparent);
-      backdrop-filter:blur(20px);position:sticky;top:0;z-index:8;
-    }
-    .tb-left h1{margin:0;font:700 var(--text-xl)/1.05 var(--fd);letter-spacing:-.03em;}
-    .tb-left p{margin:.25rem 0 0;color:var(--muted);font-size:var(--text-sm);}
-    .tb-right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+/* ── CARDS ── */
+.card{
+  background:linear-gradient(160deg,
+    color-mix(in srgb,var(--surf2) 90%,transparent),
+    color-mix(in srgb,var(--surf-off) 93%,transparent));
+  border:1px solid color-mix(in srgb,var(--border) 60%,transparent);
+  border-radius:var(--r-2xl);box-shadow:var(--sh-md);
+}
 
-    /* BUTTONS */
-    .btn{
-      border:1px solid color-mix(in srgb,var(--border) 68%,transparent);
-      background:color-mix(in srgb,var(--surf2) 92%,transparent);
-      color:var(--col-text);border-radius:var(--r-full);white-space:nowrap;
-      transition:transform var(--ease),background var(--ease),box-shadow var(--ease);
-    }
-    .btn:hover{transform:translateY(-2px);box-shadow:var(--sh-sm);}
-    .btn:active{transform:translateY(0);}
-    .btn-sm{padding:.6rem .85rem;font-size:var(--text-sm);}
-    .btn-md{padding:.78rem 1.05rem;font-size:var(--text-sm);}
-    .btn-icon{width:42px;height:42px;display:grid;place-items:center;}
-    .btn-primary{
-      background:linear-gradient(135deg,var(--p1),var(--p2));
-      color:var(--inv);border:0;font-weight:700;
-      box-shadow:0 8px 22px rgba(92,199,194,.2);
-    }
-    .btn-primary:hover{box-shadow:0 12px 28px rgba(92,199,194,.3);}
-    .chip-date{padding:.55rem .9rem;font-size:var(--text-sm);pointer-events:none;}
+/* ── TODAY HERO ── */
+.today-hero{
+  padding:1.25rem;margin-bottom:1rem;position:relative;overflow:hidden;
+}
+.today-hero::before{
+  content:'';position:absolute;right:-15%;top:-30%;
+  width:200px;height:200px;pointer-events:none;
+  background:radial-gradient(circle,var(--p-glow),transparent 65%);
+}
+.eyebrow{font-size:var(--text-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--p1);}
+.today-hero h2{
+  font:800 clamp(1.5rem,6vw,2rem)/1.1 var(--fd);letter-spacing:-.03em;
+  margin:.5rem 0 .4rem;
+}
+.today-hero p{color:var(--muted);font-size:var(--text-sm);margin:0 0 1rem;max-width:90%;}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.85rem 1.25rem;border-radius:var(--r-full);
+  background:linear-gradient(135deg,var(--p1),var(--p2));
+  color:var(--inv);font-weight:700;font-size:var(--text-sm);border:0;
+  box-shadow:0 6px 18px var(--p-glow);
+  transition:transform var(--ease-spring),box-shadow var(--ease);
+  touch-action:manipulation;
+}
+.btn-primary:active{transform:scale(.96);box-shadow:none;}
 
-    /* MAIN */
-    .main{grid-column:2;overflow-y:auto;overscroll-behavior:contain;padding:var(--sp5) var(--sp6);}
+/* ── SCORE RING ROW ── */
+.score-row{display:flex;gap:.85rem;margin-bottom:1rem;}
+.ring-card{
+  flex:0 0 auto;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;
+}
+.ring{
+  --p:0;width:90px;height:90px;border-radius:50%;
+  display:grid;place-items:center;position:relative;
+  background:conic-gradient(var(--p1) calc(var(--p)*1%),rgba(128,128,128,.12) 0);
+}
+.ring::after{content:'';position:absolute;inset:8px;border-radius:50%;background:var(--surf);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
+.ring-inner{position:relative;z-index:1;text-align:center;}
+.ring-val{display:block;font:800 1.1rem/1 var(--fd);}
+.ring-lbl{display:block;font-size:.62rem;color:var(--muted);margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em;}
+.stats-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+.stat-box{
+  background:color-mix(in srgb,var(--bg) 60%,transparent);
+  border:1px solid color-mix(in srgb,var(--border) 50%,transparent);
+  border-radius:var(--r-lg);padding:.7rem .8rem;
+}
+.stat-box .lbl{font-size:var(--text-xs);color:var(--muted);display:block;}
+.stat-box .val{font:700 1.15rem/1 var(--fd);margin-top:.2rem;display:block;font-variant-numeric:tabular-nums;}
 
-    /* PANEL base */
-    .panel{
-      background:linear-gradient(160deg,
-        color-mix(in srgb,var(--surf2) 90%,transparent),
-        color-mix(in srgb,var(--surf-off) 93%,transparent));
-      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
-      border-radius:var(--r-xl);box-shadow:var(--sh-md);overflow:hidden;
-    }
-    .ph{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;
-      margin-bottom:1rem;}
-    .ph h3{margin:0;font-size:var(--text-lg);font-family:var(--fd);}
-    .ph p{margin:.22rem 0 0;color:var(--muted);font-size:var(--text-sm);}
+/* ── QUOTE CARD ── */
+.quote-card{
+  padding:1.15rem;margin-bottom:1rem;position:relative;overflow:hidden;
+}
+.quote-card blockquote{
+  font:700 1.05rem/1.3 var(--fd);letter-spacing:-.02em;margin:.55rem 0 .6rem;
+}
+.quote-meta strong{display:block;font-size:var(--text-sm);color:var(--col-text);}
+.quote-meta span{font-size:var(--text-xs);color:var(--muted);}
+.quote-refresh{
+  position:absolute;top:1rem;right:1rem;
+  width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--ph);color:var(--p1);border:0;
+  transition:transform var(--ease);
+}
+.quote-refresh:active{transform:rotate(180deg) scale(.93);}
 
-    /* HERO GRID */
-    .hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--sp5);margin-bottom:var(--sp5);}
-    .hero-card{
-      padding:var(--sp6);min-height:240px;position:relative;overflow:hidden;
-      background:linear-gradient(160deg,
-        color-mix(in srgb,var(--surf2) 90%,transparent),
-        color-mix(in srgb,var(--surf-off) 93%,transparent));
-      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
-      border-radius:var(--r-xl);box-shadow:var(--sh-md);
-    }
-    .hero-card::before{
-      content:'';position:absolute;right:-10%;bottom:-20%;
-      width:240px;height:240px;pointer-events:none;
-      background:radial-gradient(circle,rgba(92,199,194,.18),transparent 62%);
-    }
-    .eyebrow{color:var(--p1);font-size:var(--text-xs);letter-spacing:.14em;text-transform:uppercase;}
-    .hero-card h2{margin:.65rem 0 .75rem;
-      font:800 clamp(1.6rem,1rem + 2vw,2.6rem)/1.05 var(--fd);
-      max-width:15ch;letter-spacing:-.04em;}
-    .hero-card p{max-width:50ch;color:var(--muted);margin:0 0 1rem;font-size:var(--text-sm);}
-    .row-gap{display:flex;gap:.7rem;flex-wrap:wrap;}
+/* ── SECTION LABEL ── */
+.sec-lbl{
+  font-size:var(--text-xs);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);margin:1.2rem 0 .6rem;display:block;
+}
 
-    .quote-card{
-      padding:var(--sp6);display:flex;flex-direction:column;justify-content:space-between;
-      min-height:240px;position:relative;overflow:hidden;
-      background:linear-gradient(160deg,
-        color-mix(in srgb,var(--surf2) 90%,transparent),
-        color-mix(in srgb,var(--surf-off) 93%,transparent));
-      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
-      border-radius:var(--r-xl);box-shadow:var(--sh-md);
-    }
-    .quote-card::before{
-      content:'';position:absolute;left:-15%;top:-20%;
-      width:220px;height:220px;pointer-events:none;
-      background:radial-gradient(circle,rgba(112,167,255,.12),transparent 62%);
-    }
-    .quote-card blockquote{
-      margin:.7rem 0;font:700 clamp(1.15rem,.95rem + .9vw,1.75rem)/1.25 var(--fd);
-      letter-spacing:-.02em;position:relative;z-index:1;
-    }
-    .quote-meta{position:relative;z-index:1;font-size:var(--text-sm);color:var(--muted);}
-    .quote-meta strong{display:block;color:var(--col-text);margin-bottom:.2rem;}
+/* ── HABIT CARD (mobile) ── */
+.habit-m{
+  padding:1.1rem;margin-bottom:.8rem;
+  transition:transform var(--ease);
+}
+.habit-m:active{transform:scale(.99);}
+.hm-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;}
+.hm-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  font-size:1.15rem;background:var(--ph);flex-shrink:0;}
+.hm-info{flex:1;min-width:0;}
+.hm-name{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hm-cat{font-size:var(--text-xs);color:var(--muted);margin-top:.1rem;}
+.hm-streak{
+  background:var(--ph);border-radius:.7rem;padding:.35rem .6rem;text-align:center;flex-shrink:0;
+}
+.hm-streak .sn{display:block;font:700 1rem/1 var(--fd);color:var(--p1);}
+.hm-streak .sl{display:block;font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.bar{height:7px;border-radius:var(--r-full);background:rgba(128,128,128,.13);overflow:hidden;margin:.1rem 0 .55rem;}
+.bar-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--p1),var(--p2));transition:width .5s cubic-bezier(.16,1,.3,1);}
+.bar-meta{display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--muted);margin-bottom:.75rem;}
+.bar-meta strong{color:var(--p1);}
+.hm-cue{font-size:var(--text-xs);color:var(--muted);font-style:italic;margin-bottom:.85rem;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.hm-btns{display:grid;grid-template-columns:1fr auto;gap:.55rem;}
+.btn-done{
+  padding:.85rem;border-radius:var(--r-full);
+  border:1.5px solid var(--p1);background:var(--ph);
+  color:var(--p1);font-weight:700;font-size:var(--text-sm);
+  transition:transform var(--ease),background var(--ease);touch-action:manipulation;
+}
+.btn-done:active{transform:scale(.96);}
+.btn-done.done-active{background:linear-gradient(135deg,var(--p1),var(--p2));color:var(--inv);border-color:transparent;}
+.btn-skip{
+  width:44px;height:44px;border-radius:var(--r-full);display:grid;place-items:center;
+  border:1.5px solid color-mix(in srgb,var(--border) 65%,transparent);
+  background:color-mix(in srgb,var(--surf2) 90%,transparent);
+  font-size:.95rem;transition:transform var(--ease);touch-action:manipulation;
+}
+.btn-skip:active{transform:scale(.93);}
+.btn-skip.skipped{background:var(--ph);border-color:transparent;}
 
-    /* KPI GRID */
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp4);margin-bottom:var(--sp5);}
-    .kpi-card{
-      padding:var(--sp4) var(--sp5);
-      background:linear-gradient(160deg,
-        color-mix(in srgb,var(--surf2) 90%,transparent),
-        color-mix(in srgb,var(--surf-off) 93%,transparent));
-      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
-      border-radius:var(--r-xl);box-shadow:var(--sh-md);
-    }
-    .kpi-lbl{color:var(--muted);font-size:var(--text-sm);}
-    .kpi-val{margin:.35rem 0 .5rem;font:800 clamp(1.4rem,1rem + 1vw,2.1rem)/1 var(--fd);
-      font-variant-numeric:tabular-nums;}
-    .badge{display:inline-flex;gap:.3rem;align-items:center;
-      padding:.35rem .6rem;border-radius:var(--r-full);font-size:var(--text-xs);font-weight:500;}
-    .b-ok{background:rgba(132,195,95,.13);color:var(--ok);}
-    .b-warn{background:rgba(240,179,72,.13);color:var(--warn);}
-    .b-blue{background:rgba(112,167,255,.13);color:var(--blue);}
+/* ── ANALYTICS PAGE ── */
+.chart-card{padding:1.1rem;margin-bottom:.85rem;}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.85rem;}
+.chart-head h3{font:700 var(--text-lg)/1.1 var(--fd);margin:0;}
+.chart-head p{margin:.2rem 0 0;color:var(--muted);font-size:var(--text-xs);}
+.chart-box{height:220px;position:relative;}
 
-    /* MID GRID */
-    .mid-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:var(--sp5);margin-bottom:var(--sp5);}
-    .chart-box{height:280px;position:relative;}
-    .strips{display:grid;gap:.75rem;}
-    .strip{
-      background:color-mix(in srgb,var(--bg) 60%,transparent);
-      border:1px solid color-mix(in srgb,var(--border) 50%,transparent);
-      padding:.85rem 1rem;border-radius:.9rem;
-    }
-    .strip strong{display:block;margin-bottom:.18rem;font-size:var(--text-sm);}
-    .strip span{color:var(--muted);font-size:var(--text-xs);}
-    .strip .strip-val{color:var(--p1);font-weight:600;font-size:var(--text-sm);}
+.kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.85rem;}
+.kpi-box{
+  padding:.9rem 1rem;
+  background:linear-gradient(160deg,
+    color-mix(in srgb,var(--surf2) 90%,transparent),
+    color-mix(in srgb,var(--surf-off) 93%,transparent));
+  border:1px solid color-mix(in srgb,var(--border) 60%,transparent);
+  border-radius:var(--r-xl);box-shadow:var(--sh-sm);
+}
+.kpi-lbl{font-size:var(--text-xs);color:var(--muted);}
+.kpi-val{font:800 1.55rem/1 var(--fd);font-variant-numeric:tabular-nums;margin:.3rem 0 .4rem;}
+.badge{
+  display:inline-flex;align-items:center;gap:.25rem;
+  padding:.3rem .55rem;border-radius:var(--r-full);font-size:.65rem;font-weight:600;
+}
+.b-ok{background:rgba(132,195,95,.13);color:var(--ok);}
+.b-warn{background:rgba(240,179,72,.13);color:var(--warn);}
+.b-blue{background:rgba(112,167,255,.13);color:var(--blue);}
 
-    /* SEC HEAD */
-    .sec-head{display:flex;justify-content:space-between;align-items:flex-start;
-      gap:1rem;margin-bottom:var(--sp4);}
-    .sec-head h3{margin:0;font-size:var(--text-lg);font-family:var(--fd);}
-    .sec-head p{margin:.2rem 0 0;color:var(--muted);font-size:var(--text-sm);}
+/* ── PATTERN STRIPS ── */
+.strip{
+  background:color-mix(in srgb,var(--bg) 60%,transparent);
+  border:1px solid color-mix(in srgb,var(--border) 50%,transparent);
+  border-radius:var(--r-lg);padding:.8rem 1rem;margin-bottom:.55rem;
+  display:flex;justify-content:space-between;align-items:center;gap:.5rem;
+}
+.strip .sk{font-size:var(--text-sm);color:var(--muted);}
+.strip .sv{font-size:var(--text-sm);font-weight:600;color:var(--p1);text-align:right;}
 
-    /* HABITS GRID */
-    .habits-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp4);}
-    .habit-card{
-      padding:var(--sp5);
-      background:linear-gradient(160deg,
-        color-mix(in srgb,var(--surf2) 90%,transparent),
-        color-mix(in srgb,var(--surf-off) 93%,transparent));
-      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
-      border-radius:var(--r-xl);box-shadow:var(--sh-md);
-      transition:box-shadow var(--ease),transform var(--ease);
-    }
-    .habit-card:hover{box-shadow:var(--sh-lg);transform:translateY(-2px);}
-    .habit-top{display:flex;justify-content:space-between;gap:.7rem;align-items:flex-start;}
-    .habit-title-row{display:flex;gap:.75rem;align-items:center;}
-    .habit-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
-      font-size:1.05rem;background:var(--ph);flex-shrink:0;}
-    .habit-name{display:block;font-size:var(--text-base);font-weight:600;letter-spacing:-.01em;}
-    .habit-cat{color:var(--muted);font-size:var(--text-xs);margin-top:.1rem;display:block;}
-    .streak-badge{
-      display:flex;flex-direction:column;align-items:center;
-      background:var(--ph);border-radius:.75rem;padding:.4rem .6rem;min-width:44px;
-    }
-    .streak-num{font:700 1.1rem/1 var(--fd);color:var(--p1);font-variant-numeric:tabular-nums;}
-    .streak-lbl{font-size:var(--text-xs);color:var(--muted);margin-top:.1rem;}
-    .bar-wrap{margin:.85rem 0 .6rem;}
-    .bar-row{display:flex;justify-content:space-between;align-items:center;
-      margin-bottom:.4rem;font-size:var(--text-xs);color:var(--muted);}
-    .bar-row strong{color:var(--p1);}
-    .bar{height:8px;border-radius:var(--r-full);background:rgba(128,128,128,.15);overflow:hidden;}
-    .bar-fill{height:100%;border-radius:inherit;
-      background:linear-gradient(90deg,var(--p1),var(--p2));
-      transition:width .5s cubic-bezier(.16,1,.3,1);}
-    .habit-cue{color:var(--muted);font-size:var(--text-xs);
-      margin-bottom:.85rem;font-style:italic;}
-    .habit-btns{display:flex;gap:.55rem;}
-    .hbtn{padding:.7rem .9rem;font-size:var(--text-xs);font-weight:600;}
-    .hbtn-done{background:var(--ph);border-color:transparent;color:var(--p1);}
-    .hbtn-skip{opacity:.8;}
-    .hbtn-done-active{
-      background:linear-gradient(135deg,var(--p1),var(--p2));
-      color:var(--inv);border-color:transparent;
-    }
+/* ── HEATMAP ── */
+.heatmap-grid{
+  display:grid;grid-template-columns:repeat(52,1fr);
+  gap:2.5px;overflow-x:auto;padding-bottom:.3rem;
+}
+.hm-cell{aspect-ratio:1;border-radius:2px;}
+.hm-0{background:rgba(92,199,194,.06);}
+.hm-1{background:rgba(92,199,194,.22);}
+.hm-2{background:rgba(92,199,194,.45);}
+.hm-3{background:rgba(92,199,194,.7);}
+.hm-4{background:rgba(92,199,194,1);}
+.hm-legend{display:flex;align-items:center;gap:.4rem;margin-top:.5rem;font-size:var(--text-xs);color:var(--muted);}
+.hm-legend-cells{display:flex;gap:2.5px;}
+.hm-lc{width:10px;height:10px;border-radius:2px;}
 
-    /* TIMELINE */
-    .tl{display:grid;gap:.7rem;}
-    .tl-row{
-      display:grid;grid-template-columns:38px 1fr auto;gap:.8rem;align-items:center;
-      padding:.7rem .8rem;border-radius:.85rem;
-      background:color-mix(in srgb,var(--bg) 60%,transparent);
-      border:1px solid color-mix(in srgb,var(--border) 50%,transparent);
-    }
-    .tl-badge{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
-      background:var(--ph);font-size:.95rem;}
-    .tl-row strong{display:block;font-size:var(--text-sm);}
-    .tl-row span{color:var(--muted);font-size:var(--text-xs);}
-    .tl-time{color:var(--faint);font-size:var(--text-xs);white-space:nowrap;}
+/* ── ACTIVITY LOG ── */
+.tl-row{
+  display:grid;grid-template-columns:38px 1fr auto;gap:.75rem;align-items:center;
+  padding:.75rem .8rem;border-radius:var(--r-lg);margin-bottom:.6rem;
+  background:color-mix(in srgb,var(--bg) 60%,transparent);
+  border:1px solid color-mix(in srgb,var(--border) 50%,transparent);
+}
+.tl-icon{width:38px;height:38px;border-radius:11px;background:var(--ph);display:grid;place-items:center;font-size:.95rem;}
+.tl-row strong{display:block;font-size:var(--text-sm);}
+.tl-row span{color:var(--muted);font-size:var(--text-xs);}
+.tl-time{color:var(--faint);font-size:var(--text-xs);white-space:nowrap;}
 
-    /* HEATMAP */
-    .heatmap-wrap{margin-top:var(--sp5);}
-    .heatmap-grid{
-      display:grid;grid-template-columns:repeat(52,1fr);
-      gap:3px;margin-top:.75rem;overflow-x:auto;
-    }
-    .hm-cell{
-      aspect-ratio:1;border-radius:3px;
-      background:rgba(128,128,128,.12);
-      transition:background .2s;cursor:default;
-    }
-    .hm-cell:hover{outline:2px solid var(--p1);}
-    .hm-0{background:rgba(92,199,194,.07);}
-    .hm-1{background:rgba(92,199,194,.25);}
-    .hm-2{background:rgba(92,199,194,.5);}
-    .hm-3{background:rgba(92,199,194,.75);}
-    .hm-4{background:rgba(92,199,194,1);}
-    .hm-legend{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;
-      font-size:var(--text-xs);color:var(--muted);}
-    .hm-legend-cells{display:flex;gap:3px;}
-    .hm-lc{width:11px;height:11px;border-radius:2px;}
+/* ── SETTINGS PAGE ── */
+.settings-section{margin-bottom:1.25rem;}
+.settings-section h3{font:700 var(--text-base)/1 var(--fd);margin-bottom:.65rem;color:var(--col-text);}
+.setting-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.9rem 1rem;border-radius:var(--r-lg);margin-bottom:.5rem;
+  background:color-mix(in srgb,var(--surf2) 90%,transparent);
+  border:1px solid color-mix(in srgb,var(--border) 55%,transparent);
+  gap:1rem;
+}
+.setting-row .sr-lbl{font-size:var(--text-sm);}
+.setting-row .sr-sub{font-size:var(--text-xs);color:var(--muted);margin-top:.1rem;}
+.setting-btn{
+  padding:.65rem 1rem;border-radius:var(--r-full);font-size:var(--text-sm);font-weight:600;
+  border:1.5px solid color-mix(in srgb,var(--border) 65%,transparent);
+  background:color-mix(in srgb,var(--surf2) 90%,transparent);
+  white-space:nowrap;transition:transform var(--ease),background var(--ease);
+}
+.setting-btn:active{transform:scale(.96);}
+.setting-btn.danger{color:var(--err);border-color:rgba(230,118,189,.3);}
+.setting-btn.primary{color:var(--p1);border-color:var(--ph);background:var(--ph);}
+.storage-badge{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.75rem 1rem;border-radius:var(--r-lg);
+  background:rgba(132,195,95,.08);border:1px solid rgba(132,195,95,.2);
+  font-size:var(--text-sm);color:var(--ok);margin-bottom:.85rem;
+}
 
-    /* EMPTY */
-    .empty{padding:var(--sp10);text-align:center;}
-    .empty-icon{font-size:2.5rem;margin-bottom:.75rem;}
-    .empty h3{margin-bottom:.45rem;font-family:var(--fd);}
-    .empty p{color:var(--muted);max-width:36ch;margin:.4rem auto 1.2rem;font-size:var(--text-sm);}
+/* ── EMPTY STATE ── */
+.empty{padding:3rem 1.5rem;text-align:center;}
+.empty-icon{font-size:2.8rem;margin-bottom:.85rem;}
+.empty h3{font-family:var(--fd);margin-bottom:.45rem;}
+.empty p{color:var(--muted);font-size:var(--text-sm);max-width:32ch;margin:.4rem auto 1.4rem;line-height:1.55;}
 
-    /* DIALOG */
-    .dlg-back{
-      position:fixed;inset:0;background:rgba(2,6,7,.55);backdrop-filter:blur(14px);
-      display:none;align-items:center;justify-content:center;padding:1rem;z-index:30;
-    }
-    .dlg-back.open{display:flex;}
-    .dlg{
-      width:min(660px,100%);
-      background:linear-gradient(180deg,var(--surf2),var(--surf));
-      border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
-      border-radius:26px;box-shadow:var(--sh-lg);overflow:hidden;
-    }
-    .dlg-head{padding:1rem 1.15rem;display:flex;justify-content:space-between;align-items:center;
-      border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);}
-    .dlg-head h3{margin:0;font-family:var(--fd);font-size:var(--text-lg);}
-    .dlg-body{padding:1.15rem;display:grid;gap:.9rem;}
-    .form-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem;}
-    .field{display:grid;gap:.38rem;}
-    .field label{font-size:var(--text-sm);color:var(--muted);}
-    .field input,.field select{
-      width:100%;border:1px solid color-mix(in srgb,var(--border) 65%,transparent);
-      border-radius:12px;background:color-mix(in srgb,var(--bg) 60%,transparent);
-      padding:.8rem .95rem;outline:none;
-      transition:border-color var(--ease),box-shadow var(--ease);
-    }
-    .field input:focus,.field select:focus{
-      border-color:var(--p1);
-      box-shadow:0 0 0 3px rgba(92,199,194,.14);
-    }
-    .dlg-foot{display:flex;justify-content:flex-end;gap:.7rem;padding:0 1.15rem 1.15rem;}
+/* ── ADD HABIT SHEET (bottom sheet) ── */
+.sheet-back{
+  position:fixed;inset:0;background:rgba(2,6,7,.55);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  z-index:20;display:none;align-items:flex-end;
+  padding-bottom:0;
+}
+.sheet-back.open{display:flex;}
+.sheet{
+  width:100%;max-height:93dvh;overflow-y:auto;
+  background:var(--surf2);
+  border-radius:24px 24px 0 0;
+  box-shadow:var(--sh-lg);
+  padding-bottom:calc(1.25rem + env(safe-area-inset-bottom,0px));
+}
+.sheet-handle{
+  width:40px;height:4px;border-radius:2px;background:var(--border);
+  margin:1rem auto .75rem;flex-shrink:0;
+}
+.sheet-head{padding:.25rem 1.15rem .85rem;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);}
+.sheet-head h3{margin:0;font:700 var(--text-lg)/1 var(--fd);}
+.sheet-close{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--surf-off) 90%,transparent);}
+.sheet-body{padding:1.15rem;display:grid;gap:.85rem;}
+.field{display:grid;gap:.38rem;}
+.field label{font-size:var(--text-sm);color:var(--muted);}
+.field input,.field select{
+  width:100%;border:1.5px solid color-mix(in srgb,var(--border) 65%,transparent);
+  border-radius:13px;background:color-mix(in srgb,var(--bg) 60%,transparent);
+  padding:.85rem 1rem;outline:none;font-size:var(--text-sm);
+  transition:border-color var(--ease),box-shadow var(--ease);
+}
+.field input:focus,.field select:focus{
+  border-color:var(--p1);box-shadow:0 0 0 3px rgba(92,199,194,.13);
+}
+.sheet-footer{padding:0 1.15rem .25rem;display:flex;gap:.65rem;}
+.sheet-footer .btn-primary{flex:1;justify-content:center;}
+.btn-cancel{
+  padding:.85rem 1.1rem;border-radius:var(--r-full);
+  border:1.5px solid color-mix(in srgb,var(--border) 65%,transparent);
+  background:color-mix(in srgb,var(--surf2) 90%,transparent);
+  font-size:var(--text-sm);font-weight:600;
+  transition:transform var(--ease);touch-action:manipulation;
+}
+.btn-cancel:active{transform:scale(.96);}
 
-    /* TOAST */
-    .toast{
-      position:fixed;right:1rem;bottom:1rem;z-index:40;
-      min-width:220px;max-width:300px;border-radius:16px;padding:.85rem 1rem;
-      background:linear-gradient(135deg,var(--p1),var(--p2));
-      color:var(--inv);box-shadow:var(--sh-lg);
-      transform:translateY(130%);transition:transform var(--ease);
-      font-size:var(--text-sm);font-weight:500;
-    }
-    .toast.show{transform:translateY(0);}
+/* ── TOAST ── */
+.toast{
+  position:fixed;left:1rem;right:1rem;z-index:40;
+  bottom:calc(var(--tab-h) + .75rem);
+  border-radius:16px;padding:.85rem 1rem;
+  background:linear-gradient(135deg,var(--p1),var(--p2));
+  color:var(--inv);box-shadow:var(--sh-lg);
+  transform:translateY(20px);opacity:0;
+  transition:transform var(--ease),opacity var(--ease);
+  font-size:var(--text-sm);font-weight:500;text-align:center;
+  pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1;}
 
-    /* RESPONSIVE */
-    @media(max-width:1200px){
-      .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-      .mid-grid,.hero-grid,.habits-grid{grid-template-columns:1fr;}
-    }
-    @media(max-width:960px){
-      html,body{overflow:auto;}
-      .app{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;height:auto;}
-      .sidebar{grid-row:auto;border-right:0;
-        border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);}
-      .topbar,.main{grid-column:1;}
-      .main{overflow:visible;}
-    }
-    @media(max-width:640px){
-      .topbar{padding:.75rem 1rem;flex-direction:column;align-items:flex-start;height:auto;}
-      .tb-right{width:100%;}
-      .sidebar,.main{padding:.85rem;}
-      .kpi-grid,.form-2{grid-template-columns:1fr;}
-      .hero-card h2{max-width:12ch;}
-      .sec-head{flex-direction:column;align-items:flex-start;}
-    }
-    @media(prefers-reduced-motion:reduce){
-      *,*::before,*::after{animation:none!important;transition:none!important;
-        scroll-behavior:auto!important;}
-    }
-  </style>
+/* ── MICRO ANIMATIONS ── */
+@keyframes pop-in{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.pop-in{animation:pop-in .25s var(--ease) both;}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;}
+}
+</style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<div class="shell">
 
-<div class="app">
-  <!-- ── SIDEBAR ── -->
-  <aside class="sidebar" aria-label="Navigation">
-    <div class="brand">
-      <svg viewBox="0 0 64 64" fill="none" aria-label="Habit Flow logo">
+  <!-- TOP HEADER -->
+  <header class="hdr">
+    <div class="hdr-brand">
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
         <rect x="8" y="8" width="48" height="48" rx="16" stroke="currentColor" stroke-width="3.5"/>
-        <path d="M20 36C24 28 28 24 34 24C40 24 44 28 44 36"
-              stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M20 36C24 28 28 24 34 24C40 24 44 28 44 36" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
         <circle cx="24" cy="38" r="3.5" fill="currentColor"/>
         <circle cx="40" cy="38" r="3.5" fill="currentColor"/>
       </svg>
-      <div>
-        <span class="brand-name">Habit Flow</span>
-        <span class="brand-sub">365-day adaptive tracker</span>
-      </div>
+      <span>Habit Flow</span>
     </div>
-
-    <nav class="scard nav-card" aria-label="Sections">
-      <button class="nav-btn active" data-sec="sec-overview">
-        <span class="nav-dot"></span>Overview
-      </button>
-      <button class="nav-btn" data-sec="sec-analytics">
-        <span class="nav-dot"></span>Analytics
-      </button>
-      <button class="nav-btn" data-sec="sec-habits">
-        <span class="nav-dot"></span>My Habits
-      </button>
-      <button class="nav-btn" data-sec="sec-activity">
-        <span class="nav-dot"></span>Activity Log
-      </button>
-    </nav>
-
-    <!-- today score ring -->
-    <section class="scard sp" aria-labelledby="score-lbl">
-      <span class="slabel" id="score-lbl">Today Score</span>
-      <div class="ring-wrap">
-        <div class="ring" id="scoreRing" role="img" aria-label="Today consistency score">
-          <div class="ring-inner">
-            <span class="ring-val" id="ringVal">0%</span>
-            <span class="ring-lbl">consistency</span>
-          </div>
-        </div>
-      </div>
-      <div class="mini-stats">
-        <div class="mstat"><span>Done today</span><strong id="sDone">0</strong></div>
-        <div class="mstat"><span>Active streaks</span><strong id="sStreaks">0</strong></div>
-        <div class="mstat"><span>Best window</span><strong id="sWindow">--</strong></div>
-        <div class="mstat"><span>Days tracked</span><strong id="sDays">0</strong></div>
-        <div class="mstat"><span>Total habits</span><strong id="sTotal">0</strong></div>
-      </div>
-    </section>
-
-    <!-- pattern cue -->
-    <section class="scard sp" aria-labelledby="pattern-lbl">
-      <span class="slabel" id="pattern-lbl">Pattern Cue</span>
-      <strong id="patHead" style="display:block;font-size:1.05rem;font-family:var(--fd);margin-bottom:.4rem;">
-        Waiting for data
-      </strong>
-      <p id="patHint" style="color:var(--muted);margin:0;font-size:var(--text-xs);line-height:1.5;">
-        Log habits to unlock streak insights and adaptive coaching.
-      </p>
-    </section>
-
-    <!-- quick add -->
-    <section class="scard sp">
-      <span class="slabel">Quick Add</span>
-      <p style="color:var(--muted);font-size:var(--text-xs);margin:0 0 .75rem;line-height:1.5;">
-        Create any habit — coding, fitness, reading, sleep, or anything you want to build.
-      </p>
-      <button class="btn btn-md btn-primary" style="width:100%;" id="sideAddBtn">
-        + Add new habit
-      </button>
-    </section>
-  </aside>
-
-  <!-- ── TOPBAR ── -->
-  <header class="topbar">
-    <div class="tb-left">
-      <h1>Daily Habit Dashboard</h1>
-      <p>Streaks, momentum, patterns &amp; quotes — all live.</p>
-    </div>
-    <div class="tb-right">
-      <span class="btn chip-date" id="dateChip"></span>
-      <button class="btn btn-sm" id="exportBtn">Export CSV</button>
-      <button class="btn btn-sm" id="demoBtn">Load demo</button>
-      <button class="btn btn-icon" id="themeBtn" aria-label="Toggle light/dark mode">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
+    <div class="hdr-right">
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
       </button>
-      <button class="btn btn-md btn-primary" id="topAddBtn">+ Add habit</button>
     </div>
   </header>
 
-  <!-- ── MAIN ── -->
-  <main class="main" id="main" tabindex="-1">
+  <!-- PAGES -->
+  <div class="pages">
 
-    <!-- OVERVIEW -->
-    <section id="sec-overview">
-      <div class="hero-grid">
-        <article class="hero-card">
-          <span class="eyebrow">Daily operating system</span>
-          <h2 id="heroTitle">Build streaks that compound into real results.</h2>
-          <p id="heroSub">Mark habits done or skip — the dashboard adapts scores, quotes, and insights to your actual pattern.</p>
-          <div class="row-gap">
-            <button class="btn btn-md btn-primary" id="heroAddBtn">Create custom habit</button>
-            <button class="btn btn-md" id="heroAnalBtn">View analytics</button>
+    <!-- TODAY -->
+    <div class="page active" id="page-today">
+      <article class="card today-hero">
+        <span class="eyebrow">Good day, Mayank</span>
+        <h2 id="heroTitle">Build streaks that compound.</h2>
+        <p id="heroSub">Tap a habit below to mark it done. Your dashboard adapts in real time.</p>
+        <button class="btn-primary" id="heroAddBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          New habit
+        </button>
+      </article>
+
+      <!-- Score + stats -->
+      <div class="score-row">
+        <div class="card ring-card">
+          <div class="ring" id="scoreRing" aria-label="Today's consistency score">
+            <div class="ring-inner">
+              <span class="ring-val" id="ringVal">0%</span>
+              <span class="ring-lbl">score</span>
+            </div>
           </div>
-        </article>
-        <article class="quote-card" aria-live="polite" aria-label="Adaptive motivational quote">
-          <span class="eyebrow">Adaptive quote</span>
-          <blockquote id="qText">"Momentum loves small proofs."</blockquote>
-          <div class="quote-meta">
-            <strong id="qMood">Calm focus</strong>
-            <span id="qReason">Updates based on your streak, skips &amp; completion pattern.</span>
+          <span style="font-size:var(--text-xs);color:var(--muted);">Today</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="lbl">Done today</span>
+            <span class="val" id="sDone">0</span>
           </div>
-        </article>
+          <div class="stat-box">
+            <span class="lbl">Streaks</span>
+            <span class="val" id="sStreaks">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="lbl">Window</span>
+            <span class="val" id="sWindow" style="font-size:.85rem;">--</span>
+          </div>
+          <div class="stat-box">
+            <span class="lbl">Days tracked</span>
+            <span class="val" id="sDays">0</span>
+          </div>
+        </div>
       </div>
 
-      <!-- KPIs -->
-      <div class="kpi-grid" aria-label="Key metrics">
-        <article class="kpi-card">
-          <div class="kpi-lbl">Avg completion rate</div>
-          <div class="kpi-val" id="kRate">0%</div>
-          <div class="badge b-ok" id="kRateBadge">▲ ready to start</div>
-        </article>
-        <article class="kpi-card">
-          <div class="kpi-lbl">Active streaks</div>
-          <div class="kpi-val" id="kStreaks">0</div>
-          <div class="badge b-ok" id="kStreakBadge">▲ no chain yet</div>
-        </article>
-        <article class="kpi-card">
-          <div class="kpi-lbl">Top habit</div>
-          <div class="kpi-val" id="kBest" style="font-size:clamp(1rem,.8rem + .8vw,1.5rem);">--</div>
-          <div class="badge b-blue" id="kBestBadge">▲ add data</div>
-        </article>
-        <article class="kpi-card">
-          <div class="kpi-lbl">Consistency score</div>
-          <div class="kpi-val" id="kScore">0</div>
-          <div class="badge b-ok" id="kScoreBadge">▲ grows with wins</div>
-        </article>
+      <!-- Adaptive quote -->
+      <article class="card quote-card">
+        <span class="eyebrow">Adaptive quote</span>
+        <blockquote id="qText">"Momentum loves small proofs."</blockquote>
+        <div class="quote-meta">
+          <strong id="qMood">Calm focus</strong>
+          <span id="qReason">Updates based on your streaks &amp; pattern.</span>
+        </div>
+        <button class="quote-refresh" id="refreshQuoteBtn" aria-label="Refresh quote">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </button>
+      </article>
+
+      <!-- Habits list -->
+      <span class="sec-lbl">Your habits</span>
+      <div id="habitsContainer"></div>
+      <div class="empty" id="emptyState" hidden>
+        <div class="empty-icon">🌱</div>
+        <h3>No habits yet</h3>
+        <p>Add your first custom habit and start building streaks today.</p>
+        <button class="btn-primary" id="emptyAddBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Add first habit
+        </button>
       </div>
-    </section>
+    </div>
 
     <!-- ANALYTICS -->
-    <section id="sec-analytics" style="margin-top:var(--sp5);">
-      <div class="mid-grid">
-        <article class="panel" style="padding:var(--sp5);">
-          <div class="ph">
-            <div>
-              <h3>7-Day Momentum</h3>
-              <p>Completions per day + rolling consistency %</p>
-            </div>
-            <button class="btn btn-sm" id="refreshQuoteBtn">Refresh quote</button>
-          </div>
-          <div class="chart-box">
-            <canvas id="chartCanvas" aria-label="7-day momentum chart"></canvas>
-          </div>
-        </article>
-        <article class="panel" style="padding:var(--sp5);">
-          <div class="ph"><div><h3>Pattern Engine</h3><p>Inferred from your full history</p></div></div>
-          <div class="strips" id="patStrips"></div>
-        </article>
+    <div class="page" id="page-analytics">
+      <span class="sec-lbl">Key metrics</span>
+      <div class="kpi-row">
+        <div class="kpi-box">
+          <div class="kpi-lbl">Avg completion</div>
+          <div class="kpi-val" id="kRate">0%</div>
+          <div class="badge b-ok" id="kRateBadge">▲ start</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-lbl">Active streaks</div>
+          <div class="kpi-val" id="kStreaks">0</div>
+          <div class="badge b-ok" id="kStreakBadge">▲ no chain</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-lbl">Consistency score</div>
+          <div class="kpi-val" id="kScore">0</div>
+          <div class="badge b-blue" id="kScoreBadge">▲ grows</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-lbl">Days tracked</div>
+          <div class="kpi-val" id="kDays">0</div>
+          <div class="badge b-ok">▲ total</div>
+        </div>
       </div>
 
-      <!-- 52-week heatmap -->
-      <article class="panel heatmap-wrap" style="padding:var(--sp5);" id="sec-heatmap">
-        <div class="ph">
-          <div>
-            <h3>52-Week Heatmap</h3>
-            <p>Daily completion density across the last year</p>
-          </div>
-          <select class="btn btn-sm" id="heatmapHabit" aria-label="Select habit for heatmap"
-                  style="border-radius:var(--r-full);padding:.55rem .85rem;font-size:var(--text-sm);">
+      <!-- 7-day chart -->
+      <span class="sec-lbl">7-day momentum</span>
+      <article class="card chart-card">
+        <div class="chart-box"><canvas id="chartCanvas" aria-label="7-day momentum chart"></canvas></div>
+      </article>
+
+      <!-- Pattern strips -->
+      <span class="sec-lbl">Pattern engine</span>
+      <div id="patStrips"></div>
+
+      <!-- Heatmap -->
+      <span class="sec-lbl">52-week heatmap</span>
+      <article class="card" style="padding:1.1rem;margin-bottom:.85rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+          <span style="font-size:var(--text-sm);font-weight:600;">Completion density</span>
+          <select id="heatHabit" class="field" style="border-radius:var(--r-full);padding:.45rem .75rem;font-size:var(--text-xs);width:auto;border:1px solid color-mix(in srgb,var(--border) 60%,transparent);background:color-mix(in srgb,var(--surf-off) 90%,transparent);outline:none;">
             <option value="all">All habits</option>
           </select>
         </div>
-        <div class="heatmap-grid" id="heatmapGrid" aria-label="Habit heatmap"></div>
-        <div class="hm-legend">
+        <div class="heatmap-grid" id="heatmapGrid"></div>
+        <div class="hm-legend" style="margin-top:.6rem;">
           <span>Less</span>
           <div class="hm-legend-cells">
-            <div class="hm-lc hm-0"></div>
-            <div class="hm-lc hm-1"></div>
-            <div class="hm-lc hm-2"></div>
-            <div class="hm-lc hm-3"></div>
+            <div class="hm-lc hm-0"></div><div class="hm-lc hm-1"></div>
+            <div class="hm-lc hm-2"></div><div class="hm-lc hm-3"></div>
             <div class="hm-lc hm-4"></div>
           </div>
           <span>More</span>
         </div>
       </article>
-    </section>
+    </div>
 
-    <!-- HABITS -->
-    <section id="sec-habits" style="margin-top:var(--sp5);">
-      <div class="sec-head">
-        <div>
-          <h3>Your Habits</h3>
-          <p>365-day history per habit · mark done or skip each day</p>
+    <!-- LOG -->
+    <div class="page" id="page-log">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+        <span class="sec-lbl" style="margin:0;">Activity log</span>
+        <button class="setting-btn" id="clearTlBtn" style="font-size:var(--text-xs);">Clear</button>
+      </div>
+      <div id="timeline"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="storage-badge">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Data auto-saves to your browser localStorage
+      </div>
+
+      <div class="settings-section">
+        <h3>Data</h3>
+        <div class="setting-row">
+          <div><div class="sr-lbl">Load demo data</div><div class="sr-sub">60 days of realistic history</div></div>
+          <button class="setting-btn primary" id="demoBtn">Load</button>
         </div>
-        <button class="btn btn-md btn-primary" id="secAddBtn">+ Add habit</button>
-      </div>
-      <div class="habits-grid" id="habitsGrid"></div>
-      <div class="empty" id="emptyState" hidden>
-        <div class="empty-icon">🌱</div>
-        <h3>No habits yet</h3>
-        <p>Add your first habit to unlock the dashboard, adaptive quotes, and trend charts.</p>
-        <button class="btn btn-md btn-primary" id="emptyAddBtn">Add first habit</button>
-      </div>
-    </section>
-
-    <!-- ACTIVITY -->
-    <section id="sec-activity" style="margin-top:var(--sp5);margin-bottom:var(--sp8);">
-      <div class="sec-head">
-        <div>
-          <h3>Activity Log</h3>
-          <p>Timestamped record of every action</p>
+        <div class="setting-row">
+          <div><div class="sr-lbl">Export CSV</div><div class="sr-sub">Full history + stats</div></div>
+          <button class="setting-btn primary" id="exportBtn">Export</button>
         </div>
-        <button class="btn btn-sm" id="clearTlBtn">Clear log</button>
+        <div class="setting-row">
+          <div><div class="sr-lbl">Import CSV</div><div class="sr-sub">Restore from a previous export</div></div>
+          <button class="setting-btn primary" id="importBtn">Import</button>
+        </div>
+        <div class="setting-row">
+          <div><div class="sr-lbl">Clear all data</div><div class="sr-sub">Cannot be undone</div></div>
+          <button class="setting-btn danger" id="clearAllBtn">Clear all</button>
+        </div>
       </div>
-      <article class="panel" style="padding:var(--sp5);">
-        <div class="tl" id="timeline"></div>
-      </article>
-    </section>
 
-  </main>
-</div>
+      <div class="settings-section">
+        <h3>Appearance</h3>
+        <div class="setting-row">
+          <div><div class="sr-lbl">Theme</div><div class="sr-sub" id="themeLabel">Dark mode</div></div>
+          <button class="setting-btn" id="themeBtn2">Toggle</button>
+        </div>
+      </div>
 
-<!-- ADD HABIT DIALOG -->
-<div class="dlg-back" id="dlgBack" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
-  <div class="dlg">
-    <div class="dlg-head">
-      <h3 id="dlgTitle">Add a custom habit</h3>
-      <button class="btn btn-icon" id="dlgClose" aria-label="Close dialog">✕</button>
+      <div class="settings-section">
+        <h3>About</h3>
+        <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+          <div class="sr-lbl">Habit Flow Mobile</div>
+          <div class="sr-sub">Open the HTML file locally for full localStorage persistence. Built for systems engineers who want to track deep work, fitness &amp; learning streaks.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pages -->
+
+  <!-- FAB -->
+  <button class="fab" id="fabBtn" aria-label="Add new habit">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+  </button>
+
+  <!-- BOTTOM TAB BAR -->
+  <nav class="tabbar" aria-label="Main navigation">
+    <button class="tab active" data-tab="page-today" aria-current="page">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/>
+      </svg>
+      Today
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab" data-tab="page-analytics">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Analytics
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab" data-tab="page-log">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+      </svg>
+      Log
+      <div class="tab-dot"></div>
+    </button>
+    <button class="tab" data-tab="page-settings">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      Settings
+      <div class="tab-dot"></div>
+    </button>
+  </nav>
+
+</div><!-- /shell -->
+
+<!-- BOTTOM SHEET -->
+<div class="sheet-back" id="sheetBack" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h3 id="sheetTitle">Add a custom habit</h3>
+      <button class="sheet-close" id="sheetClose" aria-label="Close">✕</button>
     </div>
     <form id="habitForm" novalidate>
-      <div class="dlg-body">
-        <div class="form-2">
-          <div class="field">
-            <label for="hName">Habit name *</label>
-            <input id="hName" name="hName" type="text"
-                   placeholder="e.g. Deep work session" required />
-          </div>
+      <div class="sheet-body">
+        <div class="field">
+          <label for="hName">Habit name *</label>
+          <input id="hName" name="hName" type="text" placeholder="e.g. Deep work session" required autocomplete="off"/>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;">
           <div class="field">
             <label for="hIcon">Icon</label>
             <select id="hIcon" name="hIcon">
-              <option value="💻">💻  Coding / Deep work</option>
-              <option value="📚">📚  Reading</option>
-              <option value="🏃">🏃  Fitness / Run</option>
-              <option value="🧘">🧘  Mindfulness / Meditation</option>
-              <option value="💧">💧  Hydration</option>
-              <option value="🌙">🌙  Sleep routine</option>
-              <option value="✍️">✍️  Writing / Journaling</option>
-              <option value="🎯">🎯  Focus block</option>
-              <option value="🥗">🥗  Healthy eating</option>
-              <option value="🎸">🎸  Practice / Skill</option>
-              <option value="🧠">🧠  Learning</option>
-              <option value="🚶">🚶  Walking</option>
+              <option value="💻">💻 Coding</option>
+              <option value="📚">📚 Reading</option>
+              <option value="🏃">🏃 Fitness</option>
+              <option value="🧘">🧘 Mindfulness</option>
+              <option value="💧">💧 Hydration</option>
+              <option value="🌙">🌙 Sleep</option>
+              <option value="✍️">✍️ Writing</option>
+              <option value="🎯">🎯 Focus</option>
+              <option value="🥗">🥗 Nutrition</option>
+              <option value="🧠">🧠 Learning</option>
+              <option value="🚶">🚶 Walking</option>
+              <option value="🎸">🎸 Practice</option>
             </select>
           </div>
           <div class="field">
-            <label for="hCat">Category *</label>
-            <input id="hCat" name="hCat" type="text"
-                   placeholder="Health, Work, Learning…" required />
-          </div>
-          <div class="field">
-            <label for="hTarget">Daily target (times/day)</label>
-            <input id="hTarget" name="hTarget" type="number" min="1" max="24" value="1" />
+            <label for="hTarget">Times per day</label>
+            <input id="hTarget" name="hTarget" type="number" min="1" max="24" value="1" inputmode="numeric"/>
           </div>
         </div>
         <div class="field">
-          <label for="hCue">Why it matters (your personal reason) *</label>
-          <input id="hCue" name="hCue" type="text"
-                 placeholder="e.g. Stay sharp for system design interviews" required />
+          <label for="hCat">Category *</label>
+          <input id="hCat" name="hCat" type="text" placeholder="Health, Work, Learning…" required autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label for="hCue">Why it matters *</label>
+          <input id="hCue" name="hCue" type="text" placeholder="e.g. Stay sharp for system design interviews" required autocomplete="off"/>
         </div>
       </div>
-      <div class="dlg-foot">
-        <button type="button" class="btn btn-md" id="dlgCancel">Cancel</button>
-        <button type="submit" class="btn btn-md btn-primary">Save habit</button>
+      <div class="sheet-footer">
+        <button type="button" class="btn-cancel" id="sheetCancel">Cancel</button>
+        <button type="submit" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Save habit
+        </button>
       </div>
     </form>
   </div>
@@ -694,683 +725,569 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- Chart.js: NO defer so it's ready for inline script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-(function () {
-  'use strict';
+(function(){
+'use strict';
 
-  /* ── STATE ── */
-  var habits = [];
-  var actLog = [];
-  var chartInst = null;
-  var theme = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
-  var qIdx = 0;
+var habits = [];
+var actLog = [];
+var chartInst = null;
+var theme = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+var qIdx = 0;
+var LS_KEY = 'habitflow_mobile_v1';
 
-  /* ── QUOTES ── */
-  var QUOTES = {
-    strong: [
-      { t:'Discipline becomes identity when repeated quietly.', m:'Locked in', r:'You are sustaining high streaks — this is momentum compounding.' },
-      { t:'Consistency removes drama from progress.', m:'Stable momentum', r:'Your dashboard shows repeat wins, not random effort.' },
-      { t:'Your future trusts the habits you keep today.', m:'Compounding', r:'High follow-through signals durable routines building up.' },
-      { t:'The gap between amateur and expert is daily reps.', m:'Elite focus', r:'You have crossed the threshold into reliable execution.' }
-    ],
-    recovering: [
-      { t:'A reset is still movement if you return today.', m:'Reset mode', r:'Misses are clustering — the app shifts to recovery coaching.' },
-      { t:'One completed habit restarts the whole rhythm.', m:'Restart energy', r:'A small win right now beats waiting for perfect conditions.' },
-      { t:'Momentum is rebuilt, not found.', m:'Gentle push', r:'Lower friction and finish the easiest habit first.' },
-      { t:'Progress is not lost. It is paused. Resume now.', m:'Resilience', r:'Streaks reset but the skill stays — pick it back up.' }
-    ],
-    early: [
-      { t:'Small proofs beat big plans.', m:'First steps', r:'You are in setup mode — quick wins matter most now.' },
-      { t:'Start simple enough that today cannot say no.', m:'Low friction', r:'New habits stick best when early days feel effortless.' },
-      { t:'The first streak is earned in ordinary moments.', m:'Beginner focus', r:'Your dashboard is building its first picture of your rhythm.' },
-      { t:'One percent better every day compounds into a new version of you.', m:'Atomic start', r:'Early consistency is the hardest and most valuable part.' }
-    ],
-    steady: [
-      { t:'Keep the cadence and the confidence follows.', m:'Calm focus', r:'Your pattern looks balanced with clear room to climb.' },
-      { t:'Reliable days create loud results.', m:'Measured drive', r:'Moderate consistency across habits — the base is solid.' },
-      { t:'Make today look like yesterday at its best.', m:'Repeatable flow', r:'The system sees rhythm forming — more repeatability will unlock elite mode.' },
-      { t:'Discipline is not motivation. It is a decision made once.', m:'Resolved', r:'You are building the decision muscle, not relying on mood.' }
-    ]
-  };
+var QUOTES = {
+  strong:[
+    {t:'Discipline becomes identity when repeated quietly.',m:'Locked in',r:'High streaks detected — momentum is compounding.'},
+    {t:'Consistency removes drama from progress.',m:'Stable momentum',r:'Your pattern shows repeat wins, not random effort.'},
+    {t:'The gap between amateur and expert is daily reps.',m:'Elite focus',r:'You have crossed into reliable execution territory.'},
+    {t:'Your future trusts the habits you keep today.',m:'Compounding',r:'High follow-through signals durable routines building up.'}
+  ],
+  recovering:[
+    {t:'A reset is still movement if you return today.',m:'Reset mode',r:'Misses are showing — pick one easy habit and finish it now.'},
+    {t:'One completed habit restarts the whole rhythm.',m:'Restart energy',r:'A small win beats waiting for perfect conditions.'},
+    {t:'Progress is not lost. It is paused. Resume now.',m:'Resilience',r:'Streaks reset but skill stays — pick it back up.'},
+    {t:'Momentum is rebuilt, not found.',m:'Gentle push',r:'Lower friction and finish the easiest habit first.'}
+  ],
+  early:[
+    {t:'Small proofs beat big plans.',m:'First steps',r:'Quick wins matter most in the setup phase.'},
+    {t:'Start simple enough that today cannot say no.',m:'Low friction',r:'New habits stick best when early days feel effortless.'},
+    {t:'The first streak is earned in ordinary moments.',m:'Beginner focus',r:'Your dashboard is building its first picture of your rhythm.'},
+    {t:'One percent better every day compounds into a new you.',m:'Atomic start',r:'Early consistency is the hardest and most valuable part.'}
+  ],
+  steady:[
+    {t:'Keep the cadence and the confidence follows.',m:'Calm focus',r:'Your pattern looks balanced with clear room to climb.'},
+    {t:'Reliable days create loud results.',m:'Measured drive',r:'Moderate consistency — the base is solid.'},
+    {t:'Make today look like yesterday at its best.',m:'Repeatable flow',r:'More repeatability will unlock elite mode.'},
+    {t:'Discipline is not motivation. It is a decision made once.',m:'Resolved',r:'You are building the decision muscle, not relying on mood.'}
+  ]
+};
 
-  /* ── UTILS ── */
-  function uid() { return Math.random().toString(36).slice(2,10); }
-  function el(id) { return document.getElementById(id); }
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function el(id){ return document.getElementById(id); }
 
-  function toast(msg) {
-    var t = el('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+function toast(msg){
+  var t = el('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+
+/* ── PERSISTENCE ── */
+function save(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify({habits:habits,actLog:actLog})); }
+  catch(e){}
+}
+function load(){
+  try {
+    var r = localStorage.getItem(LS_KEY);
+    if(!r) return false;
+    var p = JSON.parse(r);
+    if(p && Array.isArray(p.habits)){ habits=p.habits; actLog=Array.isArray(p.actLog)?p.actLog:[]; return true; }
+  } catch(e){}
+  return false;
+}
+
+/* ── CALC ── */
+function rate(h){
+  if(!h.hist.length) return 0;
+  return Math.round(h.hist.filter(function(e){return e.s==='done';}).length/h.hist.length*100);
+}
+function streak(h){
+  var s=0;
+  for(var i=h.hist.length-1;i>=0;i--){ if(h.hist[i].s==='done') s++; else break; }
+  return s;
+}
+function longestStreak(h){
+  var best=0,cur=0;
+  for(var i=0;i<h.hist.length;i++){
+    if(h.hist[i].s==='done'){cur++;if(cur>best)best=cur;}else cur=0;
   }
+  return best;
+}
+function bestWindow(){
+  var done=actLog.filter(function(a){return a.type==='done';});
+  if(!done.length) return '--';
+  var avg=done.reduce(function(s,a){return s+new Date(a.ts).getHours();},0)/done.length;
+  return avg<11?'Morning':avg<17?'Afternoon':'Evening';
+}
+function totalDays(){
+  if(!habits.length) return 0;
+  return Math.max.apply(null,habits.map(function(h){return h.hist.length;}));
+}
+function scoreCalc(){
+  if(!habits.length) return 0;
+  var avg=habits.reduce(function(s,h){return s+rate(h);},0)/habits.length;
+  var boost=Math.min(25,habits.reduce(function(s,h){return s+streak(h);},0)*2);
+  return Math.min(100,Math.round(avg*0.78+boost));
+}
+function detectMode(){
+  if(!habits.length) return 'early';
+  var avg=habits.reduce(function(s,h){return s+rate(h);},0)/habits.length;
+  var top=Math.max.apply(null,habits.map(streak));
+  var skips=habits.reduce(function(s,h){return s+h.hist.filter(function(e){return e.s==='skip';}).length;},0);
+  if(avg>=75&&top>=3) return 'strong';
+  if(avg<42||skips>habits.length*10) return 'recovering';
+  return 'steady';
+}
 
-  /* ── CALCULATIONS ── */
-  function rate(h) {
-    if (!h.hist.length) return 0;
-    var done = h.hist.filter(function(e){ return e.s === 'done'; }).length;
-    return Math.round(done / h.hist.length * 100);
-  }
+/* ── QUOTE ── */
+function renderQuote(){
+  var mode=detectMode();
+  var list=QUOTES[mode];
+  var q=list[qIdx%list.length]; qIdx++;
+  el('qText').textContent='\u201c'+q.t+'\u201d';
+  el('qMood').textContent=q.m;
+  el('qReason').textContent=q.r;
+}
 
-  function streak(h) {
-    var s = 0;
-    for (var i = h.hist.length - 1; i >= 0; i--) {
-      if (h.hist[i].s === 'done') s++;
-      else break;
-    }
-    return s;
-  }
-
-  function longestStreak(h) {
-    var best = 0, cur = 0;
-    for (var i = 0; i < h.hist.length; i++) {
-      if (h.hist[i].s === 'done') { cur++; if (cur > best) best = cur; }
-      else cur = 0;
-    }
-    return best;
-  }
-
-  function bestWindow() {
-    var done = actLog.filter(function(a){ return a.type === 'done'; });
-    if (!done.length) return '--';
-    var avg = done.reduce(function(s,a){ return s + new Date(a.ts).getHours(); }, 0) / done.length;
-    return avg < 11 ? 'Morning' : avg < 17 ? 'Afternoon' : 'Evening';
-  }
-
-  function totalDays() {
-    if (!habits.length) return 0;
-    return Math.max.apply(null, habits.map(function(h){ return h.hist.length; }));
-  }
-
-  function scoreCalc() {
-    if (!habits.length) return 0;
-    var avg = habits.reduce(function(s,h){ return s + rate(h); }, 0) / habits.length;
-    var streakBoost = Math.min(25,
-      habits.reduce(function(s,h){ return s + streak(h); }, 0) * 2);
-    return Math.min(100, Math.round(avg * 0.78 + streakBoost));
-  }
-
-  function detectMode() {
-    if (!habits.length) return 'early';
-    var avg = habits.reduce(function(s,h){ return s + rate(h); }, 0) / habits.length;
-    var top = Math.max.apply(null, habits.map(streak));
-    var skipCount = habits.reduce(function(s,h){
-      return s + h.hist.filter(function(e){ return e.s === 'skip'; }).length;
-    }, 0);
-    if (avg >= 75 && top >= 3) return 'strong';
-    if (avg < 42 || skipCount > habits.length * 10) return 'recovering';
-    return 'steady';
-  }
-
-  /* ── QUOTE ── */
-  function renderQuote() {
-    var mode = detectMode();
-    var list = QUOTES[mode];
-    var q = list[qIdx % list.length];
-    qIdx++;
-    el('qText').textContent = '\u201c' + q.t + '\u201d';
-    el('qMood').textContent = q.m;
-    el('qReason').textContent = q.r;
-  }
-
-  /* ── CHART ── */
-  function renderChart() {
-    // Build per-day counts for last 7 days using timestamps
-    var now = Date.now();
-    var DAY = 86400000;
-    var labels = [];
-    var doneCounts = [];
-    var ratios = [];
-
-    for (var d = 6; d >= 0; d--) {
-      var dayStart = now - d * DAY;
-      var dayEnd = dayStart + DAY;
-      var date = new Date(dayStart);
-      labels.push(date.toLocaleDateString(undefined, { weekday: 'short' }));
-
-      var doneToday = 0;
-      var totalToday = 0;
-      habits.forEach(function(h) {
-        h.hist.forEach(function(e) {
-          var t = typeof e.ts === 'number' ? e.ts : new Date(e.ts).getTime();
-          if (t >= dayStart && t < dayEnd) {
-            totalToday++;
-            if (e.s === 'done') doneToday++;
-          }
-        });
+/* ── CHART ── */
+function renderChart(){
+  var DAY=86400000, now=Date.now();
+  var labels=[],doneCounts=[],ratios=[];
+  for(var d=6;d>=0;d--){
+    var ds=now-d*DAY, de=ds+DAY;
+    var date=new Date(ds);
+    labels.push(date.toLocaleDateString(undefined,{weekday:'short'}));
+    var doneN=0,totalN=0;
+    habits.forEach(function(h){
+      h.hist.forEach(function(e){
+        var t=typeof e.ts==='number'?e.ts:new Date(e.ts).getTime();
+        if(t>=ds&&t<de){totalN++;if(e.s==='done')doneN++;}
       });
-      doneCounts.push(doneToday);
-      ratios.push(totalToday > 0 ? Math.round(doneToday / totalToday * 100) : 0);
-    }
-
-    var cs = getComputedStyle(document.documentElement);
-    var textCol = cs.getPropertyValue('--col-text').trim() || '#e9ece8';
-    var mutedCol = cs.getPropertyValue('--muted').trim() || '#a6b0ab';
-
-    if (chartInst) { chartInst.destroy(); chartInst = null; }
-    chartInst = new Chart(el('chartCanvas'), {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            type: 'bar',
-            label: 'Completions',
-            data: doneCounts,
-            borderRadius: 8,
-            backgroundColor: 'rgba(92,199,194,.5)',
-            borderSkipped: false,
-            maxBarThickness: 32,
-            order: 2
-          },
-          {
-            type: 'line',
-            label: 'Done %',
-            data: ratios,
-            borderColor: '#8be7dc',
-            backgroundColor: 'transparent',
-            tension: 0.42,
-            borderWidth: 2.5,
-            pointRadius: 4,
-            pointBackgroundColor: '#8be7dc',
-            yAxisID: 'y1',
-            order: 1
-          }
-        ]
+    });
+    doneCounts.push(doneN);
+    ratios.push(totalN>0?Math.round(doneN/totalN*100):0);
+  }
+  var cs=getComputedStyle(document.documentElement);
+  var textCol=cs.getPropertyValue('--col-text').trim()||'#e9ece8';
+  var mutedCol=cs.getPropertyValue('--muted').trim()||'#a6b0ab';
+  if(chartInst){chartInst.destroy();chartInst=null;}
+  chartInst=new Chart(el('chartCanvas'),{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[
+        {type:'bar',label:'Completions',data:doneCounts,borderRadius:6,
+         backgroundColor:'rgba(92,199,194,.48)',borderSkipped:false,maxBarThickness:28,order:2},
+        {type:'line',label:'Done %',data:ratios,borderColor:'#8be7dc',backgroundColor:'transparent',
+         tension:.42,borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#8be7dc',yAxisID:'y1',order:1}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:textCol,boxWidth:10,padding:12,font:{size:11}}},
+        tooltip:{backgroundColor:'rgba(20,25,24,.9)',titleColor:textCol,bodyColor:mutedCol}
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { labels: { color: textCol, boxWidth: 12, padding: 16 } },
-          tooltip: { backgroundColor: 'rgba(20,25,24,.9)', titleColor: textCol, bodyColor: mutedCol }
-        },
-        scales: {
-          x: {
-            ticks: { color: mutedCol, font: { size: 12 } },
-            grid: { display: false },
-            border: { display: false }
-          },
-          y: {
-            beginAtZero: true,
-            ticks: { color: mutedCol, precision: 0, font: { size: 12 } },
-            grid: { color: 'rgba(128,128,128,.1)', drawBorder: false },
-            border: { display: false }
-          },
-          y1: {
-            position: 'right',
-            beginAtZero: true,
-            max: 100,
-            ticks: {
-              color: mutedCol, font: { size: 12 },
-              callback: function(v){ return v + '%'; }
-            },
-            grid: { display: false },
-            border: { display: false }
-          }
-        }
+      scales:{
+        x:{ticks:{color:mutedCol,font:{size:10}},grid:{display:false},border:{display:false}},
+        y:{beginAtZero:true,ticks:{color:mutedCol,precision:0,font:{size:10}},
+           grid:{color:'rgba(128,128,128,.1)'},border:{display:false}},
+        y1:{position:'right',beginAtZero:true,max:100,
+            ticks:{color:mutedCol,font:{size:10},callback:function(v){return v+'%';}},
+            grid:{display:false},border:{display:false}}
       }
-    });
-  }
-
-  /* ── HEATMAP ── */
-  function renderHeatmap() {
-    var sel = el('heatmapHabit').value;
-    var grid = el('heatmapGrid');
-    var now = new Date();
-    var DAY = 86400000;
-    var cells = 364; // 52 weeks * 7
-
-    // Build a map: dateStr -> done count, total count
-    var map = {};
-    for (var i = 0; i < cells; i++) {
-      var d = new Date(now - (cells - 1 - i) * DAY);
-      var key = d.toISOString().slice(0,10);
-      map[key] = { done: 0, total: 0 };
     }
+  });
+}
 
-    var targetHabits = sel === 'all' ? habits : habits.filter(function(h){ return h.id === sel; });
-    targetHabits.forEach(function(h) {
-      h.hist.forEach(function(e) {
-        var ts = typeof e.ts === 'number' ? e.ts : new Date(e.ts).getTime();
-        var key = new Date(ts).toISOString().slice(0,10);
-        if (map[key]) {
-          map[key].total++;
-          if (e.s === 'done') map[key].done++;
+/* ── HEATMAP ── */
+function renderHeatmap(){
+  var sel=el('heatHabit').value;
+  var grid=el('heatmapGrid');
+  var now=new Date(), DAY=86400000, cells=364;
+  var map={};
+  for(var i=0;i<cells;i++){
+    var key=new Date(Date.now()-(cells-1-i)*DAY).toISOString().slice(0,10);
+    map[key]={done:0,total:0};
+  }
+  var tgt=sel==='all'?habits:habits.filter(function(h){return h.id===sel;});
+  tgt.forEach(function(h){
+    h.hist.forEach(function(e){
+      var ts=typeof e.ts==='number'?e.ts:new Date(e.ts).getTime();
+      var key=new Date(ts).toISOString().slice(0,10);
+      if(map[key]){map[key].total++;if(e.s==='done')map[key].done++;}
+    });
+  });
+  var html='';
+  Object.keys(map).forEach(function(key){
+    var v=map[key];
+    var lvl=0;
+    if(v.total>0){var pct=v.done/v.total;lvl=pct<=0?0:pct<=.25?1:pct<=.5?2:pct<=.75?3:4;}
+    html+='<div class="hm-cell hm-'+lvl+'" title="'+key+'"></div>';
+  });
+  grid.innerHTML=html;
+  var hSel=el('heatHabit');
+  var prev=hSel.value;
+  hSel.innerHTML='<option value="all">All habits</option>';
+  habits.forEach(function(h){
+    var o=document.createElement('option');
+    o.value=h.id; o.textContent=h.icon+' '+h.name;
+    hSel.appendChild(o);
+  });
+  hSel.value=prev||'all';
+}
+
+/* ── PATTERNS ── */
+function renderPatterns(){
+  var mode=detectMode();
+  var win=bestWindow();
+  var top=habits.length?Math.max.apply(null,habits.map(streak)):0;
+  var topL=habits.length?Math.max.apply(null,habits.map(longestStreak)):0;
+  var weakest=habits.length?habits.slice().sort(function(a,b){return rate(a)-rate(b);})[0]:null;
+  var strongest=habits.length?habits.slice().sort(function(a,b){return rate(b)-rate(a);})[0]:null;
+  var strips=[
+    {k:'Best completion window',v:win},
+    {k:'Current longest streak',v:top?top+'d':'Build your first chain'},
+    {k:'All-time best streak',v:topL?topL+'d':'--'},
+    {k:'Days of history',v:totalDays()?totalDays()+'d recorded':'None yet'},
+    {k:'Needs attention',v:weakest?weakest.icon+' '+weakest.name+' ('+rate(weakest)+'%)':'--'},
+    {k:'Leading habit',v:strongest?strongest.icon+' '+strongest.name+' ('+rate(strongest)+'%)':'--'}
+  ];
+  var mode_label=mode==='strong'?'Compounding 🔥':mode==='recovering'?'Recovery detected':habits.length?'Rhythm forming':'Waiting for data';
+  el('patStrips').innerHTML='<div style="font:700 var(--text-base)/1 var(--fd);margin-bottom:.6rem;color:var(--col-text);">'+mode_label+'</div>'+
+    strips.map(function(s){
+      return '<div class="strip"><span class="sk">'+s.k+'</span><span class="sv">'+s.v+'</span></div>';
+    }).join('');
+}
+
+/* ── TIMELINE ── */
+function renderTimeline(){
+  var tl=el('timeline');
+  if(!actLog.length){
+    tl.innerHTML='<div class="strip" style="flex-direction:column;align-items:flex-start;gap:.2rem;">'
+      +'<span style="font-size:var(--text-sm);font-weight:600;">No activity yet</span>'
+      +'<span style="color:var(--muted);font-size:var(--text-xs);">Mark habits done or skip to populate this log.</span></div>';
+    return;
+  }
+  tl.innerHTML=actLog.map(function(item){
+    var t=new Date(item.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    var label=item.type==='done'?'Completed ✓':item.type==='skip'?'Skipped':'Created';
+    return '<div class="tl-row">'
+      +'<div class="tl-icon">'+item.icon+'</div>'
+      +'<div><strong>'+item.text+'</strong><span>'+label+'</span></div>'
+      +'<div class="tl-time">'+t+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+/* ── HABITS ── */
+function renderHabits(){
+  var cont=el('habitsContainer');
+  var empty=el('emptyState');
+  empty.hidden=habits.length>0;
+  if(!habits.length){cont.innerHTML='';return;}
+  cont.innerHTML=habits.map(function(h){
+    var r=rate(h), s=streak(h), ls=longestStreak(h);
+    var last=h.hist.length?h.hist[h.hist.length-1]:null;
+    var doneNow=last&&last.s==='done';
+    var skipNow=last&&last.s==='skip';
+    return '<article class="card habit-m pop-in">'
+      +'<div class="hm-top">'
+        +'<div class="hm-icon">'+h.icon+'</div>'
+        +'<div class="hm-info">'
+          +'<div class="hm-name">'+h.name+'</div>'
+          +'<div class="hm-cat">'+h.cat+' · '+h.target+'×/day</div>'
+        +'</div>'
+        +'<div class="hm-streak"><span class="sn">'+s+'</span><span class="sl">streak</span></div>'
+      +'</div>'
+      +'<div class="bar-meta"><span>Completion</span><strong>'+r+'%</strong></div>'
+      +'<div class="bar"><div class="bar-fill" style="width:'+Math.max(r,3)+'%"></div></div>'
+      +'<p class="hm-cue">'+h.cue+'</p>'
+      +'<div class="hm-btns">'
+        +'<button class="btn-done '+(doneNow?'done-active':'')+'" data-act="done" data-hid="'+h.id+'">'
+          +(doneNow?'✓ Done today':'Mark done')
+        +'</button>'
+        +'<button class="btn-skip '+(skipNow?'skipped':'')+'" data-act="skip" data-hid="'+h.id+'" aria-label="Skip '+h.name+'">'
+          +'–'
+        +'</button>'
+      +'</div>'
+      +'<div style="margin-top:.55rem;display:flex;gap:.85rem;font-size:var(--text-xs);color:var(--muted);">'
+        +'<span>'+h.hist.length+'d logged</span>'
+        +'<span>Best: '+ls+'d</span>'
+      +'</div>'
+    +'</article>';
+  }).join('');
+}
+
+/* ── KPIs ── */
+function renderKPIs(){
+  var score=scoreCalc();
+  var avg=habits.length?Math.round(habits.reduce(function(s,h){return s+rate(h);},0)/habits.length):0;
+  var doneToday=habits.filter(function(h){return h.hist.length&&h.hist[h.hist.length-1].s==='done';}).length;
+  var activeStr=habits.filter(function(h){return streak(h)>0;}).length;
+  var maxStr=habits.length?Math.max.apply(null,habits.map(streak)):0;
+  var best=habits.length?habits.slice().sort(function(a,b){return rate(b)-rate(a);})[0]:null;
+  var mode=detectMode();
+  var win=bestWindow();
+
+  el('ringVal').textContent=score+'%';
+  el('scoreRing').style.setProperty('--p',score);
+  el('sDone').textContent=doneToday;
+  el('sStreaks').textContent=activeStr;
+  el('sWindow').textContent=win;
+  el('sDays').textContent=totalDays();
+
+  el('kRate').textContent=avg+'%';
+  el('kStreaks').textContent=activeStr;
+  el('kScore').textContent=score;
+  el('kDays').textContent=totalDays();
+  el('kRateBadge').textContent=doneToday?'▲ '+doneToday+' today':'▲ start';
+  el('kRateBadge').className='badge '+(avg>=70?'b-ok':'b-warn');
+  el('kStreakBadge').textContent=maxStr?'▲ '+maxStr+'d best':'▲ build chain';
+  el('kScoreBadge').textContent=mode==='strong'?'▲ elite':mode==='recovering'?'▲ rebuild':'▲ growing';
+  el('kScoreBadge').className='badge '+(score>=75?'b-ok':score>=45?'b-blue':'b-warn');
+
+  el('heroTitle').textContent=best
+    ?best.name+' leads at '+rate(best)+'% — keep the chain alive.'
+    :'Build streaks that compound into real results.';
+  el('heroSub').textContent=habits.length
+    ?'Score: '+score+'/100  ·  Window: '+win+'  ·  '+totalDays()+'d tracked'
+    :'Tap a habit below to mark it done. Your dashboard adapts in real time.';
+}
+
+function refresh(){
+  renderKPIs();
+  renderHabits();
+  renderPatterns();
+  renderTimeline();
+  renderChart();
+  renderHeatmap();
+}
+
+/* ── LOG ── */
+function logAct(type,text,icon){
+  actLog.unshift({id:uid(),type:type,text:text,icon:icon,ts:new Date().toISOString()});
+  if(actLog.length>30) actLog=actLog.slice(0,30);
+}
+
+/* ── ADD / MARK ── */
+function addHabit(data,seedHist){
+  var h={id:uid(),name:data.name,icon:data.icon,cat:data.cat,
+    target:Math.max(1,parseInt(data.target)||1),cue:data.cue,hist:seedHist||[]};
+  habits.unshift(h);
+  logAct('create','"'+h.name+'" created',h.icon);
+  save(); refresh();
+}
+function markHabit(id,action){
+  var h=habits.find(function(x){return x.id===id;});
+  if(!h) return;
+  h.hist.push({s:action,ts:Date.now()});
+  if(h.hist.length>365) h.hist=h.hist.slice(-365);
+  logAct(action,h.name+(action==='done'?' completed':' skipped'),h.icon);
+  save(); refresh(); renderQuote();
+  toast(action==='done'?'✓ '+h.name+' done!':h.name+' skipped');
+}
+
+/* ── EXPORT ── */
+function exportCSV(){
+  if(!habits.length){toast('Add habits first');return;}
+  var rows=['=== HABIT FLOW EXPORT ===','Generated,'+new Date().toISOString(),'',
+    '=== HABIT SUMMARY ===',
+    'Habit,Category,Target/day,Why it matters,Completion %,Current Streak,Best Streak,Days Logged'];
+  habits.forEach(function(h){
+    rows.push(['"'+h.name+'"','"'+h.cat+'"',h.target,'"'+h.cue+'"',
+      rate(h)+'%',streak(h),longestStreak(h),h.hist.length].join(','));
+  });
+  rows.push('','=== ACTIVITY LOG ===','Timestamp,Action,Type');
+  actLog.forEach(function(a){rows.push(['"'+a.ts+'"','"'+a.text+'"',a.type].join(','));});
+  var blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download='habit-flow-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('CSV exported!');
+}
+
+/* ── IMPORT CSV ── */
+function importCSV(file){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var lines=e.target.result.split('\n').map(function(l){return l.trim();});
+      var si=lines.findIndex(function(l){return l.includes('=== HABIT SUMMARY ===');});
+      if(si===-1){toast('Unrecognised CSV format');return;}
+      var dataLines=[];
+      for(var i=si+2;i<lines.length;i++){
+        if(!lines[i]||lines[i].startsWith('=')) break;
+        dataLines.push(lines[i]);
+      }
+      var imported=0;
+      dataLines.forEach(function(row){
+        var cols=[],cur='',inQ=false;
+        for(var ci=0;ci<row.length;ci++){
+          var ch=row[ci];
+          if(ch==='"'){inQ=!inQ;}
+          else if(ch===','&&!inQ){cols.push(cur);cur='';}
+          else{cur+=ch;}
+        }
+        cols.push(cur);
+        if(cols.length>=4&&!habits.find(function(h){return h.name===cols[0];})){
+          habits.unshift({id:uid(),name:cols[0]||'Imported',icon:'🎯',cat:cols[1]||'Imported',
+            target:parseInt(cols[2])||1,cue:cols[3]||'Imported from CSV',hist:[]});
+          imported++;
         }
       });
-    });
+      save();refresh();renderQuote();
+      toast(imported+' habit'+(imported!==1?'s':'')+' imported!');
+    }catch(err){toast('Import failed');}
+  };
+  reader.readAsText(file);
+}
 
-    var keys = Object.keys(map);
-    var html = '';
-    keys.forEach(function(key) {
-      var v = map[key];
-      var level = 0;
-      if (v.total > 0) {
-        var pct = v.done / v.total;
-        if (pct === 0) level = 0;
-        else if (pct <= 0.25) level = 1;
-        else if (pct <= 0.5) level = 2;
-        else if (pct <= 0.75) level = 3;
-        else level = 4;
-      }
-      html += '<div class="hm-cell hm-' + level + '" title="' + key + ': ' +
-        v.done + '/' + (v.total || habits.length) + ' done" aria-label="' + key + '"></div>';
-    });
-    grid.innerHTML = html;
-
-    // Rebuild habit select
-    var hSel = el('heatmapHabit');
-    var prev = hSel.value;
-    hSel.innerHTML = '<option value="all">All habits</option>';
-    habits.forEach(function(h) {
-      var opt = document.createElement('option');
-      opt.value = h.id;
-      opt.textContent = h.icon + ' ' + h.name;
-      hSel.appendChild(opt);
-    });
-    hSel.value = prev;
-    if (!hSel.value) hSel.value = 'all';
-  }
-
-  /* ── PATTERNS ── */
-  function renderPatterns() {
-    var mode = detectMode();
-    var win = bestWindow();
-    var top = habits.length ? Math.max.apply(null, habits.map(streak)) : 0;
-    var topLong = habits.length ? Math.max.apply(null, habits.map(longestStreak)) : 0;
-    var days = totalDays();
-    var weakest = habits.length
-      ? habits.slice().sort(function(a,b){ return rate(a) - rate(b); })[0]
-      : null;
-    var strongest = habits.length
-      ? habits.slice().sort(function(a,b){ return rate(b) - rate(a); })[0]
-      : null;
-    var headline = mode === 'strong' ? 'You are compounding 🔥'
-      : mode === 'recovering' ? 'Recovery mode detected'
-      : habits.length ? 'Your rhythm is forming'
-      : 'Waiting for your rhythm';
-    var hint = mode === 'strong'
-      ? 'Best results in the ' + win.toLowerCase() + '. Protect that window every day.'
-      : mode === 'recovering'
-      ? 'Finish one easy habit today to restart momentum.'
-      : habits.length
-      ? win + ' is your strongest window. Keep it consistent.'
-      : 'Log habits to unlock insights, streak analysis, and adaptive quotes.';
-
-    el('patHead').textContent = headline;
-    el('patHint').textContent = hint;
-
-    var strips = [
-      { k:'Best completion window', v: win },
-      { k:'Current longest streak', v: top ? top + ' day' + (top > 1 ? 's' : '') : 'Build your first chain' },
-      { k:'All-time best streak', v: topLong ? topLong + ' day' + (topLong > 1 ? 's' : '') : '--' },
-      { k:'Days of history', v: days ? days + ' day' + (days > 1 ? 's' : '') + ' recorded' : 'No history yet' },
-      { k:'Needs most attention', v: weakest ? weakest.icon + ' ' + weakest.name + ' (' + rate(weakest) + '%)' : '--' },
-      { k:'Leading habit', v: strongest ? strongest.icon + ' ' + strongest.name + ' (' + rate(strongest) + '%)' : '--' }
-    ];
-
-    el('patStrips').innerHTML = strips.map(function(s) {
-      return '<div class="strip"><strong>' + s.k + '</strong>' +
-        '<span class="strip-val">' + s.v + '</span></div>';
-    }).join('');
-  }
-
-  /* ── TIMELINE ── */
-  function renderTimeline() {
-    var tl = el('timeline');
-    if (!actLog.length) {
-      tl.innerHTML = '<div class="strip"><strong>No activity yet</strong>' +
-        '<span>Mark habits done or skip them — your log appears here.</span></div>';
-      return;
+/* ── SEED DEMO ── */
+function seedDemo(){
+  habits=[];actLog=[];
+  function makeHist(days,profile){
+    var result=[],now=Date.now(),DAY=86400000;
+    for(var i=0;i<days;i++){
+      var daysAgo=days-1-i;
+      var p=profile==='strong'?0.85+Math.sin(i/7)*.1
+        :profile==='steady'?0.65+Math.sin(i/5)*.15
+        :profile==='weak'?0.35+Math.random()*.2
+        :profile==='building'?0.25+(i/days)*.6:0.6;
+      result.push({s:Math.random()<Math.min(.97,Math.max(.05,p))?'done':'skip',
+        ts:now-daysAgo*DAY+Math.floor(Math.random()*3600000*4)});
     }
-    tl.innerHTML = actLog.map(function(item) {
-      var t = new Date(item.ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-      var label = item.type === 'done' ? 'Marked complete ✓'
-        : item.type === 'skip' ? 'Skipped'
-        : 'Habit created';
-      return '<div class="tl-row">' +
-        '<div class="tl-badge">' + item.icon + '</div>' +
-        '<div><strong>' + item.text + '</strong><span>' + label + '</span></div>' +
-        '<div class="tl-time">' + t + '</div>' +
-        '</div>';
-    }).join('');
+    return result;
   }
-
-  /* ── HABITS ── */
-  function renderHabits() {
-    var grid = el('habitsGrid');
-    var empty = el('emptyState');
-    empty.hidden = habits.length > 0;
-    if (!habits.length) { grid.innerHTML = ''; return; }
-
-    grid.innerHTML = habits.map(function(h) {
-      var r = rate(h);
-      var s = streak(h);
-      var ls = longestStreak(h);
-      var lastEntry = h.hist.length ? h.hist[h.hist.length - 1] : null;
-      var doneNow = lastEntry && lastEntry.s === 'done';
-      var skippedNow = lastEntry && lastEntry.s === 'skip';
-
-      return '<article class="habit-card">' +
-        '<div class="habit-top">' +
-          '<div class="habit-title-row">' +
-            '<div class="habit-icon">' + h.icon + '</div>' +
-            '<div>' +
-              '<span class="habit-name">' + h.name + '</span>' +
-              '<span class="habit-cat">' + h.cat + ' · ' + h.target + '×/day</span>' +
-            '</div>' +
-          '</div>' +
-          '<div class="streak-badge" title="Current streak">' +
-            '<span class="streak-num">' + s + '</span>' +
-            '<span class="streak-lbl">streak</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="bar-wrap">' +
-          '<div class="bar-row">' +
-            '<span>Completion rate</span>' +
-            '<strong>' + r + '%</strong>' +
-          '</div>' +
-          '<div class="bar"><div class="bar-fill" style="width:' + Math.max(r,3) + '%"></div></div>' +
-        '</div>' +
-        '<p class="habit-cue">' + h.cue + '</p>' +
-        '<div class="habit-btns">' +
-          '<button class="btn hbtn ' + (doneNow ? 'hbtn-done-active' : 'hbtn-done') + '" ' +
-            'data-act="done" data-hid="' + h.id + '">' +
-            (doneNow ? '✓ Done today' : 'Mark done') +
-          '</button>' +
-          '<button class="btn hbtn hbtn-skip ' + (skippedNow ? 'hbtn-done' : '') + '" ' +
-            'data-act="skip" data-hid="' + h.id + '">' +
-            (skippedNow ? '— Skipped' : 'Skip') +
-          '</button>' +
-        '</div>' +
-        '<div style="margin-top:.55rem;display:flex;gap:1rem;font-size:var(--text-xs);color:var(--muted);">' +
-          '<span>' + h.hist.length + ' days logged</span>' +
-          '<span>Best streak: ' + ls + 'd</span>' +
-        '</div>' +
-      '</article>';
-    }).join('');
-  }
-
-  /* ── KPIs ── */
-  function renderKPIs() {
-    if (!habits.length) {
-      ['kRate','kStreaks','kBest','kScore'].forEach(function(id){ el(id).textContent = id === 'kBest' ? '--' : '0'; });
-      el('ringVal').textContent = '0%';
-      el('scoreRing').style.setProperty('--p', 0);
-      el('sDone').textContent = '0';
-      el('sStreaks').textContent = '0';
-      el('sWindow').textContent = '--';
-      el('sDays').textContent = '0';
-      el('sTotal').textContent = '0';
-      return;
-    }
-
-    var score = scoreCalc();
-    var avg = Math.round(habits.reduce(function(s,h){ return s+rate(h); },0) / habits.length);
-    var doneToday = habits.filter(function(h){
-      return h.hist.length && h.hist[h.hist.length-1].s === 'done';
-    }).length;
-    var activeStreaks = habits.filter(function(h){ return streak(h) > 0; }).length;
-    var maxStreak = Math.max.apply(null, habits.map(streak));
-    var best = habits.slice().sort(function(a,b){ return rate(b)-rate(a); })[0];
-    var mode = detectMode();
-    var win = bestWindow();
-
-    el('kRate').textContent = avg + '%';
-    el('kStreaks').textContent = activeStreaks;
-    el('kBest').textContent = best ? best.name : '--';
-    el('kScore').textContent = score;
-
-    el('kRateBadge').textContent = avg > 0 ? '▲ ' + doneToday + ' done today' : '▲ ready to start';
-    el('kRateBadge').className = 'badge ' + (avg >= 70 ? 'b-ok' : 'b-warn');
-    el('kStreakBadge').textContent = maxStreak ? '▲ ' + maxStreak + '-day best streak' : '▲ no chain yet';
-    el('kBestBadge').textContent = best ? '▲ ' + rate(best) + '% hit rate' : '▲ add data';
-    el('kScoreBadge').textContent = mode === 'strong' ? '▲ elite consistency'
-      : mode === 'recovering' ? '▲ rebuild with one win' : '▲ grows with wins';
-    el('kScoreBadge').className = 'badge ' + (score >= 75 ? 'b-ok' : score >= 45 ? 'b-blue' : 'b-warn');
-
-    el('ringVal').textContent = score + '%';
-    el('scoreRing').style.setProperty('--p', score);
-    el('sDone').textContent = doneToday;
-    el('sStreaks').textContent = activeStreaks;
-    el('sWindow').textContent = win;
-    el('sDays').textContent = totalDays();
-    el('sTotal').textContent = habits.length;
-
-    el('heroTitle').textContent = best
-      ? best.name + ' leads at ' + rate(best) + '% — keep the chain alive.'
-      : 'Build streaks that compound into real results.';
-    el('heroSub').textContent = best
-      ? 'Score: ' + score + '/100 · Window: ' + win + ' · ' + totalDays() + ' days tracked'
-      : 'Mark habits done or skip — the dashboard adapts scores, quotes, and insights to your actual pattern.';
-  }
-
-  /* ── REFRESH ALL ── */
-  function refresh() {
-    renderKPIs();
-    renderHabits();
-    renderPatterns();
-    renderTimeline();
-    renderChart();
-    renderHeatmap();
-  }
-
-  /* ── ACTIVITY LOG ── */
-  function logAct(type, text, icon) {
-    actLog.unshift({ id:uid(), type:type, text:text, icon:icon, ts:new Date().toISOString() });
-    if (actLog.length > 20) actLog = actLog.slice(0,20);
-  }
-
-  /* ── ADD HABIT ── */
-  function addHabit(data, seedHist) {
-    var h = {
-      id: uid(),
-      name: data.name,
-      icon: data.icon,
-      cat: data.cat,
-      target: Math.max(1, parseInt(data.target) || 1),
-      cue: data.cue,
-      hist: seedHist || []
-    };
-    habits.unshift(h);
-    logAct('create', 'Created "' + h.name + '"', h.icon);
-    refresh();
-  }
-
-  /* ── MARK HABIT ── */
-  function markHabit(id, action) {
-    var h = habits.find(function(x){ return x.id === id; });
-    if (!h) return;
-    h.hist.push({ s: action, ts: Date.now() });
-    if (h.hist.length > 365) h.hist = h.hist.slice(-365);
-    logAct(action, h.name + (action === 'done' ? ' completed' : ' skipped'), h.icon);
-    refresh();
-    renderQuote();
-    toast(action === 'done' ? '✓ ' + h.name + ' marked done!' : h.name + ' skipped');
-  }
-
-  /* ── EXPORT CSV ── */
-  function exportCSV() {
-    if (!habits.length) { toast('Add habits first'); return; }
-    var today = new Date();
-    var rows = [];
-    rows.push('=== HABIT FLOW EXPORT ===');
-    rows.push('Generated,' + today.toISOString());
-    rows.push('');
-    rows.push('=== HABIT SUMMARY ===');
-    rows.push('Habit,Category,Target/day,Why it matters,Completion %,Current Streak,Best Streak,Days Logged');
-    habits.forEach(function(h) {
-      rows.push([
-        '"'+h.name+'"', '"'+h.cat+'"', h.target, '"'+h.cue+'"',
-        rate(h)+'%', streak(h), longestStreak(h), h.hist.length
-      ].join(','));
-    });
-    rows.push('');
-    rows.push('=== ACTIVITY LOG ===');
-    rows.push('Timestamp,Action,Type');
-    actLog.forEach(function(a) {
-      rows.push(['"'+a.ts+'"', '"'+a.text+'"', a.type].join(','));
-    });
-    var blob = new Blob([rows.join('\n')], { type:'text/csv;charset=utf-8;' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'habit-flow-' + today.toISOString().slice(0,10) + '.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast('CSV exported successfully!');
-  }
-
-  /* ── SEED DEMO ── */
-  function seedDemo() {
-    habits = []; actLog = [];
-
-    // Realistic 60-day history with varied patterns
-    function makeHist(days, profile) {
-      var result = [];
-      var now = Date.now();
-      var DAY = 86400000;
-      for (var i = 0; i < days; i++) {
-        var daysAgo = days - 1 - i;
-        // profile: prob of done each day, with realistic variation
-        var p;
-        if (profile === 'strong')    p = 0.85 + Math.sin(i/7) * 0.1;
-        else if (profile === 'steady') p = 0.65 + Math.sin(i/5) * 0.15;
-        else if (profile === 'weak')   p = 0.40 + Math.random() * 0.2;
-        else if (profile === 'building') p = 0.3 + (i / days) * 0.55;
-        else p = 0.6;
-
-        result.push({
-          s: Math.random() < Math.min(0.98, Math.max(0.05, p)) ? 'done' : 'skip',
-          ts: now - daysAgo * DAY + Math.floor(Math.random() * 3600000 * 4) // random hour within day
-        });
-      }
-      return result;
-    }
-
-    addHabit(
-      { name:'Deep work', icon:'💻', cat:'Work', target:2, cue:'Protect interview prep time — stay sharp for system design rounds' },
-      makeHist(60, 'strong')
-    );
-    addHabit(
-      { name:'Morning run', icon:'🏃', cat:'Health', target:1, cue:'Keep energy and focus high throughout the day' },
-      makeHist(60, 'steady')
-    );
-    addHabit(
-      { name:'Technical reading', icon:'📚', cat:'Learning', target:1, cue:'Broaden system design and networking knowledge' },
-      makeHist(60, 'building')
-    );
-    addHabit(
-      { name:'Meditation', icon:'🧘', cat:'Mindset', target:1, cue:'Reduce pre-interview anxiety and improve clarity' },
-      makeHist(60, 'weak')
-    );
-
-    // Seed some recent activity log entries
-    var icons = ['💻','🏃','📚','🧘'];
-    var names = ['Deep work','Morning run','Technical reading','Meditation'];
-    for (var i = 0; i < 8; i++) {
-      var idx = Math.floor(Math.random() * 4);
-      var isDone = Math.random() > 0.3;
-      actLog.push({
-        id: uid(),
-        type: isDone ? 'done' : 'skip',
-        text: names[idx] + (isDone ? ' completed' : ' skipped'),
-        icon: icons[idx],
-        ts: new Date(Date.now() - i * 3600000 * 2).toISOString()
-      });
-    }
-
-    toast('Demo loaded — 60 days of realistic history per habit!');
-    refresh();
-    renderQuote();
-  }
-
-  /* ── THEME ── */
-  function toggleTheme() {
-    theme = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', theme);
-    el('themeBtn').innerHTML = theme === 'dark'
-      ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
-      : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-    setTimeout(refresh, 50); // let CSS vars apply first
-  }
-
-  /* ── DIALOG ── */
-  function openDlg() {
-    el('dlgBack').classList.add('open');
-    setTimeout(function(){ el('hName').focus(); }, 60);
-  }
-  function closeDlg() {
-    el('dlgBack').classList.remove('open');
-    el('habitForm').reset();
-  }
-
-  /* ── INIT ── */
-  el('dateChip').textContent = new Intl.DateTimeFormat(undefined, {
-    weekday:'short', month:'short', day:'numeric'
-  }).format(new Date());
-
-  document.documentElement.setAttribute('data-theme', theme);
-
-  // Dialog triggers
-  ['sideAddBtn','topAddBtn','heroAddBtn','secAddBtn','emptyAddBtn'].forEach(function(id) {
-    el(id).addEventListener('click', openDlg);
+  var demoHabits=[
+    {name:'Deep work',icon:'💻',cat:'Work',target:2,cue:'Protect interview prep — stay sharp for system design rounds'},
+    {name:'Morning run',icon:'🏃',cat:'Health',target:1,cue:'Keep energy and focus high throughout the day'},
+    {name:'Technical reading',icon:'📚',cat:'Learning',target:1,cue:'Broaden system design and networking knowledge'},
+    {name:'Meditation',icon:'🧘',cat:'Mindset',target:1,cue:'Reduce pre-interview anxiety and improve clarity'}
+  ];
+  var profiles=['strong','steady','building','weak'];
+  demoHabits.forEach(function(d,idx){
+    addHabitRaw(d,makeHist(60,profiles[idx]));
   });
-  el('dlgClose').addEventListener('click', closeDlg);
-  el('dlgCancel').addEventListener('click', closeDlg);
-  el('dlgBack').addEventListener('click', function(e){ if (e.target === el('dlgBack')) closeDlg(); });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeDlg(); });
+  var icons=['💻','🏃','📚','🧘'],names=['Deep work','Morning run','Technical reading','Meditation'];
+  for(var i=0;i<8;i++){
+    var ix=Math.floor(Math.random()*4),done=Math.random()>.3;
+    actLog.push({id:uid(),type:done?'done':'skip',
+      text:names[ix]+(done?' completed':' skipped'),icon:icons[ix],
+      ts:new Date(Date.now()-i*7200000).toISOString()});
+  }
+  save();refresh();renderQuote();
+  toast('Demo loaded — 60 days of history!');
+}
+function addHabitRaw(data,hist){
+  habits.unshift({id:uid(),name:data.name,icon:data.icon,cat:data.cat,
+    target:Math.max(1,parseInt(data.target)||1),cue:data.cue,hist:hist||[]});
+}
 
-  // Form submit
-  el('habitForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    var fd = new FormData(el('habitForm'));
-    var name = (fd.get('hName') || '').trim();
-    var cat = (fd.get('hCat') || '').trim();
-    var cue = (fd.get('hCue') || '').trim();
-    if (!name || !cat || !cue) { toast('Please fill all required fields'); return; }
-    addHabit({ name:name, icon:fd.get('hIcon'), cat:cat, target:fd.get('hTarget'), cue:cue });
-    closeDlg();
-    toast('✓ Habit added to your dashboard!');
-    renderQuote();
+/* ── THEME ── */
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',theme);
+  var icon=theme==='dark'
+    ?'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+    :'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  el('themeBtn').innerHTML=icon;
+  if(el('themeLabel')) el('themeLabel').textContent=theme==='dark'?'Dark mode':'Light mode';
+  setTimeout(refresh,60);
+}
+function toggleTheme(){theme=theme==='dark'?'light':'dark';applyTheme();}
+
+/* ── SHEET ── */
+function openSheet(){
+  el('sheetBack').classList.add('open');
+  setTimeout(function(){el('hName').focus();},80);
+}
+function closeSheet(){
+  el('sheetBack').classList.remove('open');
+  el('habitForm').reset();
+}
+
+/* ── TABS ── */
+function setTab(tabId){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){
+    var active=t.dataset.tab===tabId;
+    t.classList.toggle('active',active);
+    t.setAttribute('aria-current',active?'page':'false');
   });
+  el(tabId).classList.add('active');
+  if(tabId==='page-analytics'){setTimeout(renderChart,60);}
+}
 
-  // Habit action via delegation
-  el('habitsGrid').addEventListener('click', function(e) {
-    var btn = e.target.closest('[data-act]');
-    if (btn) markHabit(btn.dataset.hid, btn.dataset.act);
-  });
+/* ── INIT ── */
+applyTheme();
 
-  // Toolbar
-  el('exportBtn').addEventListener('click', exportCSV);
-  el('demoBtn').addEventListener('click', seedDemo);
-  el('themeBtn').addEventListener('click', toggleTheme);
-  el('clearTlBtn').addEventListener('click', function(){ actLog = []; renderTimeline(); toast('Activity log cleared'); });
-  el('refreshQuoteBtn').addEventListener('click', function(){ renderQuote(); toast('Quote refreshed'); });
-  el('heroAnalBtn').addEventListener('click', function(){
-    el('sec-analytics').scrollIntoView({ behavior:'smooth' });
-  });
+// Tab nav
+document.querySelectorAll('.tab[data-tab]').forEach(function(btn){
+  btn.addEventListener('click',function(){setTab(btn.dataset.tab);});
+});
 
-  // Heatmap habit select
-  el('heatmapHabit').addEventListener('change', renderHeatmap);
+// Sheet
+['fabBtn','heroAddBtn','emptyAddBtn'].forEach(function(id){
+  el(id).addEventListener('click',openSheet);
+});
+el('sheetClose').addEventListener('click',closeSheet);
+el('sheetCancel').addEventListener('click',closeSheet);
+el('sheetBack').addEventListener('click',function(e){if(e.target===el('sheetBack'))closeSheet();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheet();});
 
-  // Sidebar nav
-  document.querySelectorAll('.nav-btn[data-sec]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
-      el(btn.dataset.sec).scrollIntoView({ behavior:'smooth', block:'start' });
-    });
-  });
+// Form
+el('habitForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var fd=new FormData(el('habitForm'));
+  var name=(fd.get('hName')||'').trim();
+  var cat=(fd.get('hCat')||'').trim();
+  var cue=(fd.get('hCue')||'').trim();
+  if(!name||!cat||!cue){toast('Fill all required fields');return;}
+  addHabit({name:name,icon:fd.get('hIcon'),cat:cat,target:fd.get('hTarget'),cue:cue});
+  closeSheet();
+  toast('✓ Habit saved!');
+  renderQuote();
+});
 
-  // Boot with demo data
+// Habit actions
+el('habitsContainer').addEventListener('click',function(e){
+  var btn=e.target.closest('[data-act]');
+  if(btn) markHabit(btn.dataset.hid,btn.dataset.act);
+});
+
+// Toolbar buttons
+el('themeBtn').addEventListener('click',toggleTheme);
+if(el('themeBtn2')) el('themeBtn2').addEventListener('click',toggleTheme);
+el('refreshQuoteBtn').addEventListener('click',function(){renderQuote();toast('Quote refreshed');});
+el('clearTlBtn').addEventListener('click',function(){actLog=[];save();renderTimeline();toast('Log cleared');});
+
+el('exportBtn').addEventListener('click',exportCSV);
+el('demoBtn').addEventListener('click',seedDemo);
+
+// Import
+var importInput=document.createElement('input');
+importInput.type='file';importInput.accept='.csv';importInput.style.display='none';
+importInput.addEventListener('change',function(){
+  if(importInput.files&&importInput.files[0]) importCSV(importInput.files[0]);
+  importInput.value='';
+});
+document.body.appendChild(importInput);
+el('importBtn').addEventListener('click',function(){importInput.click();});
+
+// Clear all
+el('clearAllBtn').addEventListener('click',function(){
+  if(!confirm('Delete ALL habits and history?')) return;
+  habits=[];actLog=[];save();refresh();renderQuote();toast('All data cleared');
+});
+
+// Heatmap select
+el('heatHabit').addEventListener('change',renderHeatmap);
+
+// Boot
+var hasSaved=load();
+if(hasSaved&&habits.length){
+  refresh();renderQuote();
+  toast('Welcome back! '+habits.length+' habit'+(habits.length>1?'s':'')+' loaded.');
+} else {
   seedDemo();
+}
 
 }());
 </script>
